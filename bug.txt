@@ -1,0 +1,22 @@
+出现异常
+异常名称ArithmeticException
+异常原因：/ by zero
+本次测试一共出现1次异常
+出现异常
+异常名称ArithmeticException
+异常原因：/ by zero
+本次测试一共出现1次异常
+出现异常
+异常名称ArithmeticException
+异常原因：/ by zero
+出现异常
+异常名称NullPointerException
+异常原因：null
+本次测试一共出现2次异常
+出现异常
+异常名称ArithmeticException
+异常原因：/ by zero
+出现异常
+异常名称NullPointerException
+异常原因：null
+本次测试一共出现2次异常
