@@ -214,7 +214,7 @@
         相当于：
         public class proImp1 implements ProAnnotation{
             public String className(){
-                return "base_strengthen.annotation.case_test.Person";
+                return "_1_java_base.base_strengthen.annotation.case_test.Person";
             }
             public String methodName(){
                 return "eat";
