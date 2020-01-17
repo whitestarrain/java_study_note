@@ -1,0 +1,196 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Demo2_obj_method",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._3_function_reference.Demo2_obj_method",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Demo1",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._3_function_reference.Demo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Demo4_test",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._2_stream.Demo4_test",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - commonUsedMethodDemo1",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._2_stream.commonUsedMethodDemo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - ByStream",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._2_Stream.ByStream",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - FunctionDemo2",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.FunctionDemo2",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - FunctionDemo1",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.FunctionDemo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-annotationDemo1<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.base_strengthen.annotation.annotationDemo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestCheck<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.base_strengthen.annotation.case_new_test.TestCheck",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-AnnotationTest<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.base_strengthen.annotation.case_test.AnnotationTest",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConstructorDemo<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.base_strengthen.reflect.ConstructorDemo",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MethodDemo<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.base_strengthen.reflect.MethodDemo",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ReflectDemo<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.base_strengthen.reflect.ReflectDemo",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ReflectDemo2<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.base_strengthen.reflect.ReflectDemo2",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ReflectTest<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.base_strengthen.reflect.case_test.ReflectTest",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ComparatorDemo<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.ComparatorDemo",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConsumerDemo1<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.ConsumerDemo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConsumerDemo2<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.ConsumerDemo2",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Demo1<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.Demo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DemoPredicate<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.DemoPredicate",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-PredicateDemo1<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.PredicateDemo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-PredicateDemo2<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.PredicateDemo2",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RunnableDemo1<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.RunnableDemo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SupplierDemo1<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.SupplierDemo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SupplierDemo2<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.SupplierDemo2",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-showLog02<java 学习笔记>",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._1functional_interface.showLog02",
+            "projectName": "java 学习笔记"
+        }
+    ]
+}

@@ -1,5 +1,6 @@
 package _1_java_base.jdk8_new_feature._1functional_interface;
 
+import java.util.ArrayList;
 import java.util.function.Predicate;
 
 /*
@@ -52,4 +53,35 @@ class PredicateDemo2{
 
 /* 
     negate方法：取反
+    使用方法：p1.negate().test(s);
+    等价于 !p1.test(s);
  */
+
+
+ /* 
+ 一个小应用
+  */
+ class DemoPredicate{
+    public static ArrayList<String> filter(String arr[],Predicate<String> p1,Predicate<String> p2) {
+        ArrayList<String> list=new ArrayList<String>();
+        for(String s:arr){
+            if(p1.and(p2).test(s)){
+                list.add(s);
+            }
+        }
+        return list;
+    }
+     public static void main(String[] args) {
+        String[] array= { "迪丽热巴,女", "古力娜扎,女", "马尔扎哈,男", "赵丽颖,女" };
+       ArrayList<String> a= filter(array,s->{
+        String temp=s.split(",")[0];
+        return temp.length()>=4;
+       },s->{
+        String temp=s.split(",")[1];
+        return temp.equals("女");
+       });
+       for(String s:a){
+           System.out.println(s);
+       }
+     }
+ }
