@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - Demo4_ArrayConstructor",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._3_function_reference.Demo4_ArrayConstructor",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Demo3_SuperAndThis",
+            "request": "launch",
+            "mainClass": "_1_java_base.jdk8_new_feature._3_function_reference.Demo3_SuperAndThis",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - Demo2_obj_method",
             "request": "launch",
             "mainClass": "_1_java_base.jdk8_new_feature._3_function_reference.Demo2_obj_method",

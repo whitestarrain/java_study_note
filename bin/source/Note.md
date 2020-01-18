@@ -192,18 +192,21 @@
         @Person(role="coder")
         @Person(role="PM")
         public class SuperMan{
-            
+
         }
         ```
+
 ## 2.5. 使用（解析）注解
+
 * 本质：获取注解中定义的属性值，把配置文件的工作交给注解来完成，简化配置操作。后期注解大多数用来替换配置文件。
 * 步骤：
     1. 获取注解定义位置的对象（Class,Method,Field等）
     2. 获取指定的注解（getAnnotation）
     3. 调用注解中的抽象方法获取配置属性值
+
     ```java
      //摘抄部分代码，详情可以去看代码文件
-     
+
      // 1 解析注解
         // 获取该类的字节码文件对象
         Class<AnnotationTest> annotationTestClsss = AnnotationTest.class;
@@ -228,7 +231,9 @@
         String className = pro.className();
         String methodName = pro.methodName();
     ```
+
 ## 2.6. 小结
+
 * 以后大多数时候是使用注解而不是自定义注解
 * 使用者：
     1. 编译器（检测程序是否编译正确，如@Override）
@@ -236,3 +241,43 @@
         * 进一步：当开发者使用了Annotation修饰了类、方法、Field 等成员之后，这些 Annotation 不会自己生效，必须由开发者提供相应的代码来提取并处理 Annotation 信息。这些处理提取和处理 Annotation 的代码统称为 APT（Annotation Processing Tool)。
 * 注解基本上认为不是程序的一部分，可以理解为相当于一个标签
 * 本次这里有两个case，一个是通过注解代替配置文件，一个是通过注解检测是否有bug并输出到bug.txt
+
+
+# 3. MySQL
+
+## 3.1. 数据库基本概念
+1. 英文名称：Database
+2. 什么是数据库：
+    * 用于存储和管理数据的仓库
+3. 数据可特点：
+    1. 持久化存储数据，其实数据库就是一个文件系统
+    2. 方便存储和管理数据，使用了统一的方式操作数据库--SQL
+4. 常用数据库软件：
+![常用数据库](MySQL-1.jpg)
+## 3.2. 基本命令
+* cmd->services.msc打开服务
+* MySQL打开与关闭（cmd下）
+    1. net start mysql 开启mysql（管理员权限打开cmd）
+    2. net stop mysql 关闭mysql（管理员权限打开cmd）
+* 登陆与退出（cmd下）
+    * 本地：
+        1. 登陆：mysql -uroot -proot 
+            >-u:user，后面直接加用户名 -p:password,后面直接加密码
+            >也可以写成--user=root --password=root
+            >或者不直接加，只输入-p（即：mysql -uroot -p,之后输入密码会以*反显）
+        2. 退出：exit
+    * 远程：
+        1. 登陆： mysql -h127.0.0.1 -uroot -proot
+            >-h后直接加上ip地址，本机为127.0.0.1
+        2. 退出：exit 或者 quit
+        3. 登陆： mysql --host=127.0.0.1 --user=root --password=root
+            >相当于全称，这里有两个-
+## 3.3. 数据结构
+![示意图](MySQL-2.jpg)
+* 安装目录
+    * 配置文件 my.ini
+* 数据目录
+    * 计算机硬件和MySQL软件合称MySQL服务器
+    * 数据库就是一个文件夹
+    * 一个数据库中可以存放多张表，表对应文件夹中的.frm结尾文件
+    * 每个表中存放多条数据记录
