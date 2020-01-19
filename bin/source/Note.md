@@ -145,58 +145,60 @@
         @myAnnotation(age=2,name="Anna",anno=@myannno2,strs={"aa","bb"})
         @myAnnotation(2)
         ```
-* 元注解：元注解是可以注解到注解上的注解，或者说元注解是一种基本注解，但是它能够应用到其它的注解上面。(前两个较常用)
-    * @Target：用于描述注解能作用的位置,前三个重要,后面的6个可以自己查看源文档
-        ```java
-        摘自javadoc文档前三个：
-            /** Class, interface (including annotation type), or enum declaration */
-            TYPE,//类上
+## 2.5. 元注解
+> 元注解是可以注解到注解上的注解，或者说元注解是一种基本注解，但是它能够应用到其它的注解上面。(前两个较常用)
 
-            /** Field declaration (includes enum constants) */
-            FIELD,//成员变量上
+* @Target：用于描述注解能作用的位置,前三个重要,后面的6个可以自己查看源文档
+    ```java
+    摘自javadoc文档前三个：
+        /** Class, interface (including annotation type), or enum declaration */
+        TYPE,//类上
 
-            /** Method declaration */
-            METHOD,//方法上
+        /** Field declaration (includes enum constants) */
+        FIELD,//成员变量上
 
-        全部：
-            ElementType.ANNOTATION_TYPE 可以给一个注解进行注解
-            ElementType.CONSTRUCTOR 可以给构造方法进行注解
-            ElementType.FIELD 可以给属性进行注解
-            ElementType.LOCAL_VARIABLE 可以给局部变量进行注解
-            ElementType.METHOD 可以给方法进行注解
-            ElementType.PACKAGE 可以给一个包进行注解
-            ElementType.PARAMETER 可以给一个方法内的参数进行注解
-            ElementType.TYPE 可以给一个类型进行注解，比如类、接口、枚举
-        ```
-    * @Retention:描述注解被保留的一个阶段
-        * @Retention(value = RetentionPolicy.RUNTIME):当前描述的注解会保留到class字节码文件中并被jvm读取到,所以在程序运行时可以获取到它们。（一般是这个）
-        * 如果是CLASS,那么会被加载到字节码文件中，但不会被jvm读取到
-        * 如果是SOURCE,那么不会加载到字节码文件中。
-    * @Documented：描述注解是否被抽取到doc文档中，如果在注解的定义中有标注@Documented，那么就会被加到doc文档中<br>![此处的@Anno](annotation-1.jpg)
-    * @Inherited：描述注解是否被子类继承。@myAnnotation被@Inherited描述，那么如果@myAnnotation描述一个类，那么这个类的子类也会从父类继承这个注解。
-    * @Repeatable：表示注解中属性值可以取多个，其中要了解容器注解。
-        ```java
-        //什么是容器注解呢？就是用来存放其它注解的地方。它本身也是一个注解。
-        @interface Persons {//容器注解
-            Person[]  value();
-        }
+        /** Method declaration */
+        METHOD,//方法上
 
-
-        @Repeatable(Persons.class)//括号中填入容器注解
-        @interface Person{
-            String role() default "";
-        }
+    全部：
+        ElementType.ANNOTATION_TYPE 可以给一个注解进行注解
+        ElementType.CONSTRUCTOR 可以给构造方法进行注解
+        ElementType.FIELD 可以给属性进行注解
+        ElementType.LOCAL_VARIABLE 可以给局部变量进行注解
+        ElementType.METHOD 可以给方法进行注解
+        ElementType.PACKAGE 可以给一个包进行注解
+        ElementType.PARAMETER 可以给一个方法内的参数进行注解
+        ElementType.TYPE 可以给一个类型进行注解，比如类、接口、枚举
+    ```
+* @Retention:描述注解被保留的一个阶段
+    * @Retention(value = RetentionPolicy.RUNTIME):当前描述的注解会保留到class字节码文件中并被jvm读取到,所以在程序运行时可以获取到它们。（一般是这个）
+    * 如果是CLASS,那么会被加载到字节码文件中，但不会被jvm读取到
+    * 如果是SOURCE,那么不会加载到字节码文件中。
+* @Documented：描述注解是否被抽取到doc文档中，如果在注解的定义中有标注@Documented，那么就会被加到doc文档中<br>![此处的@Anno](annotation-1.jpg)
+* @Inherited：描述注解是否被子类继承。@myAnnotation被@Inherited描述，那么如果@myAnnotation描述一个类，那么这个类的子类也会从父类继承这个注解。
+* @Repeatable：表示注解中属性值可以取多个，其中要了解容器注解。
+    ```java
+    //什么是容器注解呢？就是用来存放其它注解的地方。它本身也是一个注解。
+    @interface Persons {//容器注解
+        Person[]  value();
+    }
 
 
-        @Person(role="artist")
-        @Person(role="coder")
-        @Person(role="PM")
-        public class SuperMan{
+    @Repeatable(Persons.class)//括号中填入容器注解
+    @interface Person{
+        String role() default "";
+    }
 
-        }
-        ```
 
-## 2.5. 使用（解析）注解
+    @Person(role="artist")
+    @Person(role="coder")
+    @Person(role="PM")
+    public class SuperMan{
+
+    }
+    ```
+
+## 2.6. 使用（解析）注解
 
 * 本质：获取注解中定义的属性值，把配置文件的工作交给注解来完成，简化配置操作。后期注解大多数用来替换配置文件。
 * 步骤：
@@ -232,7 +234,7 @@
         String methodName = pro.methodName();
     ```
 
-## 2.6. 小结
+## 2.7. 小结
 
 * 以后大多数时候是使用注解而不是自定义注解
 * 使用者：
@@ -278,6 +280,129 @@
     * 配置文件 my.ini
 * 数据目录
     * 计算机硬件和MySQL软件合称MySQL服务器
-    * 数据库就是一个文件夹
+    * 一个数据库就是一个文件夹
     * 一个数据库中可以存放多张表，表对应文件夹中的.frm结尾文件
     * 每个表中存放多条数据记录
+
+# 4. SQL
+
+## 4.1. 什么是SQL：
+    Structured Query Language：结构话查询语言。
+    其实就是操作所有关系型数据库(Relational DBMS)的规则
+    每一种数据库操作方式存在不一样的地方，称为“方言”
+
+## 4.2. 通用语法：
+1. SQL可以单行或者多行书写，以分号结尾
+2. 使用table制表符增强可读性
+3. 数据库不区分大小写，但关键字推荐使用大写
+4. 3种注释
+    1. 单行注释：
+        1. -- 内容（两个横杠和**一个空格**）
+        2. #内容 （方言 MySQL特有书写方式，不必要加空格）
+    2. 多行注释：/* 内容 */
+
+## 4.3. SQL语句分类
+1. DDL(data definition Language)
+    用来定义数据库对象：数据库，表，列等。关键字：Creat，drop，alter等
+2. DML(Data Manipulation Language)
+    用来对数据库中的数据进行增删。关键字：insert，delete，update等。
+3. DQL(Data Query Language)
+    用来查询表中的记录（数据）。关键字select，where等
+4. DCL(Data Control Language)
+    数据控制语言，用来定义数据库访问权限和安全级别，及创建用户。关键字：GRANT，REVOKE等
+![语法分类图解](MySQL-3.jpg)
+## 4.4. 数据类型
+![数据类型](MySQL-4.jpg)
+## 4.5. 语法
+### 4.5.1. DDL(操作数据库)
+1. C(Create) 创建
+    * create database 数据库名
+        >重名时会报错
+    * create database if not exists 数据库名
+        > 当指定数据库名不存在时才创建，存在也不会报错
+    * create database 数据库名 character set gbk
+        > 以指定字符集创建数据库，这里为gbk
+2. R(Retrieve) 查询
+    * show databases;
+        >额外知识：
+        >information_schema用来MySQL中的一些信息，里面存放的是视图（以后才学），而不是表，并且并不对应物理文件
+        > mysql用来存放数据库中的核心数据
+        > performance_schema用来存放调整数据库性能的一些数据
+        >这是三个都最好不要改
+    * show creat database 数据库名称
+        > 查看某一个数据库字符集：查询某个数据库创建语句
+3. U(Update) 修改
+    * alter database 数据库名称 character set 字符集名称
+        >修改某个数据库字符集（utf8，没有-）
+4. D(Delete) 删除
+    * drop database 数据库名称
+        >一般不会做的操作
+    * drop database if exists 
+        >当数据库存在时才删除
+5. 使用数据库
+    * select database()
+        >查询正在使用的数据库名称
+    * use 数据库名称
+        >使用数据库，相当于进入数据库
+### 4.5.2. DML(操作表)
+
+1. C(Create) 创建
+    * create table 表名(
+        列名1 数据类型1,
+        列名2 数据类型2,
+        列名3 数据类型3,
+        ......
+        列名n 数据类型n;
+        );
+        >创建表，注意小括号和逗号，最后一列没有逗号
+        ```sql
+        //常用数据类型例：
+        age int
+        score double(5,2)//最多有5位，小数点后保留两位
+        riqi date 2000-12-12
+        jjutiriqi datetime //格式举例：2000-12-12 12:12:12
+        shijianchuo timestamp //格式举例：2000-12-12 12:12:12
+        //时间戳：如果不给这个字段赋值，那么默认使用当前系统时间赋值
+        name varchar(20)
+        //字符串类型，最多20个字符 
+        ```
+        ```sql
+        //例：
+        create table student(
+            id int,
+            name varchar(32),
+            age int,
+            score double(4,1),
+            birthday date,
+            inserttime timestamp
+        );
+        ```
+    * create 新表 like 已经存在表
+        >创建一个新的表和已经存在的一个表结构相同，也就是赋值表
+2. R(Retrieve) 查询
+    * show tables
+        >查询一个数据库中所有表的名称
+    * desc 表名
+        >查询表结构
+    * show create table 表名
+        >查询表的字符集
+3. U(Update) 修改
+    * alter table 表名 rename to 新表名;
+        >修改表名
+    * alter table 表名 character set 字符集;
+        >修改表的字符集
+    * alter table 表名 add 列名 数据类型;
+        >增加一列
+    * alter table 表名 drop 列名;
+        >删除列
+    * alter table 表名 change 旧列名 新列名 新列名类型
+        >修改列名称，类型
+    * alter table 表名 modify 列名 新的类型
+        >只修改列的类型
+4. D(Delete) 删除
+    * drop table (if exists) 表名
+        >删除表
+
+### 4.5.3. DQL
+### 4.5.4. DCL
+## 4.6. 图形化工具
