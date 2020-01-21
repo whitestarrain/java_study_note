@@ -315,94 +315,209 @@
 ![数据类型](MySQL-4.jpg)
 ## 4.5. 语法
 ### 4.5.1. DDL(操作数据库)
-1. C(Create) 创建
-    * create database 数据库名
-        >重名时会报错
-    * create database if not exists 数据库名
-        > 当指定数据库名不存在时才创建，存在也不会报错
-    * create database 数据库名 character set gbk
-        > 以指定字符集创建数据库，这里为gbk
-2. R(Retrieve) 查询
-    * show databases;
-        >额外知识：
-        >information_schema用来MySQL中的一些信息，里面存放的是视图（以后才学），而不是表，并且并不对应物理文件
-        > mysql用来存放数据库中的核心数据
-        > performance_schema用来存放调整数据库性能的一些数据
-        >这是三个都最好不要改
-    * show creat database 数据库名称
-        > 查看某一个数据库字符集：查询某个数据库创建语句
-3. U(Update) 修改
-    * alter database 数据库名称 character set 字符集名称
-        >修改某个数据库字符集（utf8，没有-）
-4. D(Delete) 删除
-    * drop database 数据库名称
-        >一般不会做的操作
-    * drop database if exists 
-        >当数据库存在时才删除
-5. 使用数据库
-    * select database()
-        >查询正在使用的数据库名称
-    * use 数据库名称
-        >使用数据库，相当于进入数据库
-### 4.5.2. DML(操作表)
+* 对数据库整体
+    1. C(Create) 创建
+        * create database 数据库名
+            >重名时会报错
+        * create database if not exists 数据库名
+            > 当指定数据库名不存在时才创建，存在也不会报错
+        * create database 数据库名 character set gbk
+            > 以指定字符集创建数据库，这里为gbk
+    2. R(Retrieve) 查询
+        * show databases;
+            >额外知识：
+            >information_schema用来MySQL中的一些信息，里面存放的是视图（以后才学），而不是表，并且并不对应物理文件
+            > mysql用来存放数据库中的核心数据
+            > performance_schema用来存放调整数据库性能的一些数据
+            >这是三个都最好不要改
+        * show creat database 数据库名称
+            > 查看某一个数据库字符集：查询某个数据库创建语句
+    3. U(Update) 修改
+        * alter database 数据库名称 character set 字符集名称
+            >修改某个数据库字符集（utf8，没有-）
+    4. D(Delete) 删除
+        * drop database 数据库名称
+            >一般不会做的操作
+        * drop database if exists 
+            >当数据库存在时才删除
+    5. 使用数据库
+        * select database()
+            >查询正在使用的数据库名称
+        * use 数据库名称
+            >使用数据库，相当于进入数据库
+* 对表整体
+    1. C(Create) 创建
+        * create table 表名(
+            列名1 数据类型1,
+            列名2 数据类型2,
+            列名3 数据类型3,
+            ......
+            列名n 数据类型n;
+            );
+            >创建表，注意小括号和逗号，最后一列没有逗号
+            ```sql
+            //常用数据类型例：
+            age int
+            score double(5,2)//最多有5位，小数点后保留两位
+            riqi date 2000-12-12
+            jjutiriqi datetime //格式举例：2000-12-12 12:12:12
+            shijianchuo timestamp //格式举例：2000-12-12 12:12:12
+            //时间戳：如果不给这个字段赋值，那么默认使用当前系统时间赋值
+            name varchar(20)
+            //字符串类型，最多20个字符 
+            ```
+            ```sql
+            //例：
+            create table student(
+                id int,
+                name varchar(32),
+                age int,
+                score double(4,1),
+                birthday date,
+                inserttime timestamp
+            );
+            ```
+        * create 新表 like 已经存在表
+            >创建一个新的表和已经存在的一个表结构相同，也就是赋值表
+    2. R(Retrieve) 查询
+        * show tables
+            >查询一个数据库中所有表的名称
+        * desc 表名
+            >查询表结构
+        * show create table 表名
+            >查询表的字符集
+    3. U(Update) 修改
+        * alter table 表名 rename to 新表名;
+            >修改表名
+        * alter table 表名 character set 字符集;
+            >修改表的字符集
+        * alter table 表名 add 列名 数据类型;
+            >增加一列
+        * alter table 表名 drop 列名;
+            >删除列
+        * alter table 表名 change 旧列名 新列名 新列名类型
+            >修改列名称，类型
+        * alter table 表名 modify 列名 新的类型
+            >只修改列的类型
+    4. D(Delete) 删除
+        * drop table (if exists) 表名
+            >删除表
+        * truncate table 表名
+            >删除整个表再创建一个一模一样结构的表 
+            >相当于一下两条语句整合
+            >create 新表 like 已经存在表;
+            >drop table 表名
+### 4.5.2. DML(增删改表中数据)
+1. 添加数据
+    * insert into 表名(列名1,列名2.....列名n) values(值1,值2...值n),(值1,值2...值n).....;
+        >往表中插入数据
+        * 注意：
+            1. 列名和值要一一对应
+            2. 如果表名后没有写列名，那么默认给所有列添加值。但建议都写上，不要偷懒
+            3. 除了数字类型，其他数据类型都要使用引号引起来，单引号双引号都行
+2. 删除数据
+    * delete from 表名 [where 条件]
+        >把满足条件的数据从指定表中删除。例： delete from student where id=1;
+        * 注意：
+            1. !!!!!如果不加条件，就会删除表中所有数据!!!!!!
+            2. 但不推荐上述操作，因为会一条一条删除，效率太低，推荐使用 **truncate table 表名**;--删除整个表，然后再创建一个一模一样的空表
+3. 修改数据
+    * update 表名 set 列名1=值1,.....[where 条件];
+        >例：UPDATE student SET age=20,score=100 WHERE id=2;
+        * 注意：
+            1. 如果不加任何条件，就会把所有表中所有记录都修改，比如把score都改为100
+### 4.5.3. DQL(表内数据修改查询)
+* select * from 表名
+    >查询表中所有数据
+1. 整体语法：
+    >所有语句都涉及到
+<pre>
+    select 
+        字段列表
+    from
+        表名列表
+    where
+        条件列表
+    group by
+        分组字段
+    having
+        分组之后的条件
+    order by
+        排序
+    limit
+        分页限定
+</pre>
 
-1. C(Create) 创建
-    * create table 表名(
-        列名1 数据类型1,
-        列名2 数据类型2,
-        列名3 数据类型3,
-        ......
-        列名n 数据类型n;
-        );
-        >创建表，注意小括号和逗号，最后一列没有逗号
-        ```sql
-        //常用数据类型例：
-        age int
-        score double(5,2)//最多有5位，小数点后保留两位
-        riqi date 2000-12-12
-        jjutiriqi datetime //格式举例：2000-12-12 12:12:12
-        shijianchuo timestamp //格式举例：2000-12-12 12:12:12
-        //时间戳：如果不给这个字段赋值，那么默认使用当前系统时间赋值
-        name varchar(20)
-        //字符串类型，最多20个字符 
-        ```
-        ```sql
-        //例：
-        create table student(
-            id int,
-            name varchar(32),
-            age int,
-            score double(4,1),
-            birthday date,
-            inserttime timestamp
-        );
-        ```
-    * create 新表 like 已经存在表
-        >创建一个新的表和已经存在的一个表结构相同，也就是赋值表
-2. R(Retrieve) 查询
-    * show tables
-        >查询一个数据库中所有表的名称
-    * desc 表名
-        >查询表结构
-    * show create table 表名
-        >查询表的字符集
-3. U(Update) 修改
-    * alter table 表名 rename to 新表名;
-        >修改表名
-    * alter table 表名 character set 字符集;
-        >修改表的字符集
-    * alter table 表名 add 列名 数据类型;
-        >增加一列
-    * alter table 表名 drop 列名;
-        >删除列
-    * alter table 表名 change 旧列名 新列名 新列名类型
-        >修改列名称，类型
-    * alter table 表名 modify 列名 新的类型
-        >只修改列的类型
-4. D(Delete) 删除
-    * drop table (if exists) 表名
-        >删除表
-
-### 4.5.3. DQL
+2. 基础查询：
+    1. 多个字段查询
+        * select 字段名 from 表名;
+            >例：-- 查询姓名和年龄：SELECT NAME,age FROM student;
+            >一般不使用*号，阅读性太差,也可以分分行，多加写注释
+            >![](MySQL-5-1.jpg)
+    2. 去除重复结果集
+        * select distinct 字段名 from 表名;
+            > 如果指定的多个字段名都相同，才可以去重
+    3. 计算列
+        * select 字段1+字段2 from 表名;
+            >计算两个字段相加结果,这里可以进行四则运算。
+            >例：SELECT id,score+age FROM student;
+            >![](MySQL-5-2.jpg)
+            >如果有null参与的运算结果都是null，因此有下面表达式：
+        * select 字段1+ifnull(表达式1,表达式2) from 表名;
+            >表达式1：判断那个字段为null。
+            >表达式2：为null时的替换值。
+            >例：select id+ifnull(score,0) from student;
+    4. 起别名
+        * select 字段1+字段2 as 新名称 from 表名;
+            >将某个结果起一个别名用来显示出来,as也能用**一个或者多个空格**表示。
+            >此时多分行比较好
+3. 条件查询
+    1. where 条件
+    2. 运算符
+        ![](MySQL-5-3.jpg)
+        ![](MySQL-5-4.jpg)
+        >例：select * from student where age>15
+        >![](MySQL-5-5.jpg)
+    3. 注意：
+        * null不能使用=和<>来判断，应该使用 is和is not.
+            >例：select * from student where age is null
+            > select * from student where age is not null
+    4. like：
+        * _:单个任意字符
+        * %:多个任意字符
+        >例： select name from student where '李%'
+        >![](MySQL-5-6.jpg)
+4. 排序查询
+    * select 字段 from 表名 order by 排序字段1 排序方式1,排序字段2 排序方式2....;
+        >排序方式：
+        >ASC:升序（默认）
+        >DESC:降序
+        >越靠后，排序优先度越低，只有靠第一种排序相同时，那么才考虑之后的排序方式
+5. 聚合函数:将一列数据作为一个整体，进行**纵向**的计算。
+    1. count:计算个数
+        * 一般选择非空的列
+        * 或者使用 count(*)（不推荐）
+    2. max:计算最大值
+    3. min:计算最小值
+    4. sum:计算和；
+    5. avg:计算平均值
+    * 注意：聚合函数计算会自动**排除null值**，可以通过ifnull()来避免
+    * 语法：select 函数(字段名) from 表名
+      或者select 函数(ifnull(字段名,值)) from 表名
+        >例：
+        >![](MySQL-5-7.jpg)
+        
+6. 分组查询
+    * group by 分组字段;
+        >例：select sex,AVG(math),count(id) from student group by sex;
+        >selct 后有什么，后面就显示什么
+        >![](MySQL-5-8.jpg)<br> 
+        >注意：分组之后查询字段：分组字段(比如sex,如果用每个人都不同的字段分组，就没有意义了)，聚合函数
+        >例：![](MySQL-5-9.jpg)
+7. 分页查询
 ### 4.5.4. DCL
-## 4.6. 图形化工具
+无
+## 4.6. 约束
+## 4.7. 多表操作
+## 4.8. 范式
+## 4.9. 数据库备份和还原
