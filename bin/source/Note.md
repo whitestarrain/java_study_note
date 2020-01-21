@@ -286,12 +286,12 @@
 
 # 4. SQL
 
-## 4.1. 什么是SQL：
+## 4.1. 什么是SQL
     Structured Query Language：结构话查询语言。
     其实就是操作所有关系型数据库(Relational DBMS)的规则
     每一种数据库操作方式存在不一样的地方，称为“方言”
 
-## 4.2. 通用语法：
+## 4.2. 通用语法
 1. SQL可以单行或者多行书写，以分号结尾
 2. 使用table制表符增强可读性
 3. 数据库不区分大小写，但关键字推荐使用大写
@@ -474,8 +474,8 @@
 3. 条件查询
     1. where 条件
     2. 运算符
-        ![](image\MySQL-5-3.jpg)
-        ![](image\MySQL-5-4.jpg)
+        >![](image\MySQL-5-3.jpg)
+        >![](image\MySQL-5-4.jpg)
         >例：select * from student where age>15
         >![](image\MySQL-5-5.jpg)
     3. 注意：
@@ -513,11 +513,135 @@
         >selct 后有什么，后面就显示什么
         >![](image\MySQL-5-8.jpg)<br> 
         >注意：分组之后查询字段：分组字段(比如sex,如果用每个人都不同的字段分组，就没有意义了)，聚合函数
-        >例：![](image\MySQL-5-9.jpg)
+        >例：<br>![](image\MySQL-5-9.jpg)
+    * 添加判断语句：
+        >普通where添加在前面，分组之后条件判断加载后面并且用having关键字
+        >where和having区别（**面试会考**）：
+        1. where在分组之前进行限定，不满足条件不参与分组， having在分组之后进行限定，不满足条件不会被查询出来
+        2. where不可以进行聚合函数的判断，而having可以
+        >[查看格式](#453-dql表内数据修改查询)
+        >例：
+        >![](image/MySQL-5-10.jpg)
 7. 分页查询
+    * limit 开始的索引,每页查询的条数
+        >例：<br>select *from student limit 0,3;-- 从0开始查，显示三条记录。（第一页）
+        > select * from student limit 3,3;-- 从3开始，显示3条，（第二页）
+        >开始索引=（当前页码-1）*每页显示条数
+    * limit这个语法是SQL的一个**方言**
 ### 4.5.4. DCL
 无
+
 ## 4.6. 约束
+### 4.6.1. 概念
+>对表中的数据进行限定，保证数据的正确性，有效性和完整性
+### 4.6.2. 分类
+* 主键约束 pramary key
+* 非空约束 not null
+* 唯一约束 unique
+* 外键约束 foreign key
+### 4.6.3. 非空约束
+1. 在创建表是添加约束
+    * 在数据定义后面加 空格+not null
+    例：
+    ```SQL
+    creat table stu{
+        id int,
+        name varchar(20) not null -- name为非空约束
+    };
+    ```
+2. 删除非空约束(就是修改表的一个字段)
+    * alter table 表名 modify 字段名 字段类型
+        >也就是说后面什么都不加，就取消掉了约束
+        >[跳转到列数据类型修改](#451-ddl操作数据库)
+3. 创建表后添加非空约束
+    * alter table 表名 modify 字段名 字段类型 not null
+        >和上面同理
+### 4.6.4. 唯一约束
+* 注意：MySQL中唯一约束限定的列的值可以有多个null
+1. 创建表是添加唯一约束
+    * 在数据定义后面加 空格和unique
+        ```SQL
+        creat table ste{
+            id int,
+            phont_number varchar(20) unique
+        };
+        ```
+2. 删除唯一约束
+    * alter table 表名 drop index 字段名
+        >唯一约束有时候也称为唯一索引，所有有drop index
+        >[跳转到列数据类型修改](#451-ddl操作数据库)
+3. 创建表后添加唯一约束
+    * alter table 表名 modify 字段名 字段类型 unique
+        >和非空约束添加同理，但当添加时，该列数据必须不能有重复的，否则会报错
+### 4.6.5. 主键约束
+* 含义：非空且唯一。是表中记录的唯一标识
+* 限制：一张表只能有一个字段为主键
+
+1. 创建表时添加主键约束
+    * 后面加primary key即可
+        ```SQL
+        creat table stu(
+            id int primary key,
+            name varchar(20)
+        );
+        ```
+2. 删除主键约束
+    * alter table 表名 drop primary key;
+        >主键只有一个，所以不需要指定
+3. 创建表后添加主键
+    * alter table 表名 modify 字段名 字段类型 primary key;
+        >不能有重复数据以及空数据。
+4. 自动增长
+    * 概念：如果某一列是数值类型的，使用auto_increment可以完成值的自动增长
+    * 基本上都是和主键一起使用，但也可以分开使用，但是这种情况很少
+    * 语法：
+        ```SQL
+        creat table stu(
+            id int primary key auto_increment,
+            name varchar(20)
+        );
+        ```
+        >也可以手动设置，但每次增长是上次数据+1（也就是等价于最大值+1）
+### 4.6.6. 外键约束
+* 情景
+    >有时数据会有冗余
+    >例：
+    >![](image\MySQL-4.6.6-1.jpg)
+    >每个部门就在一个地方，不需要每条员工信息都记一次
+    ><br>解决办法：
+    >创建两张表
+    >一张表记员工信息（employee表），一张表记部门所在地（department表）
+    >![](image\MySQL-4.6.6-2.jpg) ![](image\MySQL-4.6.6-3.jpg)
+    >此时如果删除一个部门，另一张表中还有人对应那个部门，显然不合理。应该先删除人员。
+* 为解决上述问题使用外键约束，即让表与表之间产生关系，从而确保数据的正确性。
+1. 添加表时添加外键
+    ```SQL
+    creat table 表名(
+        ...
+        外键列
+        constraint 外键名称(自己起名，不能重复) foreign key 外键列名称 references 主表名称(主表列名称)
+        -- 一般都关联主键列，当然也能关联其他列
+        -- 主表必须先存在，此处主表为部门表
+        -- 必须先删除关联表记录，再删除主表记录
+    )
+
+    -- 例：
+    creat table employee(
+        ...
+        dep_id int, -- 外键对应主表的主键   --注意，此时该句不是最后一句，要加逗号
+        constraint emp_dept foreign key (dep_id) references  department(id)
+    )
+    ``` 
+    大致图解：
+    ![](image\MySQL-4.6.6-4.jpg)
+    >此时若其他表记录与主表记录相互关联，那么就不能对该条主表记录进行删除
+    >同样，新加的其他表记录也必须与主表关联记录的所有数据中来取。例如这里新建员工体条目dep_id只能取1和2
+2. 删除外键
+    * alter table 其他表的名 drop foreign key 外键名（自己起的那个）
+3. 创建表之后，添加外键
+    * alter table 其他表的名 add constraint 外键名称（自己起名，不能重复） foreign key 外键列名称 references 主表名称(主表列名称)
+    >中文括号是备注，英文括号中需要填东西
+
 ## 4.7. 多表操作
 ## 4.8. 范式
 ## 4.9. 数据库备份和还原
