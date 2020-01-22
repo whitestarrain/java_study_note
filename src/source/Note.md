@@ -59,7 +59,7 @@
             5. 执行方法
 
 ## 1.2. 原理图解
-![基本原理](image\reflect-1.jpg) 
+![基本原理](image/reflect-1.jpg) 
 >Field Constructor Method 都是类。Class类中有这三个类
 # 2. 注解：
 
@@ -174,7 +174,7 @@
     * @Retention(value = RetentionPolicy.RUNTIME):当前描述的注解会保留到class字节码文件中并被jvm读取到,所以在程序运行时可以获取到它们。（一般是这个）
     * 如果是CLASS,那么会被加载到字节码文件中，但不会被jvm读取到
     * 如果是SOURCE,那么不会加载到字节码文件中。
-* @Documented：描述注解是否被抽取到doc文档中，如果在注解的定义中有标注@Documented，那么就会被加到doc文档中<br>![此处的@Anno](image\annotation-1.jpg)
+* @Documented：描述注解是否被抽取到doc文档中，如果在注解的定义中有标注@Documented，那么就会被加到doc文档中<br>![此处的@Anno](image/annotation-1.jpg)
 * @Inherited：描述注解是否被子类继承。@myAnnotation被@Inherited描述，那么如果@myAnnotation描述一个类，那么这个类的子类也会从父类继承这个注解。
 * @Repeatable：表示注解中属性值可以取多个，其中要了解容器注解。
     ```java
@@ -255,7 +255,7 @@
     1. 持久化存储数据，其实数据库就是一个文件系统
     2. 方便存储和管理数据，使用了统一的方式操作数据库--SQL
 4. 常用数据库软件：
-![常用数据库](image\MySQL-1.jpg)
+![常用数据库](image/MySQL-1.jpg)
 ## 3.2. 基本命令
 * cmd->services.msc打开服务
 * MySQL打开与关闭（cmd下）
@@ -275,7 +275,7 @@
         3. 登陆： mysql --host=127.0.0.1 --user=root --password=root
             >相当于全称，这里有两个-
 ## 3.3. 数据结构
-![示意图](image\MySQL-2.jpg)
+![示意图](image/MySQL-2.jpg)
 * 安装目录
     * 配置文件 my.ini
 * 数据目录
@@ -310,9 +310,9 @@
     用来查询表中的记录（数据）。关键字select，where等
 4. DCL(Data Control Language)
     数据控制语言，用来定义数据库访问权限和安全级别，及创建用户。关键字：GRANT，REVOKE等
-![语法分类图解](image\MySQL-3.jpg)
+![语法分类图解](image/MySQL-3.jpg)
 ## 4.4. 数据类型
-![数据类型](image\MySQL-4.jpg)
+![数据类型](image/MySQL-4.jpg)
 ## 4.5. 语法
 ### 4.5.1. DDL(操作数据库)
 * 对数据库整体
@@ -453,7 +453,7 @@
         * select 字段名 from 表名;
             >例：-- 查询姓名和年龄：SELECT NAME,age FROM student;
             >一般不使用*号，阅读性太差,也可以分分行，多加写注释
-            >![](image\MySQL-5-1.jpg)
+            >![](image/MySQL-5-1.jpg)
     2. 去除重复结果集
         * select distinct 字段名 from 表名;
             > 如果指定的多个字段名都相同，才可以去重
@@ -461,7 +461,7 @@
         * select 字段1+字段2 from 表名;
             >计算两个字段相加结果,这里可以进行四则运算。
             >例：SELECT id,score+age FROM student;
-            >![](image\MySQL-5-2.jpg)
+            >![](image/MySQL-5-2.jpg)
             >如果有null参与的运算结果都是null，因此有下面表达式：
         * select 字段1+ifnull(表达式1,表达式2) from 表名;
             >表达式1：判断那个字段为null。
@@ -474,10 +474,10 @@
 3. 条件查询
     1. where 条件
     2. 运算符
-        >![](image\MySQL-5-3.jpg)
-        >![](image\MySQL-5-4.jpg)
+        >![](image/MySQL-5-3.jpg)
+        >![](image/MySQL-5-4.jpg)
         >例：select * from student where age>15
-        >![](image\MySQL-5-5.jpg)
+        >![](image/MySQL-5-5.jpg)
     3. 注意：
         * null不能使用=和<>来判断，应该使用 is和is not.
             >例：select * from student where age is null
@@ -486,7 +486,7 @@
         * _:单个任意字符
         * %:多个任意字符
         >例： select name from student where '李%'
-        >![](image\MySQL-5-6.jpg)
+        >![](image/MySQL-5-6.jpg)
 4. 排序查询
     * select 字段 from 表名 order by 排序字段1 排序方式1,排序字段2 排序方式2....;
         >排序方式：
@@ -505,15 +505,15 @@
     * 语法：select 函数(字段名) from 表名
       或者select 函数(ifnull(字段名,值)) from 表名
         >例：
-        >![](image\MySQL-5-7.jpg)
+        >![](image/MySQL-5-7.jpg)
         
 6. 分组查询
     * group by 分组字段;
         >例：select sex,AVG(math),count(id) from student group by sex;
         >selct 后有什么，后面就显示什么
-        >![](image\MySQL-5-8.jpg)<br> 
+        >![](image/MySQL-5-8.jpg)<br> 
         >注意：分组之后查询字段：分组字段(比如sex,如果用每个人都不同的字段分组，就没有意义了)，聚合函数
-        >例：<br>![](image\MySQL-5-9.jpg)
+        >例：<br>![](image/MySQL-5-9.jpg)
     * 添加判断语句：
         >普通where添加在前面，分组之后条件判断加载后面并且用having关键字
         >where和having区别（**面试会考**）：
@@ -606,12 +606,12 @@
 * 情景
     >有时数据会有冗余
     >例：
-    >![](image\MySQL-4.6.6-1.jpg)
+    >![](image/MySQL-4.6.6-1.jpg)
     >每个部门就在一个地方，不需要每条员工信息都记一次
     ><br>解决办法：
     >创建两张表
     >一张表记员工信息（employee表），一张表记部门所在地（department表）
-    >![](image\MySQL-4.6.6-2.jpg) ![](image\MySQL-4.6.6-3.jpg)
+    >![](image/MySQL-4.6.6-2.jpg) ![](image/MySQL-4.6.6-3.jpg)
     >此时如果删除一个部门，另一张表中还有人对应那个部门，显然不合理。应该先删除人员。
 * 为解决上述问题使用外键约束，即让表与表之间产生关系，从而确保数据的正确性。
 1. 添加表时添加外键
