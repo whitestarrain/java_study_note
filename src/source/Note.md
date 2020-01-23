@@ -469,7 +469,7 @@
             >例：select id+ifnull(score,0) from student;
     4. 起别名
         * select 字段1+字段2 as 新名称 from 表名;
-            >将某个结果起一个别名用来显示出来,as也能用**一个或者多个空格**表示。
+            >将某个结果（列名字段或者表名）起一个别名用来显示出来,as也能用**一个或者多个空格**表示。
             >此时多分行比较好
 3. 条件查询
     1. where 条件
@@ -687,7 +687,7 @@
         1. <br> ![](image/MySQL-4.7.1-3.jpg)
         2. 使两表主键（id）相同
 ### 4.7.2. 范式
-* 概念：在设计数据库是需要遵循的规范，要遵循后面的范式要求，必须要遵循前面所有范    式。
+* 概念：在设计数据库是需要遵循的规范，要遵循后面的范式要求，必须要遵循前面所有范式。
     范式（数据库设计范式，数据库的设计范式）是符合某一种级别的关系模式的集合。构造数据库必须遵循一定的规则。在关系数据库中，这种规则就是范式。关系数据库中的关系必须满足一定的要求，即满足不同的范式。
 * 分类(一般前三个就足够)：
     1. 第一范式（1NF）：每一列都是不可分割的原子数据项
@@ -833,14 +833,14 @@
             where 
                 id
             in
-                (select 
+                (
+                select 
                     id
                 from
                     department
                 where
                     name='财务部'
-                    or
-                    name='市场部'
+                    or name='市场部'
                 )
             ```
     3. 子查询结果是多行多列
@@ -855,9 +855,7 @@
                 department t2
             where
                 t1.dept_id=t2.id
-            and
-                t1.join_date>'2000-2-22'
-
+                and t1.join_date>'2000-2-22'
             -- 子表查询
             select
                 *
@@ -874,5 +872,139 @@
             where 
                 t1.id=t2.id
             ```
+* 多表查询练习，再看下视频？
+    * 自关联映射（不会的话看30分钟处）
+
 ## 4.10. 事务
+### 4.10.1. 基本介绍
+* 概念：
+    * 如果一个包含多个步骤的业务操作，被事务管理，那么这些操作会同时成功或者同时失败
+    ![](image/MySQL-4.10.1-1.jpg)
+    >拿java类比：
+    >被事务管理：编译。如果有语法错误，整个类都不会被编译
+    >不被事务管理：异常。出现异常后停止执行后面代码，前面代码已经执行
+* 操作：
+    1. 开启事务 start transaction
+    2. 回滚 rollback
+    3. 提交 commit
+    ```SQL
+    -- 例：张三给李四转500
+
+    -- 0 开启事务
+        start transaction;
+
+    -- 1 张三账户-500
+        update account set balance=balance-500 where name='zhangsan';
+
+    --  **假设此处可能出错**
+
+    -- 2 李四账户+500
+        update account set balance=balance+500 where name='lisi';
+
+    -- 中间没有发生错误，进行提交
+        commit;
+
+    -- 发现有错误，回滚.此时会回滚到开启事务之前
+        rollback;
+    ```
+* 提交
+    * 提交方式：
+        1. mysql默认是自动提交的，一条DML（增删改）语句会自动提交一次.（oracle是默认手动提交事务）
+        2. 当开启事务后，就不会自动提交了，如果不进行手动提交数据不会被修改
+    * 查看默认提交方式：
+    >select @@autocommit;
+    >结果为1代表自动提交，0代表手动提交<br>
+    >set @@autocommit =0
+    >关闭自动提交
+### 4.10.2. 四大特征
+1. 原子性：是不可分割的最小操作单位，要么同时成功，要么同时失败
+2. 持久性：如果事务一旦提交或者回滚，数据库会持久更新数据。
+3. 隔离性：多个事务之间相互独立。但一般会相互影响。
+4. 一致性：表示事务操作前后数据总量不变。
+### 4.10.3. 隔离等级（了解）
+* 概念：多个事务之间，是相互独立的。但如果多个事务操作**同一批数据**，也就是并发操作，则会引发一些问题，设置不同的隔离级别就可以解决这些问题
+* 存在问题：
+    1. 脏读：一个事务读取到另一个事务中没有提交的数据
+    2. 不可重复读（虚读）：同一个事务中，两次读取的数据不一样
+    3. 幻读：一个事务操作（DML）数据表中所有记录，而此时另一个事务添加了一条数据，导致第一个事务查询不到自己的修改（MySQL中并不存在该问题）
+* 隔离级别：
+    * 隔离级别从小到大安全性越来越高，效率越来越低
+    1. read uncommitted:读未提交（事务1修改的数据未提交时，事务2会读到修改后的数据）
+        * 产生问题：脏读，不可重复读，幻读
+    2. read committed:读已提交（事务1只有提交了修改数据，事务2才可以读到已经修改改的数据，否则只会读到修改前数据）（oracle默认）
+        * 产生问题：不可重复读，幻读
+    3. repeatalbe read:可重复读（事务1只有提交了修改数据，事务2也提交后，才可以读到已修改数据，否则只会读到修改前数据）（MySQL默认）
+        * 产生问题：幻读
+    4. serializable（只有事务1提交后才可以读到数据，否则事务2会一直等待，不会读取任何数据）:串行化
+        * 可以解决所有问题
+* 隔离级别设置与查询：
+    ```SQL
+    -- 查询：
+    select @@tx_isolation
+
+    -- 设置：
+    set global transaction isolation level 级别字符串
+    -- 设置后必须重新关闭打开数据库才能生效
+    ```
 ## 4.11. DCL
+* 注意：
+    基本上不常用，因为会有DBA（数据库管理员）专门管一个公司的数据库，并且分配给职员账户，所以DCL了解即可
+
+* 管理用户
+    1. 添加用户
+        * creat user '用户名'@'主机名' identified by '密码'
+            >主机名可以写localhost和%等
+    2. 删除用户
+        * drop user '用户名'@'主机名'
+    3. 修改用户密码
+        1. 普通修改密码
+            * update user set password=password('新密码') where user='用户名'
+                >password()是MySQL密码加密函数
+            * set password for '用户名'@'主机名'=password('新密码')
+                >同样效果，DCL特有方式。
+        2. 当忘记root账户密码
+            1. cmd --> net stop mysql
+                >停止MySQL服务
+            2. mysqld --skip-grant-tables
+                >使用无验证方式打开MySQL服务，此时光标会卡住
+            3. 打开一个新的cmd，输入 mysql 回车，登录成功
+            4. 通过命令行修改密码，关闭两个窗口
+                *  update user set password=password('新密码') where user='root'
+            5. 打开任务管理器，手动结束mysqld.exe这一进程
+            6. 打开新cmd，正常登陆
+    4. 查询用户：
+        mysql数据库-->user表
+        ![](image/MySQL-4.11-1.jpg)
+        localhost是本地主机，%时通配符，表示任意主机，可以用来远程登陆
+        数据库中密码会进行加密
+* 权限管理
+    * 查询权限
+        * show grants for '用户名'@'主机名';
+    * 授予权限
+        * grant 权限列表 on 数据库名.表名 to '用户名'@'主机名';
+            >所有权限关键字：all
+            >所有数据库和表：* .*
+            ><br>所有权限分类：SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, SHUTDOWN, PROCESS, FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES, SUPER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, REPLICATION SLAVE, REPLICATION CLIENT, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER 
+    * 撤销权限
+        * revoke 权限列表 on 数据库名.表名 from '用户名'@'主机名';
+
+
+# 5. JDBC
+## 5.1. JDBC基本概念
+* 概念：Java DataBase Connectivity :java数据库连接，即通过java语言操作数据库。
+* 本质：其实是官方（sun公司）定义的一套操作所有关系型数据库的规则，即一套接口
+        各个数据库厂商提供去实现这套接口，提供数据库驱动jar包，我们可以用这套接口编程，但真正执行的代码是驱动jar包中的实现类
+    ![](image/JDBC5.1-1.jpg)
+## 5.2. JDBC快速入门
+* 步骤：
+    1. 导入驱动jar包
+        1. 复制到lib目录下，方便管理
+        2. vscode：修改.classpath文件；idea:add as library
+    2. 编写代码， 注册驱动
+    3. 获取数据库连接对象 Connection
+    4. 定义sql语句
+    5. 获取执行sql语句的对象 Statement
+    6. 执行sql，接收返回结果
+    7. 处理结果
+    8. 释放资源
+## 5.3. JDBC相关类与接口

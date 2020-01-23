@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - Demo1",
+            "request": "launch",
+            "mainClass": "_3_jdbc.Demo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - Demo4_ArrayConstructor",
             "request": "launch",
             "mainClass": "_1_java_base.jdk8_new_feature._3_function_reference.Demo4_ArrayConstructor",
