@@ -347,7 +347,7 @@
             >使用数据库，相当于进入数据库
 * 对表整体
     1. C(Create) 创建
-        * create table 表名(
+        * create table (if not exists) 表名(
             列名1 数据类型1,
             列名2 数据类型2,
             列名3 数据类型3,
@@ -1007,4 +1007,57 @@
     6. 执行sql，接收返回结果
     7. 处理结果
     8. 释放资源
-## 5.3. JDBC相关类与接口
+## 5.3. JDBC相关接口
+>java包中以下除DriverManger都是接口
+
+* DriverManager:驱动管理对象
+    * 功能：
+        1. 注册驱动
+            * static void registerDriver(Driver driver)
+                >写代码使用：Class.forName("com.mysql.jdbc.Driver");来进行驱动注册
+                >此后Driver类没有再使用过，查看源码发现
+                >是因为在类加载进内存时，会有代码自动执行，其中就包括static void registerDriver(Driver driver)
+                >（通过静态代码块）
+                >在5版本之后，如果没有注册驱动，jar包中会自动注册驱动
+                >![](image/JDBC-5.3-1.jpg)
+                >但最好写上
+        2. 获取数据库连接
+            * static Connection getConnection(String url, String user, String password)
+                * url:指定连接的路径（包括ip端口以及数据库名称）
+                    * jdbc://ip地址（域名）:端口号/数据库名称
+                        >例："jdbc:mysql://localhost:3306/student"
+                    * 如果连接的是本机的mysql服务器，并且默认端口为3306，那么可以简写为jdbc:///student（即把localhost:3306省略）
+                * user:
+                * password:
+* Connection：数据库连接对象
+    * 功能：
+        1. 获取执行sql的对象
+            * Statement createStatement()  
+            * PreparedStatement prepareStatement(String sql)  
+        2. 管理事务
+            * 开启事务：void setAutoCommit(boolean autoCommit)  //设置为false即可
+            * 提交事务：commit()
+            * 回滚事务：rollback()
+* Statement：执行sql对象
+    * 执行sql：
+        * boolean execute(String sql)  //了解即可，不常用
+        * int executeUpdate(String sql)
+            >执行DML语句语句以及DDL语句。
+            >返回值是影响的行数。可以通过判断是否大于0来判断是否执行成功
+        * ResultSet executeQuery(String sql)  
+            >返回结果集对象  
+    * 练习：见JDBCDemo2_Practice
+* ResultSet：结果集对象，封装查询结果
+    * boolean next():游标向下移动一行（默认一开始会指向表头，不会指向任何一行数据），返回值代表移动之后的游标指向的行是否有数据
+    * getXxx():获取数据（get后接java中的数据类型）
+        > 如getInt()会返回int类型的值
+        * 参数：
+            1. int类型：代表列的编号，从1开始的！！！
+            2. String类型：代表列的名称
+    * 注意：
+        * 使用步骤：
+            1. 游标向下一定一行
+            2. 判断是否有数据
+            3. 获取数据或结束
+            * 也就是一个循环遍历
+* PrepareStatement：Statement的子类，执行sql的对象，功能更强大
