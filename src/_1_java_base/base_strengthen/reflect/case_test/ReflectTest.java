@@ -13,6 +13,7 @@ public class ReflectTest {
         //1 加载配置文件,创建Properties对象
         Properties pro=new Properties();//配置文件要放在src目录下
         ClassLoader classloder=ReflectTest.class.getClassLoader();//获得类加载器（将ReflectTest加载进内存的类加载器）
+        //ClassLoder在学到web时会仔细讲
         //因为ClassLoder能找到class文件，也就是说能找到对应目录以及文件
         //getResource用来获取路径 getResourceAsStream用来获取字节流
         InputStream in=classloder.getResourceAsStream("pro.properties");//获得资源的字节流

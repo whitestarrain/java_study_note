@@ -3,7 +3,6 @@ package _1_java_base.base_strengthen.annotation.case_new_test;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /* 简单测试框架，

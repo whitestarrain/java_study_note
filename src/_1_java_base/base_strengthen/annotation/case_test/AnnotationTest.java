@@ -1,8 +1,6 @@
 package _1_java_base.base_strengthen.annotation.case_test;
 
-import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.Properties;
 
 /*
 框架类
