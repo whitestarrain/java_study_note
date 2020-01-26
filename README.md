@@ -7,6 +7,8 @@
         * image(顾名思义，包含所有图片)
     * 其他文件：配置文件以及java文件所生成或者所依赖等，看到指定文件时可以找找看
 
->为减小项目大小，此处病没有提供jar包
+>为减小项目大小，此处并没有提供jar包
 * lib目录需要jar包列表：
     * mysql-connector-java-5.1.48.jar
+    * c3p0-0.9.5.2.jar
+    * mchange-commons-java-0.2.12.jar

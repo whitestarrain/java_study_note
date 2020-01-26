@@ -6,6 +6,34 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - JDBC_8_Demo1",
+            "request": "launch",
+            "mainClass": "_3_jdbc.JDBC_8_Demo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - JDBC_7_Demo1",
+            "request": "launch",
+            "mainClass": "_3_jdbc.JDBC_7_Demo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - JDBC_6_Demo2",
+            "request": "launch",
+            "mainClass": "_3_jdbc.JDBC_6_Demo2",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - JDBC_6_Demo1",
+            "request": "launch",
+            "mainClass": "_3_jdbc.JDBC_6_Demo1",
+            "projectName": "java 学习笔记"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - tools_test",
             "request": "launch",
             "mainClass": "_3_jdbc.tools_test",
