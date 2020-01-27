@@ -890,6 +890,7 @@
 #### 6.9.2.3. 子查询
 
 - 概念：查询中嵌套查询，称嵌套查询为子查询。
+
   ```SQL
   -- 如计算工资最高的人的姓名：
   select max(salary) from employee
@@ -900,6 +901,7 @@
   -- 括号内为子查询
   -- 单个表时在列字段前面加不加表限定都行
   ```
+
 - 不同情况
 
   1. 子查询结果是单行单列
@@ -1274,8 +1276,59 @@
      > properties 形式
      > 可以交任意名称，可以放在任意目录下
      > 需要手动加载
-  3. 获取数据库连接池对象
-     > 通过工厂类 DruidDataSourceFactory 的 createDataSource(properties 对象)来获取
-  4. 通过 getConnection 获取连接
+  3. 加载配置文件 properties
+  4. 获取数据库连接池对象
+     > 通过工厂类 DruidDataSourceFactory 的 静态方法 createDataSource(properties 对象)来获取
+  5. 通过 getConnection 获取连接
+
+### 7.6.4. 练习：工具类
+
+1. 定义一个类 JDBCUtils
+2. 提供静态代码块进行加载配置文件，初始化连接池对象
+3. 提供方法：
+4. 获取连接方法
+5. 释放资源
+6. 获取连接池方法
+   > 某些框架仅需要连接池即可
 
 ## 7.7. Spring JDBC
+
+### 7.7.1. 概念
+
+- 是 Spring 对 JDBC 的简单封装，提供了 JdbcTemplate 来简化 JDBC 的开发
+  > Spring 是 javaEE 的灵魂框架，这只是 Spring 的一小部分，之后会有 Spring 的专题
+### 7.7.2. 步骤
+1. 导入 jar 包
+2. 创建 JdbcTemplate 对象，依赖于数据源 DataSource
+    - JdbcTemplate template=new Jdbctemplate(ds);
+      > 只需要传入 DataSource，而申请连接和释放资源以及归还到连接池都在框架内部自己做的。
+3. 调用方法：
+    - update:执行 DML 语句
+    - queryForMap():查询结果，将结果集封装为 map 集合
+    - queryForList():查询结果，将结果集封装为 list 集合
+    - query():查询结果，将结果封装为 JavaBean 对象
+      - 传入参数：
+        - sql：命令语句
+        - RowMapper 接口：
+          - 可以自己实现，完成一条记录到一个类的映射
+          - 可以使用 BeanPropertyRowMapper<自己定义的类>(自己定义的类.class);
+            - 注意!：此处使用的自己定义的类中成员变量最好使用 Integer 和 Double，而不要使用基本数据类型，否则无法接收 null 会导致很多问题
+              > 参见 JDBCDemo11_DML_DQL.java 文件
+              > 其中自己定义的类要满足与数据库每个字段的映射
+    - queryForObject():查寻结果，将结果封装为对象
+      - 一般用于聚合函数的查寻
+
+### 7.7.3. 练习
+
+- 注意：要使用 Junit 的话，必须要在 public class 中。一般不会看输出，而看颜色判断是否能成功运行
+
+1. 修改 id 为 1 的 student 分数为 111
+2. 添加一条记录
+3. 删除刚刚添加的记录
+4. 查询 id 为 1 的记录封装为 map 集合
+   - 查询的结果集数量只能是一个
+   - 字段名当作 key，字段值当作 value，封装为 Map。
+5. 查询所有记录封装为 list 集合
+   - 将每一条记录封装为 map 集合，再将 map 集合封装到 list 中
+6. 查询所有记录，将其封装为 JDBC_11_Student 对象的 List 集合（较常见）
+7. 查询总记录数

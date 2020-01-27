@@ -1,6 +1,5 @@
 package _3_jdbc;
 
-import java.sql.Connection;
 import java.util.Properties;
 
 import javax.sql.DataSource;

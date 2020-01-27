@@ -24,10 +24,13 @@ public class JDBCDemo9_2_Utils {
         pro = new Properties();
         try {
             pro.load(JDBC_9_Demo1.class.getClassLoader().getResourceAsStream("druid.properties"));
+            ds = DruidDataSourceFactory.createDataSource(pro);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        
     }
 
     /**
@@ -36,7 +39,6 @@ public class JDBCDemo9_2_Utils {
      * @throws Exception
      */
     public static Connection getConnection() throws Exception {
-        ds = DruidDataSourceFactory.createDataSource(pro);
         return ds.getConnection();
     }
 
@@ -61,7 +63,7 @@ public class JDBCDemo9_2_Utils {
         }
         if (conn != null) {
             try {
-                conn.close();
+                conn.close();//归还连接
             } catch (SQLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

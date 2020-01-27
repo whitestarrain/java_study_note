@@ -11,6 +11,7 @@
   - source:
     - note.md:所有额外笔记整理在 note.md 上，比如 SQL，大多数笔记还是在 java 文件中
     - image(顾名思义，包含所有图片)
+    - pdf:一些 pdf 笔记文件
 
 > 为减小项目大小，此处并没有提供 jar 包
 

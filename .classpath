@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="lib/spring-jdbc-5.1.10.RELEASE.jar" />
 	<classpathentry kind="lib" path="lib/spring-tx-5.1.10.RELEASE.jar" />
 	<classpathentry kind="lib" path="lib/commons-logging-1.2.jar" />
+	<classpathentry kind="lib" path="lib/junit-platform-console-standalone-1.6.0.jar" />
 	<classpathentry kind="output" path="bin" />
 </classpath>
