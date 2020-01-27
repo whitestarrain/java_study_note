@@ -43,7 +43,9 @@ class JDBC_6_Demo1 {
 }
 
 
-
+/**
+ * 动态/预编译sql
+ */
 
 class JDBC_6_Demo2 {
     public static boolean ishasAccount(String username, String password) {

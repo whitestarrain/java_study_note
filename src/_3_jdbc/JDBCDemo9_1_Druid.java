@@ -21,8 +21,6 @@ class JDBC_9_Demo1 {
         // 通过数据工厂类来获得数据连接池对象,传入Properties对象
         DataSource ds = DruidDataSourceFactory.createDataSource(pro);
 
-        Connection conn = ds.getConnection();
-        System.out.println(ds);
-
+        System.out.println(ds.getConnection());
     }
 }
