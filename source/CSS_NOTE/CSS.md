@@ -322,7 +322,7 @@ font属性用于对字体样式进行综合设置，其基本语法格式如下�
 注意：
 
 ~~~
-1. 样式显示效果跟HTML元素中的类名先后顺序没有关系,受CSS样式书写的上下顺序有关。
+1. 样式显示效果跟HTML元素中的类名先后顺序没有关系,受CSS样式书写的上下顺序有关。css中靠下的优先权高，详情请看CSS三大特性 
 2. 各个类名中间用空格隔开。
 ~~~
 
@@ -418,11 +418,39 @@ a:hover {   /* :hover 是链接伪类选择器 鼠标经过 */
 ### 结构(位置)伪类选择器（CSS3)
 
 - :first-child :选取属于其父元素的首个子元素的指定选择器
+
 - :last-child :选取属于其父元素的最后一个子元素的指定选择器
+
 - :nth-child(n) ： 匹配属于其父元素的第 N 个子元素，不论元素的类型
+
 - :nth-last-child(n) ：选择器匹配属于其元素的第 N 个子元素的每个元素，不论元素的类型，从最后一个子元素开始计数。
   n 可以是数字、关键词或公式
-- ​
+  
+- 选择器>选择器y用来选择包裹里面的标签
+
+  ~~~css
+  /*例：
+  此处知识通过ul举例，只要是父子关系就可以使用该伪类选择器
+  */
+           #testul > li:nth-child(2n) {
+                /* 通过 [选择器]>li来确定哪个来匹配结构伪类选择器   没有写选择器的话则是默认所有 */
+                  color: #1619bb;
+          }
+  
+          <ul id="testul">
+              <li>11111</li>
+              <li>11111</li>
+              <li>11111</li>
+              <li>11111</li>
+          </ul>
+          <ul id="aaaaa">
+              <li>1234</li>
+              <li>1234</li>
+              <li>1234</li>
+          </ul>
+  ~~~
+  
+  
 
 ~~~css
 li:first-child { /*  选择第一个孩子 */
@@ -441,6 +469,8 @@ li:nth-child(4) {   /* 选择第4个孩子  n  代表 第几个的意思 */
 ### 目标伪类选择器(CSS3)
 
  :target目标伪类选择器 :选择器可用于选取当前活动的目标元素
+
+可以和锚一起用，选中跳转的同时，样式改变
 
 ~~~css
 :target {
@@ -509,7 +539,7 @@ letter-spacing属性用于定义字间距，所谓字间距就是字符与字符
 
 ## word-spacing:单词间距
 
-word-spacing属性用于定义英文单词之间的间距，对中文字符无效。和letter-spacing一样，其属性值可为不同单位的数值，允许使用负值，默认为normal。
+word-spacing属性用于定义**英文单词**之间的间距，对中文字符无效。和letter-spacing一样，其属性值可为不同单位的数值，允许使用负值，默认为normal。
 
 word-spacing和letter-spacing均可对英文进行设置。不同的是letter-spacing定义的为字母之间的间距，而word-spacing定义的为英文单词之间的间距。
 
@@ -535,7 +565,25 @@ text-shadow:水平位置 垂直位置 模糊距离 阴影颜色;
 
 1. 前两项是必须写的。  后两项可以选写。
 
-![1498467519665](media/1498467519665.png)    
+![1498467519665](media/1498467519665.png)
+
+2.  也可以有多重阴影
+
+   ~~~css
+   /*多重阴影*/
+   .white-with-blue-shadow {
+      text-shadow: 1px 1px 2px black, 0 0 1em blue, 0 0 0.2em blue;
+      color: white;
+      font: 1.5em Georgia, "Bitstream Charter", "URW Bookman L", "Century Schoolbook L", serif;
+   }
+   
+   <p class="white-with-blue-shadow">
+      Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore 
+      veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+   </p>
+   ~~~
+
+   
 
 # sublime快捷方式
 
@@ -551,7 +599,7 @@ sublime可以快速提高我们代码的书写方式
 
 5. 如果生成带有类名或者id名字的，  直接写  .demo  或者  #two   tab 键就可以了
 
-   ​
+   
 
 # 引入CSS样式表（书写位置）
 
@@ -649,7 +697,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 （3）宽度默认是容器的100%
 
-（4）可以容纳内联元素和其他块元素。
+（4）可以容纳内联元素和其他块元素（不包括p,h，dt文字类块级元素）。
 
 ## 行内元素(inline-level)
 
@@ -669,7 +717,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 （3）默认宽度就是它本身内容的宽度。
 
-（4）行内元素只能容纳文本或则其他行内元素。（a特殊）
+（4）行内元素只能容纳文本或则其他行内元素。（a特殊，可以放块内元素）
 
   <img src="media/w.jpg" />    注意：
 
@@ -723,9 +771,9 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 复合选择器是由两个或多个基础选择器，通过不同的方式组合而成的,目的是为了可以选择更准确更精细的目标元素标签。
 
-## 交集选择器
+## 交集选择器(标记选择器.类选择器)
 
-交集选择器由两个选择器构成，其中第一个为标签选择器，第二个为class选择器，两个选择器之间不能有空格，如h3.special。
+交集选择器由**两个选择器**构成，其中第一个为标签选择器，第二个为class选择器，两个选择器之间不能有空格，如h3.special。
 
 <img src="media/jiao.png" />
 
@@ -739,9 +787,9 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 用的相对来说比较少，不太建议使用。
 
-## 并集选择器
+## 并集选择器(选择器,选择器....)
 
-并集选择器（CSS选择器分组）是各个选择器通过<strong style="color:#f00">逗号</strong>连接而成的，任何形式的选择器（包括标签选择器、class类选择器id选择器等），都可以作为并集选择器的一部分。如果某些选择器定义的样式完全相同，或部分相同，就可以利用并集选择器为它们定义相同的CSS样式。
+并集选择器（CSS选择器分组）是**各个选择**器通过<strong style="color:#f00">逗号</strong>连接而成的，任何形式的选择器（包括标签选择器、class类选择器id选择器等），都可以作为并集选择器的一部分。如果某些选择器定义的样式完全相同，或部分相同，就可以利用并集选择器为它们定义相同的CSS样式。
 
 <img src="media/bing.png" />
 
@@ -757,7 +805,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 
 
-## 后代选择器
+## 后代选择器（空格）
 
 后代选择器又称为包含选择器，用来选择元素或元素组的后代，其写法就是把外层标签写在前面，内层标签写在后面，中间用空格分隔。当标签发生嵌套时，内层标签就成为外层标签的后代。
 
@@ -769,13 +817,15 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 
 
-## 子元素选择器
+## 子元素选择器(>)
 
 子元素选择器只能选择作为某元素子元素的元素。其写法就是把父级标签写在前面，子级标签写在后面，中间跟一个 &gt; 进行连接，注意，符号左右两侧各保留一个空格。
 
 <img src="media/zi1.png" />
 
 白话：  这里的子 指的是 亲儿子  不包含孙子 重孙子之类。
+
+子元素选择器优先级大于后代选择器（越局部，优先级越高，通用）
 
 ~~~
  比如：  .demo > h3 {color: red;}   说明  h3 一定是demo 亲儿子。  demo 元素包含着h3。
@@ -816,11 +866,13 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 
 3. 主导航栏里面的一级菜单链接文字颜色为绿色。（难)
 
-   ​
+   
 
 ## 属性选择器
 
 选取标签带有某些特殊属性的选择器 我们成为属性选择器
+
+![](media/120807.jpg)
 
 ~~~css
 /* 获取到 拥有 该属性的元素 */
@@ -833,6 +885,9 @@ div[class$=footer] { /*  class$=footer 表示 footer 结束位置就行了 */
 div[class*=tao] { /* class*=tao  *=  表示tao 在任意位置都可以 */
 			color: green;
 		}
+div[class="11111"][id="1"]{/*多个中括号来进行多次筛选，交集。*/
+    color: red;
+}
 ~~~
 
 ~~~html
@@ -876,7 +931,9 @@ p::selection {
 
 4、E::before和E::after
 
-在E元素内部的开始位置和结束位创建一个元素，该元素为行内元素，且必须要结合content属性使用。
+在E元素**内部**的开始位置和结束位创建一个元素，该元素为行内元素，且必须要结合**content属性**使用。
+
+以后会常用，比如盒子中嵌套盒子
 
 ~~~css
 div::befor {
@@ -1063,12 +1120,13 @@ position : 　top | center | bottom | left | center | right
 
 注意：
 
-1. position 后面是x坐标和y坐标。 可以使用方位名词或者 精确单位。
+1. position 后面是**x坐标和y坐标**。 可以使用方位名词或者 精确单位。
 2. 如果和精确单位和方位名字混合使用，则必须是x坐标在前，y坐标后面。比如 background-position: 15px top;   则 15px 一定是  x坐标   top是 y坐标。
+3. 如果只写一个，那么另一个默认为center
 
 实际工作用的最多的，就是背景图片居中对齐了。
 
-## 背景附着
+## 背景附着(attachment)
 
 语法： 
 
@@ -1089,7 +1147,7 @@ fixed : 　背景图像固定
 
 ## 背景简写
 
-background属性的值的书写顺序官方并没有强制标准的。为了可读性，建议大家如下写：
+background属性的值的书写顺序官方并**没有强制标准**的。为了可读性，建议大家如下写：
 
 background:背景颜色 背景图片地址 背景平铺 背景滚动 背景位置
 
@@ -1097,7 +1155,7 @@ background:背景颜色 背景图片地址 背景平铺 背景滚动 背景位�
 background: transparent url(image.jpg) repeat-y  scroll 50% 0 ;
 ~~~
 
-## 背景透明(CSS3)
+## 背景透明(CSS3)(rgba)
 
 CSS3支持背景半透明的写法语法格式是:
 
@@ -1115,13 +1173,13 @@ background: rgba(0,0,0,0.3);
 
 
 
-## 背景缩放(CSS3)
+## 背景缩放(CSS3)(size)
 
 通过background-size设置背景图片的尺寸，就像我们设置img的尺寸一样，在移动Web开发中做屏幕适配应用非常广泛。
 
 其参数设置如下：
 
-a) 可以设置长度单位(px)或百分比（设置百分比时，参照盒子的宽高）
+a) 可以设置长度单位(px)或百分比（设置百分比时，**参照盒子的宽高**，如果只设置一个，另一边会等比例缩放，使图片比例正常）
 
 b) 设置为cover时，会自动调整缩放比例，保证图片始终填充满背景区域，如有溢出部分则会被隐藏。我们平时用的cover 最多
 
@@ -1134,14 +1192,14 @@ background-image: url('images/gyt.jpg');
 			/* background-size: cover; */
 ~~~
 
-## 多背景(CSS3)
+## 多背景(CSS3)(逗号隔开)
 
 以逗号分隔可以设置多背景，可用于自适应布局  做法就是 用逗号隔开就好了。
 
 - 一个元素可以设置多重背景图像。 
 - 每组属性间使用逗号分隔。 
 - 如果设置的多重背景图之间存在着交集（即存在着重叠关系），前面的背景图会覆盖在后面的背景图之上。
-- 为了避免背景色将图像盖住，背景色通常都定义在最后一组上，
+- 为了避免背景色将图像盖住，背景色通常都定义在**最后一组**上，
 
 ~~~css
 background:url(test1.jpg) no-repeat scroll 10px 20px/50px 60px  ,
@@ -1149,7 +1207,7 @@ background:url(test1.jpg) no-repeat scroll 10px 20px/50px 60px  ,
 	   url(test1.jpg) no-repeat scroll 10px 20px/110px 130px c #aaa;
 ~~~
 
-- ​
+- 
 
 ## 凹凸文字
 
@@ -1200,7 +1258,7 @@ text-decoration   通常我们用于给链接修改装饰效果
 |              |                         |
 |              |                         |
 
-**使用技巧**：在一行内的盒子内，我们设定行高等于盒子的高度，就可以使文字垂直居中。
+**使用技巧**：在一行内的盒子内，我们设定行高line-height等于盒子的高度，就可以使文字垂直居中。
 
 ~~~html
 <head>
@@ -1308,6 +1366,12 @@ specificity用一个四位的数 字串(CSS2是三位)来表示，更像四个�
 | 每个行内样式贡献值       | 1,0,0,0 |
 | 每个!important贡献值 | ∞ 无穷大   |
 
+~~~css
+div{
+    color: red!important;/*!important直接加在后面就行了*/
+}
+~~~
+
 
 
 权重是可以叠加的
@@ -1326,7 +1390,7 @@ a:hover      -----—>      0,0,1,1
 #nav p       ----->       0,1,0,1
  ~~~
 
-​   
+   
 
 ​      
 
@@ -1428,19 +1492,19 @@ double：边框为双实线
 
 ### 盒子边框写法总结表
 
-|        |                                          |                                          |
-| ------ | ---------------------------------------- | ---------------------------------------- |
-| 设置内容   | 样式属性                                     | 常用属性值                                    |
-| 上边框    | border-top-style:样式; border-top-width:宽度;border-top-color:颜色;border-top:宽度 样式 颜色; |                                          |
-| 下边框    | border-bottom-style:样式;border- bottom-width:宽度;border- bottom-color:颜色;border-bottom:宽度 样式 颜色; |                                          |
-| 左边框    | border-left-style:样式; border-left-width:宽度;border-left-color:颜色;border-left:宽度 样式 颜色; |                                          |
-| 右边框    | border-right-style:样式;border-right-width:宽度;border-right-color:颜色;border-right:宽度 样式 颜色; |                                          |
-| 样式综合设置 | border-style:上边 [右边 下边 左边];              | none无（默认）、solid单实线、dashed虚线、dotted点线、double双实线 |
-| 宽度综合设置 | border-width:上边 [右边 下边 左边];              | 像素值                                      |
-| 颜色综合设置 | border-color:上边 [右边 下边 左边];              | 颜色值、#十六进制、rgb(r,g,b)、rgb(r%,g%,b%)       |
-| 边框综合设置 | border:四边宽度 四边样式 四边颜色;                   |                                          |
+|                  |                                                              |                                                              |
+| ---------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 设置内容         | 样式属性                                                     | 常用属性值                                                   |
+| 上边框           | border-top-style:样式; border-top-width:宽度;border-top-color:颜色;border-top:宽度 样式 颜色; |                                                              |
+| 下边框           | border-bottom-style:样式;border- bottom-width:宽度;border- bottom-color:颜色;border-bottom:宽度 样式 颜色; |                                                              |
+| 左边框           | border-left-style:样式; border-left-width:宽度;border-left-color:颜色;border-left:宽度 样式 颜色; |                                                              |
+| 右边框           | border-right-style:样式;border-right-width:宽度;border-right-color:颜色;border-right:宽度 样式 颜色; |                                                              |
+| 样式综合设置     | border-style:上边 [右边 下边 左边];                          | none无（默认）、solid单实线、dashed虚线、dotted点线、double双实线 |
+| 宽度综合设置     | border-width:上边 [右边 下边 左边];                          | 像素值                                                       |
+| 颜色综合设置     | border-color:上边 [右边 下边 左边];                          | 颜色值、#十六进制、rgb(r,g,b)、rgb(r%,g%,b%)                 |
+| 边框**综合**设置 | border:四边宽度 四边样式 四边颜色;                           |                                                              |
 
-### 表格的细线边框
+### 表格的细线边框(border-collapse)
 
 以前学过的html表格边框很粗，这里只需要CSS一句话就可以美观起来。 让我们真的相信，CSS就是我们的白马王子（白雪公主）。
 
@@ -1463,7 +1527,7 @@ border-radius: 左上角  右上角  右下角  左下角;
 ~~~html
 <style>
 		div {
-			width: 200px;
+			width: 200px;/* 这个指的是内容尺寸，padding和border是在这个外侧加的 */
 			height: 200px;
 			border: 1px solid red;
 		}
@@ -1566,7 +1630,7 @@ text-align: center; /*  文字居中水平 */
 margin: 10px auto;  /* 盒子水平居中  左右margin 改为 auto 就阔以了 */
 ~~~
 
-3. 插入图片 我们用的最多 比如产品展示类
+3. 插入图片 我们用的最多 比如产品展示类，做一些动态效果
 4. 背景图片我们一般用于小图标背景 或者 超大背景图片
 
 ~~~css
@@ -1611,7 +1675,7 @@ aside {
 
 ### 相邻块元素垂直外边距的合并
 
-当上下相邻的两个块元素相遇时，如果上面的元素有下外边距margin-bottom，下面的元素有上外边距margin-top，则他们之间的垂直间距不是margin-bottom与margin-top之和，而是两者中的较大者。这种现象被称为相邻块元素垂直外边距的合并（也称外边距塌陷）。
+当上下相邻的两个块元素相遇时，如果上面的元素有下外边距margin-bottom，下面的元素有上外边距margin-top，则他们之间的垂直间距不是margin-bottom与margin-top之和，而是**两者中的较大者**。这种现象被称为相邻块元素垂直外边距的合并（也称外边距塌陷）。
 
 <img src="media/www.png" />
 
@@ -1626,7 +1690,7 @@ aside {
 解决方案：
 
 1. 可以为父元素定义1像素的上边框或上内边距。
-2. 可以为父元素添加overflow:hidden。
+2. 可以为父元素添加overflow:hidden。（该属性后面会仔细讲）
 
 待续。。。。
 
@@ -1653,7 +1717,10 @@ width和height的属性值可以为不同单位的数值或相对于父元素的
 
 2、计算盒子模型的总高度时，还应考虑上下两个盒子垂直外边距合并的情况。
 
-3、**如果一个盒子没有给定宽度/高度或者继承父亲的宽度/高度，则padding 不会影响本盒子大小**。
+3、**如果一个盒子没有给定宽度/高度或者继承父亲的宽度/高度，则padding 不会影响本盒子大小**
+
+	* 直接一个不给定宽度的盒子模型（因为一直是浏览器宽度。但加上width：100%会影响）。
+	* 盒子模型中还有一个盒子模型，不给定宽度（此时会继承父标签宽度）
 
 ## 盒子模型布局稳定性
 
@@ -1677,10 +1744,12 @@ width和height的属性值可以为不同单位的数值或相对于父元素的
 
 3. width   没有问题（嗨皮）我们经常使用宽度剩余法 高度剩余法来做。
 
-   ​
+   ![](media/60400.jpg)
+   
+   
 
 
-## CSS3盒模型
+## CSS3盒模型(box-sizing)
 
 CSS3中可以通过box-sizing 来指定盒模型，即可指定为content-box、border-box，这样我们计算盒子大小的方式就发生了改变。
 
@@ -1725,7 +1794,8 @@ box-shadow:水平阴影 垂直阴影 模糊距离 阴影尺寸 阴影颜色  内
 ![1498467567011](media/1498467567011.png)
 
 1. 前两个属性是必须写的。其余的可以省略。
-2. 外阴影 (outset) 但是不能写    默认      想要内阴影  inset 
+2. 外阴影 (outset) 但是不能写    默认      想要内阴影  就写上 inset 
+3. 写完一组后加逗号还可以再写，添加多个阴影
 
 ~~~css
 div {
@@ -1734,7 +1804,7 @@ div {
 			border: 10px solid red;
 			/* box-shadow: 5px 5px 3px 4px rgba(0, 0, 0, .4);  */
 			/* box-shadow:水平位置 垂直位置 模糊距离 阴影尺寸（影子大小） 阴影颜色  内/外阴影； */
-			box-shadow: 0 15px 30px  rgba(0, 0, 0, .4);
+			box-shadow: 0 15px 30px  rgba(0, 0, 0, .4),5px 4px 10px rgba(0,0,0,0.3);
 			
 }
 ~~~
@@ -1796,7 +1866,12 @@ html语言当中另外一个相当重要的概念----------标准流！或者普
 ```
 
 
+
   <img src="media/two.jpg" width="400" />
+  
+```
+只要上面的盒子不浮动，上面的盒子就会换行，相当于后面跟一个/n
+```
 
 
 ```
@@ -2258,7 +2333,7 @@ PS切图 可以 分为 手动 利用切片切图 以及 利用PS的插件快速�
 
 3. 利用标尺   基于参考线的切片 （选择切片工具）
 
-   ​
+   
 
    ![1498466734205](media/1498466734205.png)
 
@@ -2450,7 +2525,7 @@ PS： 静态定位其实没啥可说的。
 
 2. 然后走自己外边距负的一半值就可以了 margin-left。
 
-   ​
+   
 
 ## 固定定位fixed(认死理型)
 
@@ -2594,7 +2669,6 @@ resize：none    这个单词可以防止 火狐 谷歌等浏览器随意的拖�
 右下角可以拖拽： 
 
 <textarea></textarea>
-
 右下角不可以拖拽： 
 
 ```html

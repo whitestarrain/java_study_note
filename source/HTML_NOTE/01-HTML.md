@@ -14,8 +14,6 @@
 typora-copy-images-to: media
 ---
 
-
-
 # 认识网页
 
 ```
@@ -607,7 +605,7 @@ base 写到  <head>  </head>  之间
 
 ## 相对路径
 
-1. 图像文件和HTML文件位于同一文件夹：只需输入图像文件的名称即可，如&lt;img src="logo.gif" /&gt;。
+1. 图像文件和HTML文件位于同一文件夹：只需输入图像文件的名称即可，如&lt;img src="logo.gif" /&gt;。(也可以用 ./ 来表示本级目录，添加在开头)
 2. 图像文件位于HTML文件的下一级文件夹：输入文件夹名和文件名，之间用“/”隔开，如&lt;img src="img/img01/logo.gif" /&gt;。
 3. 图像文件位于HTML文件的上一级文件夹：在文件名之前加入“../” ，如果是上两级，则需要使用 “../ ../”，以此类推，如&lt;img src="../logo.gif" /&gt;。
 
@@ -654,7 +652,7 @@ base 写到  <head>  </head>  之间
 
 ```
  1. <ul></ul>中只能嵌套<li></li>，直接在<ul></ul>标签中输入其他标签或者文字的做法是不被允许的。
- 2. <li>与</li>之间相当于一个容器，可以容纳所有元素。
+ 2. <li>与</li>之间相当于一个容器，可以容纳所有元素，甚至<h1></h1>。
  3. 无序列表会带有自己样式属性，放下那个样式，一会让CSS来！
 ```
 
@@ -1033,7 +1031,8 @@ for 属性规定 label 与哪个表单元素绑定。
 | **datetime****** | <input type="datetime"> | 时间         |
 | **month******    | <input type="month">    | 月年         |
 | **week******     | <input type="week">     | 星期 年       |
-
+>数字，手机号码等输入框在移动端输入时会显示数字键盘，有些区别只有在移动端才能看见
+>日期，颜色在移动端上都会有输入页面
 ## 
 
 ## 常用新属性
@@ -1043,7 +1042,7 @@ for 属性规定 label 与哪个表单元素绑定。
 | **placeholder******  | <input type="text" placeholder="请输入用户名"> | 占位符  当用户输入的时候 里面的文字消失  删除所有文字，自动返回       |
 | **autofocus******    | <input type="text" autofocus>            | 规定当页面加载时 input 元素应该自动获得焦点                |
 | **multiple******     | <input type="file" multiple>             | 多文件上传                                    |
-| **autocomplete****** | <input type="text" autocomplete="off">   | 规定表单是否应该启用自动完成功能  有2个值，一个是on 一个是off      on 代表记录已经输入的值  1.autocomplete 首先需要提交按钮 <br/>2.这个表单您必须给他名字 |
+| **autocomplete****** | <input type="text" autocomplete="off">   | 规定表单是否应该启用自动完成功能  有2个值，一个是on 一个是off      on 代表记录已经输入的值  1.autocomplete 首先需要提交按钮 <br/>2.该属性所在的input标签中 name必须有值 有些浏览器自动开启 |
 | **required******     | <input type="text" required>             | 必填项  内容不能为空                              |
 | **accesskey******    | <input type="text" accesskey="s">        | 规定激活（使元素获得焦点）元素的快捷键   采用 alt + s的形式      |
 
