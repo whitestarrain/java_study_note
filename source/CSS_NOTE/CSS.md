@@ -411,6 +411,10 @@ a {   /* a是标签选择器  所有的链接 */
 a:hover {   /* :hover 是链接伪类选择器 鼠标经过 */
 			color: red; /*  鼠标经过的时候，由原来的 灰色 变成了红色 */
 }
+
+.nav li a:hover span {/* 当鼠标移动到a上时，对a中的span进行样式改变，之后滑动门技术上可能会用到  */
+  background-color:pink;
+}
 ~~~
 
 
@@ -421,13 +425,19 @@ a:hover {   /* :hover 是链接伪类选择器 鼠标经过 */
 
 - :last-child :选取属于其父元素的最后一个子元素的指定选择器
 
-- :nth-child(n) ： 匹配属于其父元素的第 N 个子元素，不论元素的类型
+- :nth-child(n) ： 含有冒号前元素的父元素中第n个元素，如果该元素与冒号前元素同类别，那么就使用样式
+
+- nth-of-type(n)：含有冒号前元素的父元素中，只计算冒号前元素个数，为第n个指定样式
+
+  - 上两个要区分好，一个是计算所有标签数量，一个是只计算一种标签数量
 
 - :nth-last-child(n) ：选择器匹配属于其元素的第 N 个子元素的每个元素，不论元素的类型，从最后一个子元素开始计数。
   n 可以是数字、关键词或公式
   
-- 选择器>选择器y用来选择包裹里面的标签
+  **通过 [选择器]>伪类选择器 来确定哪个来匹配结构伪类选择器   没有写选择器的话则是默认所有 **
 
+  **其中不能随便加空格，否则会解释为其子标签下.......**
+  
   ~~~css
   /*例：
   此处知识通过ul举例，只要是父子关系就可以使用该伪类选择器
@@ -514,6 +524,8 @@ color属性用于定义文本的颜色，其取值方式有如下3种：
 ine-height属性用于设置行间距，就是行与行之间的距离，即字符的垂直间距，一般称为行高。line-height常用的属性值单位有三种，分别为像素px，相对值em和百分比%，实际工作中使用最多的是像素px
 
 一般情况下，行距比字号大7.8像素左右就可以了。
+
+在只有文本情况下，给了行高就不用给高了。这样还能上下居中
 
 ## text-align:水平对齐方式
 
@@ -750,7 +762,7 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 在行内元素中有几个特殊的标签——<img />、<input />、<td>，可以对它们设置宽高和对齐属性，有些资料可能会称它们为行内块元素。
 
 行内块元素的特点：
-（1）和相邻行内元素（行内块）在一行上,但是之间会有空白缝隙。
+（1）行内块元素之间，行内块元素与行内元素之间会有空隙(可以通过添加浮动解决)
 （2）默认宽度就是它本身内容的宽度。
 （3）高度，行高、外边距以及内边距都可以控制。
 ```
@@ -790,6 +802,34 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 ## 并集选择器(选择器,选择器....)
 
 并集选择器（CSS选择器分组）是**各个选择**器通过<strong style="color:#f00">逗号</strong>连接而成的，任何形式的选择器（包括标签选择器、class类选择器id选择器等），都可以作为并集选择器的一部分。如果某些选择器定义的样式完全相同，或部分相同，就可以利用并集选择器为它们定义相同的CSS样式。
+在css中一个选择器可以分成好几块写，比如一些独立的写一块，一些共性的使用并集选择器
+~~~css
+/* 例： */
+            .top,
+            .banner,
+            .main,
+            .footer {
+                width: 960px;
+                margin: 0px auto;
+                margin-bottom: 10px;
+            }
+            .top {
+                background-color: pink;
+                height: 150px;
+            }
+            .banner {
+                background-color: deeppink;
+                height: 200px;
+            }
+            .main {
+                background-color: skyblue;
+                height: 400px;
+            }
+            .footer {
+                background-color: blue;
+                height: 100px;
+            }
+~~~
 
 <img src="media/bing.png" />
 
@@ -801,7 +841,6 @@ HTML标签一般分为块标签和行内标签两种类型，它们也称块元�
 比如  .one, p , #test {color: #F00;}  表示   .one 和 p  和 #test 这三个选择器都会执行颜色为红色。  通常用于集体声明。
 ~~~
 
-<img src="media/hu.gif" />  他和他，在一起， 在一起    一起的意思
 
 
 
@@ -942,6 +981,11 @@ div::befor {
 div::after {
   content:"结束";
 }
+
+
+div:hover::before {/* 鼠标经过div时，伪元素div::before样式变化。后面详解伪元素的时候会用*/
+  /* 样式 */
+}
 ~~~
 
 
@@ -951,6 +995,326 @@ E:after、E:before 在旧版本里是伪元素，CSS3的规范里“:”用来�
 E:after、E:before后面的练习中会反复用到，目前只需要有个大致了解
 
 ":" 与 "::" 区别在于区分伪类和伪元素
+
+
+
+# 选择器汇总（来自w3）
+<table class="dataintable">
+<tbody><tr>
+<th>选择器</th>
+<th>例子</th>
+<th>例子描述</th>
+<th style="width:5%;">CSS</th>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_class.asp" title="CSS .class 选择器">.<i>class</i></a></td>
+<td>.intro</td>
+<td>选择 class="intro" 的所有元素。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_id.asp" title="CSS #id 选择器">#<i>id</i></a></td>
+<td>#firstname</td>
+<td>选择 id="firstname" 的所有元素。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_all.asp" title="CSS * 选择器">*</a></td>
+<td>*</td>
+<td>选择所有元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_element.asp" title="CSS element 选择器"><i>element</i></a></td>
+<td>p</td>
+<td>选择所有 &lt;p&gt; 元素。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_element_comma.asp" title="CSS element,element 选择器"><i>element</i>,<i>element</i></a></td>
+<td>div,p</td>
+<td>选择所有 &lt;div&gt; 元素和所有 &lt;p&gt; 元素。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_element_element.asp" title="CSS element element 选择器"><i>element</i> <i>element</i></a></td>
+<td>div p</td>
+<td>选择 &lt;div&gt; 元素内部的所有 &lt;p&gt; 元素。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_element_gt.asp" title="CSS element>element 选择器"><i>element</i>&gt;<i>element</i></a></td>
+<td>div&gt;p</td>
+<td>选择父元素为 &lt;div&gt; 元素的所有 &lt;p&gt; 元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_element_plus.asp" title="CSS element+element 选择器"><i>element</i>+<i>element</i></a></td>
+<td>div+p</td>
+<td>选择紧接在 &lt;div&gt; 元素之后的所有 &lt;p&gt; 元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_attribute.asp" title="CSS [attribute] 选择器">[<i>attribute</i>]</a></td>
+<td>[target]</td>
+<td>选择带有 target 属性所有元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_attribute_value.asp" title="CSS [attribute=value] 选择器">[<i>attribute</i>=<i>value</i>]</a></td>
+<td>[target=_blank]</td>
+<td>选择 target="_blank" 的所有元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_attribute_value_contain.asp" title="CSS [attribute~=value] 选择器">[<i>attribute</i>~=<i>value</i>]</a></td>
+<td>[title~=flower]</td>
+<td>选择 title 属性包含单词 "flower" 的所有元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_attribute_value_start.asp" title="CSS [attribute|=value] 选择器">[<i>attribute</i>|=<i>value</i>]</a></td>
+<td>[lang|=en]</td>
+<td>选择 lang 属性值以 "en" 开头的所有元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_link.asp" title="CSS :link 选择器">:link</a></td>
+<td>a:link</td>
+<td>选择所有未被访问的链接。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_visited.asp" title="CSS :visited 选择器">:visited</a></td>
+<td>a:visited</td>
+<td>选择所有已被访问的链接。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_active.asp" title="CSS :active 选择器">:active</a></td>
+<td>a:active</td>
+<td>选择活动链接。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_hover.asp" title="CSS :hover 选择器">:hover</a></td>
+<td>a:hover</td>
+<td>选择鼠标指针位于其上的链接。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_focus.asp" title="CSS :focus 选择器">:focus</a></td>
+<td>input:focus</td>
+<td>选择获得焦点的 input 元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_first-letter.asp" title="CSS :first-letter 选择器">:first-letter</a></td>
+<td>p:first-letter</td>
+<td>选择每个 &lt;p&gt; 元素的首字母。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_first-line.asp" title="CSS :first-line 选择器">:first-line</a></td>
+<td>p:first-line</td>
+<td>选择每个 &lt;p&gt; 元素的首行。</td>
+<td>1</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_first-child.asp" title="CSS :first-child 选择器">:first-child</a></td>
+<td>p:first-child</td>
+<td>选择属于父元素的第一个子元素的每个 &lt;p&gt; 元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_before.asp" title="CSS :before 选择器">:before</a></td>
+<td>p:before</td>
+<td>在每个 &lt;p&gt; 元素的内容之前插入内容。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_after.asp" title="CSS :after 选择器">:after</a></td>
+<td>p:after</td>
+<td>在每个 &lt;p&gt; 元素的内容之后插入内容。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_lang.asp" title="CSS :lang(language) 选择器">:lang(<i>language</i>)</a></td>
+<td>p:lang(it)</td>
+<td>选择带有以 "it" 开头的 lang 属性值的每个 &lt;p&gt; 元素。</td>
+<td>2</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_gen_sibling.asp" title="CSS element1~element2 选择器"><i>element1</i>~<i>element2</i></a></td>
+<td>p~ul</td>
+<td>选择前面有 &lt;p&gt; 元素的每个 &lt;ul&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_attr_begin.asp" title="CSS [attribute^=value] 选择器">[<i>attribute</i>^=<i>value</i>]</a></td>
+<td>a[src^="https"]</td>
+<td>选择其 src 属性值以 "https" 开头的每个 &lt;a&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_attr_end.asp" title="CSS [attribute$=value] 选择器">[<i>attribute</i>$=<i>value</i>]</a></td>
+<td>a[src$=".pdf"]</td>
+<td>选择其 src 属性以 ".pdf" 结尾的所有 &lt;a&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_attr_contain.asp" title="CSS [attribute*=value] 选择器">[<i>attribute</i>*=<i>value</i>]</a></td>
+<td>a[src*="abc"]</td>
+<td>选择其 src 属性中包含 "abc" 子串的每个 &lt;a&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_first-of-type.asp" title="CSS :first-of-type 选择器">:first-of-type</a></td>
+<td>p:first-of-type</td>
+<td>选择属于其父元素的首个 &lt;p&gt; 元素的每个 &lt;p&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_last-of-type.asp" title="CSS :last-of-type 选择器">:last-of-type</a></td>
+<td>p:last-of-type</td>
+<td>选择属于其父元素的最后 &lt;p&gt; 元素的每个 &lt;p&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_only-of-type.asp" title="CSS :only-of-type 选择器">:only-of-type</a></td>
+<td>p:only-of-type</td>
+<td>选择属于其父元素唯一的 &lt;p&gt; 元素的每个 &lt;p&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_only-child.asp" title="CSS :only-child 选择器">:only-child</a></td>
+<td>p:only-child</td>
+<td>选择属于其父元素的唯一子元素的每个 &lt;p&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_nth-child.asp" title="CSS :nth-child(n) 选择器">:nth-child(<i>n</i>)</a></td>
+<td>p:nth-child(2)</td>
+<td>选择属于其父元素的第二个子元素的每个 &lt;p&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_nth-last-child.asp" title="CSS :nth-last-child(n) 选择器">:nth-last-child(<i>n</i>)</a></td>
+<td>p:nth-last-child(2)</td>
+<td>同上，从最后一个子元素开始计数。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_nth-of-type.asp" title="CSS :nth-of-type(n) 选择器">:nth-of-type(<i>n</i>)</a></td>
+<td>p:nth-of-type(2)</td>
+<td>选择属于其父元素第二个 &lt;p&gt; 元素的每个 &lt;p&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_nth-last-of-type.asp" title="CSS :nth-last-of-type(n) 选择器">:nth-last-of-type(<i>n</i>)</a></td>
+<td>p:nth-last-of-type(2)</td>
+<td>同上，但是从最后一个子元素开始计数。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_last-child.asp" title="CSS :last-child 选择器">:last-child</a></td>
+<td>p:last-child</td>
+<td>选择属于其父元素最后一个子元素每个 &lt;p&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_root.asp" title="CSS :root 选择器">:root</a></td>
+<td>:root</td>
+<td>选择文档的根元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_empty.asp" title="CSS :empty 选择器">:empty</a></td>
+<td>p:empty</td>
+<td>选择没有子元素的每个 &lt;p&gt; 元素（包括文本节点）。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_target.asp" title="CSS :target 选择器">:target</a></td>
+<td>#news:target</td>
+<td>选择当前活动的 #news 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_enabled.asp" title="CSS :enabled 选择器">:enabled</a></td>
+<td>input:enabled</td>
+<td>选择每个启用的 &lt;input&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_disabled.asp" title="CSS :disabled 选择器">:disabled</a></td>
+<td>input:disabled</td>
+<td>选择每个禁用的 &lt;input&gt; 元素</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_checked.asp" title="CSS :checked 选择器">:checked</a></td>
+<td>input:checked</td>
+<td>选择每个被选中的 &lt;input&gt; 元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_not.asp" title="CSS :not(selector) 选择器">:not(<i>selector</i>)</a></td>
+<td>:not(p)</td>
+<td>选择非 &lt;p&gt; 元素的每个元素。</td>
+<td>3</td>
+</tr>
+
+<tr>
+<td><a href="/cssref/selector_selection.asp" title="CSS ::selection 选择器">::selection</a></td>
+<td>::selection</td>
+<td>选择被用户选取的元素部分。</td>
+<td>3</td>
+</tr>
+</tbody></table>
 
 # CSS书写规范
 
@@ -1325,13 +1689,12 @@ CSS最后的执行口诀：  长江后浪推前浪，前浪死在沙滩上。
 ~~~
 CSS最后的执行口诀：  龙生龙，凤生凤，老鼠生的孩子会打洞。
 ~~~
-
-<img src="media/shu.gif" />
-
 注意：
 
 ~~~
 恰当地使用继承可以简化代码，降低CSS样式的复杂性。子元素可以继承父元素的样式（text-，font-，line-这些元素开头的都可以继承，以及color属性）
+
+div的高度不能继承，但宽度能继承
 ~~~
 
 ## CSS优先级
@@ -1868,7 +2231,7 @@ html语言当中另外一个相当重要的概念----------标准流！或者普
 
 
   <img src="media/two.jpg" width="400" />
-  
+
 ```
 只要上面的盒子不浮动，上面的盒子就会换行，相当于后面跟一个/n
 ```
@@ -1879,7 +2242,8 @@ html语言当中另外一个相当重要的概念----------标准流！或者普
 ```
 
 ```
-元素添加浮动后，元素会具有行内块元素的特性。元素的大小完全取决于定义的大小或者默认的内容多少浮动根据元素书写的位置来显示相应的浮动。
+元素（包括span等行内元素）添加浮动后，元素会具有 行内块元素 的特性。元素的大小完全取决于定义的大小或者默认的内容多少浮动根据元素书写的位置来显示相应的浮动。
+比如：块级元素加了float后，默认宽度为内容宽度，而不是浏览器宽度
 ```
 
 总结：  浮动 --->    
@@ -1908,7 +2272,7 @@ float      浮 漏 特
 
 3、制作HTML结构 。
 
-4、CSS初始化，然后开始运用盒子模型的原理，通过DIV+CSS布局来控制网页的各个模块。
+4、CSS初始化（清楚内外边距），然后开始运用盒子模型的原理，通过DIV+CSS布局来控制网页的各个模块。
 
 ## 一列固定宽度且居中
 
@@ -1957,8 +2321,10 @@ float      浮 漏 特
 准确地说，并不是清除浮动，而是**清除浮动后造成的影响**
 
 如果浮动一开始就是一个美丽的错误，那么请用正确的方法挽救它。
+<hr />
 
-
+**很多情况下都不能给父亲盒子高度**，很多,比如新闻
+<hr />
 
 ## 清除浮动本质
 
@@ -1985,12 +2351,14 @@ float      浮 漏 特
 | left  | 不允许左侧有浮动元素（清除左侧浮动的影响） |
 | right | 不允许右侧有浮动元素（清除右侧浮动的影响） |
 | both  | 同时清除左右两侧浮动的影响         |
+>基本上都是用both
 
 ### 额外标签法
 
 ```html
 是W3C推荐的做法是通过在浮动元素末尾添加一个空的标签例如 <div style=”clear:both”></div>，或则其他标签br等亦可。
 ```
+>大致可以理解为当父元素内的元素都浮动时，是不会撑开的。此时一个元素放到浮着的元素下面，使同父类元素下所有浮动着的元素在标准文档流中也有个映射，来占据位置？？？（个人理解）
 
 优点： 通俗易懂，书写方便
 
@@ -2005,18 +2373,27 @@ float      浮 漏 特
 ~~~
 优点：  代码简洁
 
-缺点：  内容增多时候容易造成不会自动换行导致内容被隐藏掉，无法显示需要溢出的元素。
+缺点：  内容增多时候容易造成不会自动换行导致内容被隐藏掉，无法显示需要溢出的元素。（详情在BFC时会后面会讲）
 
-### 使用after伪元素清除浮动
+### 使用after伪元素清除浮动（背过）
 
 **:after 方式为空元素的升级版，好处是不用单独加标签了** 
-
+>after前的单冒号是为了兼容以前版本浏览器
 使用方法：
 
 ```css
- .clearfix:after {  content: "."; display: block; height: 0; clear: both; visibility: hidden;  }   
+  .clearfix:after {  
+  content: ".";/* 尽量不要空，防止旧版本浏览器有空隙 */ 
+  display: block;/* 将after代表元素转换为块级元素 */
+  height: 0; /* 高度为0，使盒子高度为0，不影响其他布局 */
+  visibility: hidden; /* 隐藏盒子，避免看见小点 */
+  clear: both;/* 清除浮动 */
+    }   
 
- .clearfix {*zoom: 1;}   /* IE6、7 专有 */
+ .clearfix {*zoom: 1;}   /* 为了兼容性，习惯性带上 */
+ /* 
+    “ * ” 是ie6和7专门识别的符号，ie6,7通过zoom来清除浮动 
+ */
 ```
 
 优点： 符合闭合浮动思想  结构语义化正确
@@ -2032,13 +2409,14 @@ float      浮 漏 特
 注意： content:"."  里面尽量跟一个小点，或者其他，尽量不要为空，否则再firefox 7.0前的版本会有生成空格。
 
 
-### 使用before和after双伪元素清除浮动
+### 使用before和after双伪元素清除浮动（强烈推荐，背过）
 
 使用方法：
+>强烈推荐
 
 ```css
 .clearfix:before,.clearfix:after { 
-  content:"";
+  content:"";/*空字符串*/
   display:table;  /* 这句话可以出发BFC BFC可以清除浮动,BFC我们后面讲 */
 }
 .clearfix:after {
@@ -2419,8 +2797,8 @@ position属性的常用值
 | 值        | 描述                       |
 | -------- | ------------------------ |
 | static   | 自动定位（默认定位方式）             |
-| relative | 相对定位，相对于其原文档流的位置进行定位     |
-| absolute | 绝对定位，相对于其上一个已经定位的父元素进行定位 |
+| relative | 相对定位，相对于其原文档流的位置进行定位(不脱标)     |
+| absolute | 绝对定位，相对于其上一个已经定位的父元素进行定位(脱标) |
 | fixed    | 固定定位，相对于浏览器窗口进行定位        |
 
 ## 静态定位(static)
@@ -2431,20 +2809,17 @@ position属性的常用值
 
 在静态定位状态下，无法通过边偏移属性（top、bottom、left或right）来改变元素的位置。
 
+一般用来清除定位
+
 PS： 静态定位其实没啥可说的。
 
 ## 相对定位relative(自恋型)
 
-~~~
-小笑话： 
-刚刚看到一个超级超级帅的帅哥，看得我都忍不住想和他搞基了。世间怎会有如此之完美的男人。我和他就这样一动不动的对视着，就仿佛一见钟情。时间也在这一瞬间停止了。直到我的手麻了。才恋恋不舍的放下镜子。。。。
-~~~
-
-<img src="media/smail.gif" width="100"/>
+**相对于自己**
 
 相对定位是将元素相对于它在标准流中的位置进行定位，当position属性的取值为relative时，可以将元素定位于相对位置。
 
-对元素设置相对定位后，可以通过边偏移属性改变元素的位置，但是它在文档流中的位置仍然保留。如下图所示，即是一个相对定位的效果展示：
+对元素设置相对定位后，可以通过边偏移属性改变元素的位置，但是它在文档流中的位置**仍然保留**。如下图所示，即是一个相对定位的效果展示：
 
 <img src="media/r.png"  />
 
@@ -2453,45 +2828,42 @@ PS： 静态定位其实没啥可说的。
 1. 相对定位最重要的一点是，它可以通过边偏移移动位置，但是原来的所占的位置，继续占有。
 2. 其次，每次移动的位置，是以自己的左上角为基点移动（相对于自己来移动位置）
 
-就是说，相对定位的盒子仍在标准流中，它后面的盒子仍以标准流方式对待它。（相对定位不脱标）
+就是说，相对定位的盒子仍在标准流中，它后面的盒子仍以标准流方式对待它。（相对定位不脱标(不脱离标准流)）
 
 如果说浮动的主要目的是 让多个块级元素一行显示，那么定位的主要价值就是 移动位置， 让盒子到我们想要的位置上去。
 
 ## 绝对定位absolute (拼爹型)
 
-~~~
-小笑话：
-
-吃早饭时，老婆往儿子碗里放了两个煎蛋，儿子全给了我，还一本正经地说：“爸爸，多吃点，男人养家不容易。” <br/>
-
-我一阵感动，刚想夸他两句。 
-
-儿子接着说：“以后全靠你让我拼爹了！”
-~~~
-
-<img src="media/smail.gif" width="100"/>
+**相对于父标签**
 
 　[注意] 如果文档可滚动，绝对定位元素会随着它滚动，因为元素最终会相对于正常流的某一部分定位。
 
 当position属性的取值为absolute时，可以将元素的定位模式设置为绝对定位。
 
-注意：    绝对定位最重要的一点是，它可以通过边偏移移动位置，但是它完全脱标，完全不占位置。
+注意：绝对定位最重要的一点是，它可以通过边偏移移动位置，但是它**完全脱标**，完全不占位置。
 
 ### 父级没有定位
 
-若所有父元素都没有定位，以浏览器为准对齐(document文档)。
+若所有父元素都没有定位，以浏览器边框为准对齐(document文档)。
+
+**写上position: absolution 只会导致不占位置，依旧通过无定位的父级进行定位**
+**只有加上边偏移后（就算是0px也可以）才会寻找最近的定位父级**
 
 <img src="media/ab.png" />
 
 ### 父级有定位
 
-绝对定位是将元素依据最近的已经定位（绝对、固定或相对定位）的父元素（祖先）进行定位。 
+绝对定位是将元素依据**最近**的已经定位（绝对、固定或相对定位）的父元素（祖先）进行定位。 （除static外，只要有定位就行，什么定位都可以）
 
 <img src="media/ab1.png" />
 
 
 
 ### 子绝父相
+
+依据：
+1. 相对定位不脱标
+2. 绝对定位脱标
 
 这个“子绝父相”太重要了，是我们学习定位的口诀，时时刻刻记住的。
 
@@ -2517,13 +2889,13 @@ PS： 静态定位其实没啥可说的。
 
 ## 绝对定位的盒子水平/垂直居中
 
-普通的盒子是左右margin 改为 auto就可， 但是对于绝对定位就无效了
+普通的盒子是左右margin 改为 auto就可， 但是对于  绝对定位就无效了  
 
 定位的盒子也可以水平或者垂直居中，有一个算法。
 
 1. 首先left 50%   父盒子的一半大小
 
-2. 然后走自己外边距负的一半值就可以了 margin-left。
+2. 然后走自己外边距**负**的一半值就可以了 margin-left。
 
    
 
@@ -2537,6 +2909,8 @@ PS： 静态定位其实没啥可说的。
 
 1. 固定定位的元素跟父亲没有任何关系，只认浏览器。
 2. 固定定位完全脱标，不占有位置，不随着滚动条滚动。
+
+注意：固定定位的盒子一定要有宽和高，除非有内容可以撑开盒子
 
 
 
@@ -2558,13 +2932,13 @@ ie6等低版本浏览器不支持固定定位。
 
 注意：
 
-1. z-index的默认属性值是0，取值越大，定位元素在层叠元素中越居上。
+1. z-index的默认属性值是**0**，取值越大，定位元素在层叠元素中越居上。
 
 2. 如果取值相同，则根据书写顺序，后来居上。
 
 3. 后面数字一定不能加单位。
 
-4. 只有相对定位，绝对定位，固定定位有此属性，其余标准流，浮动，静态定位都无此属性，亦不可指定此属性。
+4. 只有**相对定位，绝对定位，固定定位**有此属性，其余标准流，浮动，静态定位都无此属性，亦不可指定此属性。
 
 
 
@@ -2574,7 +2948,7 @@ ie6等低版本浏览器不支持固定定位。
 | ------------ | ---------- | --------- | ---------------- |
 | 静态static     | 不脱标，正常模式   | 不可以       | 正常模式             |
 | 相对定位relative | 不脱标，占有位置   | 可以        | 相对自身位置移动（自恋型）    |
-| 绝对定位absolute | 完全脱标，不占有位置 | 可以        | 相对于定位父级移动位置（拼爹型） |
+| 绝对定位absolute | 完全脱标，不占有位置 | 可以        | 相对于有定位的父级移动位置（拼爹型） |
 | 固定定位fixed    | 完全脱标，不占有位置 | 可以        | 相对于浏览器移动位置（认死理型） |
 
 # 定位模式转换
@@ -2595,7 +2969,8 @@ display 设置或检索对象是否及如何显示。
 
 display : none 隐藏对象 与它相反的是 display:block 除了转换为块级元素之外，同时还有显示元素的意思。
 
-特点： 隐藏之后，不再保留位置。
+特点： 隐藏之后，**不再保留位置**。
+用的比较多
 
 ## visibility 可见性
 
@@ -2605,7 +2980,7 @@ visible : 　对象可视
 
 hidden : 　对象隐藏
 
-特点： 隐藏之后，继续保留原有位置。（停职留薪）
+特点： 隐藏之后，**继续保留原有位置**。（停职留薪）
 
 ## overflow 溢出
 
@@ -2615,9 +2990,9 @@ visible : 　不剪切内容也不添加滚动条。
 
 auto : 　 超出自动显示滚动条，不超出不显示滚动条
 
-hidden : 　不显示超过对象尺寸的内容，超出的部分隐藏掉
+hidden : 　不显示超过对象尺寸的内容，超出的部分隐藏掉（用的最多）
 
-scroll : 　不管超出内容否，总是显示滚动条
+scroll : 　不管是否超出内容，总是显示滚动条
 
 # CSS高级技巧
 
@@ -2654,7 +3029,7 @@ cursor :  default  小白 | pointer  小手  | move  移动  |  text  文本
  outline : outline-color ||outline-style || outline-width 
 ~~~
 
- 但是我们都不关心可以设置多少，我们平时都是去掉的。
+ 但是我们都不关心可以设置多少，**我们平时都是去掉的**。
 
 最直接的写法是 ：  outline: 0;   或者  outline: none;
 
@@ -2662,7 +3037,7 @@ cursor :  default  小白 | pointer  小手  | move  移动  |  text  文本
  <input  type="text"  style="outline: 0;"/>
 ```
 
-### 防止拖拽文本域resize
+### 防止拖拽文本域（textarea）resize
 
 resize：none    这个单词可以防止 火狐 谷歌等浏览器随意的拖动 文本域。
 
@@ -2674,6 +3049,7 @@ resize：none    这个单词可以防止 火狐 谷歌等浏览器随意的拖�
 ```html
 <textarea  style="resize: none;"></textarea>
 ```
+**对文本域来说，防止拖拽以及清楚点击时的外轮廓通常是必要的**
 
 ## vertical-align 垂直对齐
 
@@ -2689,6 +3065,7 @@ vertical-align 垂直对齐， 这个看上去很美好的一个属性， 实际
 
 ~~~css
 vertical-align : baseline |top |middle |bottom 
+/* middle用得很多 */
 ~~~
 
 设置或检索对象内容的垂直对其方式。 
@@ -2711,10 +3088,10 @@ vertical-align 不影响块级元素中的内容对齐，它只针对于 行内�
 
 解决的方法就是：  
 
-1. 给img vertical-align:middle | top等等。  让图片不要和基线对齐。<img src="media/1633.png"  width="500"  style="border: 1px dashed #ccc;" />
+1. 给img vertical-align:middle | top等等。  让图片不要和基线对齐。用得较多的是top。<img src="media/1633.png"  width="500"  style="border: 1px dashed #ccc;" />
 
 
-1. 给img 添加 display：block; 转换为块级元素就不会存在问题了。<img src="media/sina1.png" width="500" style="border: 1px dashed #ccc;"/>
+2. 给img 添加 display：block; 转换为块级元素就不会存在问题了。<img src="media/sina1.png" width="500" style="border: 1px dashed #ccc;"/>
 
 # 溢出的文字隐藏
 
@@ -2743,11 +3120,16 @@ text-overflow : clip | ellipsis
 
 设置或检索是否使用一个省略标记（...）标示对象内文本的溢出
 
-clip : 　不显示省略标记（...），而是简单的裁切 
+clip : 　不显示省略标记（...），而是简单的裁切 ,默认。
 
 ellipsis : 　当对象内文本溢出时显示省略标记（...）
 
-注意一定要首先强制一行内显示，再次和overflow属性  搭配使用
+注意一定要首先**强制一行内显示**，再次和overflow属性  搭配使用
+~~~css
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis
+~~~
 
 ## CSS精灵技术（sprite） 小妖精  雪碧
 
@@ -2962,6 +3344,15 @@ http://www.iconfont.cn/
 
 伪元素:before和:after添加的内容默认是inline元素**；这个两个伪元素的`content`属性，表示伪元素的内容,设置:before和:after时必须设置其`content`属性，否则伪元素就不起作用。
 
+~~~css
+div::before {/* 这样是指在 div中，在div内容前面，添加一个盒子。而不是在div前面 */
+
+}
+
+div:hover::before {/* 鼠标经过div后，会改变div::before样式 */
+  /* 样式 */
+}
+~~~
 
 
 
@@ -2987,6 +3378,7 @@ http://www.iconfont.cn/
 ~~~
 transition: 要过渡的属性  花费时间  运动曲线  何时开始;
 如果有多组属性变化，还是用逗号隔开。
+前两个属性必写
 ~~~
 
 | 属性                         | 描述                      | CSS  |
@@ -3016,7 +3408,9 @@ div {
 			background-color: pink;
 			/* transition: 要过渡的属性  花费时间  运动曲线  何时开始; */
 			transition: width 0.6s ease 0s, height 0.3s ease-in 1s;
-			/* transtion 过渡的意思  这句话写到div里面而不是 hover里面 */
+			/* transtion 过渡的意思  这句话写到div里面而不是 hover里面
+          否侧回去的时候没有过渡
+       */
   
 			
 }
@@ -3200,8 +3594,6 @@ z 里面是负的， 外面是正的
 
  就是沿着 x 立体旋转.
 
-![1498445756802](media/1498445756802.png)
-
 ~~~css
 img {
   transition:all 0.5s ease 0s;
@@ -3215,8 +3607,6 @@ img:hove {
 ### rotateY()
 
 沿着y轴进行旋转
-
-![1498446043198](media/1498446043198.png)
 
 ~~~css
 img {
@@ -3256,7 +3646,7 @@ img:hover {
 
 注：并非任何情况下需要透视效果，根据开发需要进行设置。
 
-perspective 一般作为一个属性，设置给父元素，作用于所有3D转换的子元素
+**perspective 一般作为一个属性，设置给父元素，作用于所有3D转换的子元素，设置到要转动的元素上是不起作用的，一定要父元素父元素**
 
 理解透视距离原理：
 
@@ -3282,7 +3672,7 @@ transformZ的直观表现形式就是大小变化，实质是XY平面相对于�
 
 ### translate3d(x,y,z)
 
-[注意]其中，x和y可以是长度值，也可以是百分比，百分比是相对于其本身元素水平方向的宽度和垂直方向的高度和；z只能设置长度值
+[注意]其中，x和y可以是长度值，也可以是百分比，百分比是相对于其本身元素水平方向的宽度和垂直方向的高度和；z只能设置长度值px
 
 ###  开门案例
 
@@ -3432,6 +3822,7 @@ img {
   }
   55%{
     transform: translateX(1000px) rotateY(180deg);
+    /* 如果有多组动画，在transform中加个空格继续写，不要再写一个transform */
   }
   95%{
     transform: translateX(0) rotateY(180deg);
@@ -3460,23 +3851,31 @@ CSS3在布局方面做了非常大的改进，使得我们对块级元素的布�
 
 Flex布局的语法规范经过几年发生了很大的变化，也给Flexbox的使用带来一定的局限性，因为语法规范版本众多，浏览器支持不一致，致使Flexbox布局使用不多
 
-**2、各属性详解******
+**2、各属性详解**
+在父盒子里声明display:flex后
+子盒子中写flex:数字。表示占据比例
 
-1.flex子项目在主轴的缩放比例，不指定flex属性，则不参与伸缩分配
+1.flex子项目在主轴的缩放比例，不指定flex属性，则不参与伸缩分配（父盒子）
 
 min-width  最小值      min-width: 280px  最小宽度  不能小于 280
 
 max-width: 1280px  最大宽度  不能大于 1280
 
-2.flex-direction调整主轴方向（默认为水平方向）
+2.flex-direction调整主轴方向（默认为水平方向）（父盒子）
 
 flex-direction: column 垂直排列
 
 flex-direction: row  水平排列
 
+>取值：
+>row： 主轴与行内轴方向作为默认的书写模式。即横向从左到右排列（左对齐）。 
+>row-reverse： 对齐方式与row相反。 
+>column： 主轴与块轴方向作为默认的书写模式。即纵向从上往下排列（顶对齐）。 
+>column-reverse： 对齐方式与column相反。 
+
 http://m.ctrip.com/html5/   携程网手机端地址
 
-3、justify-content调整主轴对齐（水平对齐）
+3、justify-content调整主轴对齐（水平对齐）（父盒子中）
 
 子盒子如何在父盒子里面水平对齐
 
@@ -3488,7 +3887,7 @@ http://m.ctrip.com/html5/   携程网手机端地址
 | space-between | 项目位于各行之间留有空白的容器内。        | 左右的盒子贴近父盒子，中间的平均分布空白间距  |
 | space-around  | 项目位于各行之前、之间、之后都留有空白的容器内。 | 相当于给每个盒子添加了左右margin外边距  |
 
-4、align-items调整侧轴对齐（垂直对齐）
+4、align-items调整侧轴对齐（垂直对齐）（多用于做单行）
 
 子盒子如何在父盒子里面垂直对齐（单行）
 
@@ -3500,7 +3899,8 @@ http://m.ctrip.com/html5/   携程网手机端地址
 | flex-end   | 项目位于容器的结尾。      | 垂直对齐结束位置 底对齐                |
 |            |                 |                             |
 
-5、flex-wrap控制是否换行
+5、flex-wrap 
+>当父盒子内子盒子或者其他内容一行装不下时，控制是否换行
 
 当我们子盒子内容宽度多于父盒子的时候如何处理
 
@@ -3557,6 +3957,7 @@ align-content是针对flex容器里面多轴(多行)的情况,align-items是针�
 用整数值来定义排列顺序，数值小的排在前面。可以为负值。 默认值是 0
 
 ~~~css
+/* 子盒子中 */
 order: 1;
 ~~~
 
