@@ -157,7 +157,10 @@ BFC就是页面上的一个隔离的独立容器，容器里面的子元素不�
 | -o-      | Opera                                  |
 | -ms-     | Internet Explorer, Edge                |
 | -khtml-  | Konqueror                              |
-
+~~~css
+-webkit-background-size:auto;
+/* 写在属性前面 */
+~~~
 
 
 后面我们会有 常用的解决H5和C3 的兼容解决文件， 我们这里暂且不涉及。
