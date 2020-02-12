@@ -366,9 +366,8 @@
         6. isNaN():判断一个值是否为NaN
             
             >NaN六亲不认，NaN参与的==运算都为false，所以有这个方法来判断
-            >
+            >通过转为数字是否为NaN决定输出
             >结果分别为：
-            >
             >null:false
             >true/false:false
             >undefined:true
