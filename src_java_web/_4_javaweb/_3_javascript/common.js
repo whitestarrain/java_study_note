@@ -42,3 +42,20 @@ function removeEventListener(element, type, fn) {
         element['on' + type] = null;
     }
 }
+
+/* 获取文档滚动距离，处理兼容性 */
+function getScroll() {
+    return {
+        scrollLeft:
+            document.body.scrollLeft || document.documentElement.scrollLeft,
+        scrollTop: document.body.scrollTop || document.documentElement.scrollTop
+    };
+}
+
+/* 处理获得pageX,pageY兼容性 */
+function getPage(e) {
+    return {
+        pageX: e.pageX || e.clientX + getScroll().scrollLeft,
+        pageY: e.pageY || e.clientY + getScroll.scrollTop
+    };
+}

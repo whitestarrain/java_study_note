@@ -537,7 +537,7 @@ box.className = "show"
 
 ## 1.6. 节点
 
-### 节点操作
+### 1.6.1. 节点操作
 
 ```javascript
 var body = document.body
@@ -553,7 +553,7 @@ var text = document.createElement("p")
 body.replaceChild(text, div)
 ```
 
-### 1.6.1. 节点属性
+### 1.6.2. 节点属性
 
 - nodeType 节点的类型
   - 1 元素节点
@@ -563,7 +563,7 @@ body.replaceChild(text, div)
 - nodeValue 节点值
   - 元素节点的 nodeValue 始终是 null
 
-### 1.6.2. 模拟文档树结构
+### 1.6.3. 模拟文档树结构
 
 ![1497165666684](media/1497165666684.png)
 
@@ -610,7 +610,7 @@ function getChildren(ele) {
 getChildren(doc)
 ```
 
-### 1.6.3. 节点层级
+### 1.6.4. 节点层级
 
 ![1503541915769](media/1503541915769.png)
 
@@ -652,7 +652,7 @@ console.log(box.lastChild)
 	firstChild/lastChild
 ```
 
-### 1.6.4. 子节点(详细补充，兄弟节点类似)
+### 1.6.5. 子节点(详细补充，兄弟节点类似)
 
 ![1497154623955](media/1497154623955.png)
 
@@ -726,7 +726,7 @@ console.log(box.lastChild)
       > })(window.Node || window.Element)
       > ```
 
-### 1.6.5. void 运算符
+### 1.6.6. void 运算符
 
 ```html
 <!--
@@ -1022,8 +1022,6 @@ function eventCode() {
 }
 ```
 
-* addEventListener函数第三个参数作用
-
 ### 1.8.2. 兼容代码
 
 ```javascript
@@ -1050,40 +1048,135 @@ function removeEventListener(element, type, fn) {
 
 ### 1.8.3. 事件的三个阶段
 
-1. 捕获阶段
+- 分类
 
-2. 当前目标阶段
+  - element.onclick
+    - 只有事件冒泡
+  - addEventListener
+    - addEventListener 第三个参数为 false 时
+      1.  当有嵌套元素时
+      2.  并且元素有注册事件
+      3.  当进行触发元素事件的动作时（多个元素都会触发事件条件下）
+      4.  会从最里面元素开始，依次向外侧进行调用事件
+      5.  称为**事件冒泡**
+    - addEventListener 第三个参数为 true 时
+      1.  条件同上
+      2.  顺序从外到里
+      3.  称为**事件捕获**
+  - element.attachEvent
+    - 只有事件冒泡
 
-3. 冒泡阶段
+- 阶段
 
-   事件对象.eventPhase 属性可以查看事件触发时所处的阶段
+  > 这三个阶段都会发生，就是一个来回
+
+  1. 捕获阶段
+     1. 从外到里定位元素。如 document->body->div
+     2. 尽管第三个参数为 false，该阶段也会发生，只是无法通过代码进行干预
+  2. 当前目标阶段
+
+  3. 冒泡阶段
+     1. 从里到外远离元素。如：div->body->document
 
 ### 1.8.4. 事件对象的属性和方法
 
-- event.type 获取事件类型
-- clientX/clientY 所有浏览器都支持，窗口位置
-- pageX/pageY IE8 以前不支持，页面位置
-- event.target || event.srcElement 用于获取触发事件的元素
+```js
+/* dom标准中 */
+div.onclick = function(e) {
+  /* 事件处理函数是用户触发事件时系统调用。此时系统会传入一个参数（复习：js中形参和传参的特点） */
+  /* 事件处理函数中如果有参数，那么该参数会接收事件对象 */
+}
+
+/* 老版本ie中通过 window.event获取事件 */
+
+/* 兼容性写法 */
+function(){
+  e=e||window.event;
+}
+```
+
+- event.eventPhase 属性可以查看事件触发时所处的阶段。是 number 类型
+  - 捕获阶段：1
+  - 目标阶段：2
+  - 冒泡阶段：3
+- 获取元素
+
+  - event.target || event.srcElement 用于获取触发事件的元素
+    - 有浏览器兼容问题。老版本 ie 使用的是 srcElement
+  - event.currentTarget 事件处理函数所在的对象
+    - 其实用 this 即可
+
+  > 如果没有事件冒泡，target 与 currentTarget 获取的对象相同
+
+- event.type 获取事件类型。如：click,mouseover,mouseleft
+- clientX/clientY 所有浏览器都支持，相对于**文档可视区**的坐标
+  > 如果有滚动条后。坐标会发生变化
+- pageX/pageY IE8 以前不支持，页面位置。相对于**文档**
+  > 如果滚动条滚动后，坐标不会发生变化
+  > 有兼容性问题，ie9 以后才能使用
 - event.preventDefault() 取消默认行为
 
-#### 1.8.4.1. 案例
+### 1.8.5. 事件委托(event delegation)
 
-- 跟着鼠标飞的天使
-- 鼠标点哪图片飞到哪里
+> 通过事件冒泡，子元素将事件处理委托给父元素
+> 也就是说尽管子元素没有绑定事件处理函数，但是还是会触发事件
+> 子元素发生事件但没有处理，在元素冒泡的过程中会把事件对象带向外层
+> 比如使 ul 中选中的 li 背景高亮。就可以使用事件委托。
+> 例：
+
+```html
+<body>
+  <ul id="ul">
+    <li>4</li>
+    <li>3</li>
+    <li>2</li>
+    <li>1</li>
+    <li>1</li>
+  </ul>
+  <script>
+    // 事件委托： 原理事件冒泡
+    var ul = document.getElementById("ul")
+    ul.onclick = function(e) {
+      // e 事件参数（事件对象）: 当事件发生的时候，可以获取一些和事件相关的数据
+      // 获取到当前点击的li
+      // e.target 是真正触发事件的对象
+      // console.log(e.target);
+      // 让当前点击的li高亮显示
+      e.target.style.backgroundColor = "red"
+    }
+  </script>
+</body>
+```
+
+#### 1.8.5.1. 案例
+
+- 跟着鼠标飞的组件 1
+  - Demo17
+  - 为了解决 pageX 兼容性问题。可以使用 document.body.scrollLeft、document.body.scrollTop 获取滚动了多少距离
+  - 有些浏览器使用 doucment.documentElement.scrollLeft，document.document.documentElement.scrollTop 来获取（chrome 不行）
 - 获取鼠标在 div 内的坐标
+  - 获取 div 的坐标：div.offsetLeft,div.offsetTop(在 div 内点击时可以使用 this)
 
-### 1.8.5. 阻止事件传播的方式
+### 1.8.6. 阻止事件传播的方式
 
-- 标准方式 event.stopPropagation();
-- IE 低版本 event.cancelBubble = true; 标准中已废弃
+- 阻止默认行为  
+  > 比如点击 a 标签时不转向连接
+  1. 最简单：事件处理函数最后写上：return false()
+  2. 标准方法：e.preventDefault()
+  3. ie 老版本：e.returnValue=false;。非标准方式。chrome 也支持
 
-### 1.8.6. 常用的鼠标和键盘事件
+- 阻止冒泡
+  1. 标准方式 event.stopPropagation();
+  2. IE 低版本 event.cancelBubble = true; 标准中已废弃
+
+### 1.8.7. 常用的鼠标和键盘事件
 
 - onmouseup 鼠标按键放开时触发
 - onmousedown 鼠标按键按下触发
 - onmousemove 鼠标移动触发
 - onkeyup 键盘按键按下触发
 - onkeydown 键盘按键抬起触发
+  - 查文档：keyboardEvent.keyCode  keyboardEvent.Code等
 
 ## 1.9. BOM
 
