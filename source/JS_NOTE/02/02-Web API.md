@@ -1155,12 +1155,14 @@ function(){
   - 为了解决 pageX 兼容性问题。可以使用 document.body.scrollLeft、document.body.scrollTop 获取滚动了多少距离
   - 有些浏览器使用 doucment.documentElement.scrollLeft，document.document.documentElement.scrollTop 来获取（chrome 不行）
 - 获取鼠标在 div 内的坐标
-  - 获取 div 的坐标：div.offsetLeft,div.offsetTop(在 div 内点击时可以使用 this)
+  - 获取 div 的坐标：div.offsetLeft,div.offsetTop(在 div 内点击时可以使用 this)。（offset 时只读属性）
 
 ### 1.8.6. 阻止事件传播的方式
 
-- 阻止默认行为  
+- 阻止默认行为
+
   > 比如点击 a 标签时不转向连接
+
   1. 最简单：事件处理函数最后写上：return false()
   2. 标准方法：e.preventDefault()
   3. ie 老版本：e.returnValue=false;。非标准方式。chrome 也支持
@@ -1176,7 +1178,7 @@ function(){
 - onmousemove 鼠标移动触发
 - onkeyup 键盘按键按下触发
 - onkeydown 键盘按键抬起触发
-  - 查文档：keyboardEvent.keyCode  keyboardEvent.Code等
+  - 查文档：keyboardEvent.keyCode keyboardEvent.Code 等
 
 ## 1.9. BOM
 
@@ -1190,14 +1192,28 @@ BOM(Browser Object Model) 是指浏览器对象模型，浏览器对象模型提
 
 ### 1.9.2. BOM 的顶级对象 window
 
-window 是浏览器的顶级对象，当调用 window 下的属性和方法时，可以省略 window
-注意：window 下一个特殊的属性 window.name
+window 是浏览器的顶级对象，是包括地址栏在内的整个区域
+当调用 window 下的属性和方法时，可以省略 window。比如直接调用 document,console 属性，以及 alter 方法
+
+js 中定义的全局变量都是 window 的属性，是浏览器自动添加的。
+但定义的全局变量和 window 中已有属性重名的话可能会发生问题。
+比如：
+
+1. top 是 window 中的属性，只能获取，不能赋值。var top='1';什么作用都没
+2. name 被赋值时会自动转换为字符串
+
+注意：window 下一个特殊的属性 window.name。默认为空字符串
 
 ### 1.9.3. 对话框
 
 - alert()
+  - 弹出内容
 - prompt()
+  - 提示输入内容
 - confirm()
+  - 提示选择是否
+
+> 现在都不会使用这三个，太难看了，并且用户体验不好，并且不同浏览器样式不同
 
 ### 1.9.4. 页面加载事件
 
@@ -1205,18 +1221,29 @@ window 是浏览器的顶级对象，当调用 window 下的属性和方法时�
 
 ```javascript
 window.onload = function() {
-  // 当页面加载完成执行
-  // 当页面完全加载所有内容（包括图像、脚本文件、CSS 文件等）执行
+  /* 
+  window可以省略
+  当页面完全下载或加载所有内容（包括图像、脚本文件、CSS 文件等）后执行
+  其实onload是比较晚的。比如script标签是页面上的元素创建到那里就会执行。
+  推荐在底部写script
+
+  但其实所有元素都有onload事件。比如图片可以通过onload实现加载前显示一张图片，加载完后再转换
+   */
 }
 ```
 
 - onunload
+  - 再该方法中，所有 alter，confirm 等对话框都无法使用。因为卸载时 window 会被冻结
 
 ```javascript
 window.onunload = function() {
   // 当用户退出页面时执行
 }
 ```
+
+- 刷新页面：
+  1. 卸载页面
+  2. 重新加载页面
 
 ### 1.9.5. 定时器
 
@@ -1227,6 +1254,7 @@ window.onunload = function() {
 ```javascript
 // 创建一个定时器，1000毫秒后执行，返回定时器的标示
 var timerId = setTimeout(function() {
+  /* setTimeout返回一个整数作为定时器id */
   console.log("Hello World")
 }, 1000)
 
@@ -1253,7 +1281,13 @@ clearInterval(timerId)
 
 ```
 定时器
+  Demo20
 简单动画
+<!--
+  注意：elment.style.left一类获取的只是标签中的style的样式属性。
+        如果标签中的style没有设置该样式属性，就会获取空字符串
+        css中的也无法获取
+ -->
 ```
 
 ### 1.9.6. location 对象
@@ -1262,7 +1296,7 @@ location 对象是 window 对象下的一个属性，使用的时候可以省略
 
 location 可以获取或者设置浏览器地址栏的 URL
 
-#### 1.9.6.1. location 有哪些成员？
+#### 1.9.6.1. location 常用成员？
 
 - 使用 chrome 的控制台查看
 
@@ -1270,10 +1304,40 @@ location 可以获取或者设置浏览器地址栏的 URL
 
   [MDN](https://developer.mozilla.org/zh-CN/)
 
-- 成员
+- 属性
+  - href 是地址栏地址。（超常用）
+    - 可以通过设置 href 来进行页面跳转
+      > href='http://www.wangye.com'
+  - origin 是协议名称
+  - pathname 是不带协议的地址
+- 方法
+- assign('https://网页')
+  - 和给 href 赋值一样，也可以用来页面跳转（跳转后可以后退）
+- reload()
+  - 参数
+    - true：会强制从服务器获取页面。
+    - 如果浏览器有缓存的话，直接从缓存中获取页面
+  - 相当于 F5，刷新，
+    - 直接点击 F5。从缓存中获取
+    - ctrl+F5 强制刷新
+- replace()
+  - 也可以跳转网页，但不可以后退
 
-  - assign()/reload()/replace()
-  - hash/host/hostname/search/href……
+> 下面的用时直接在控制台打印 location 得了
+
+- hash
+  - 锚点。点击锚点后连接尾部会有 #锚点名称 location 中 hash 也会有相应的值
+- host
+  - 主机名
+- hostname
+  - 主机名
+- pathname
+  - 当前页面文件位置
+- port
+  - 端口。为空时表示 默认的 80
+- search
+  - 查询字符串。?后的出一堆东西。不包括#后的东西
+- href……
 
 #### 1.9.6.2. URL
 
@@ -1284,6 +1348,7 @@ location 可以获取或者设置浏览器地址栏的 URL
 ```
 scheme://host:port/path?query#fragment
 http://www.itheima.com:80/a/b/index.html?name=zs&age=18#bottom
+http协议默认端口80，可以省略
 scheme:通信协议
 	常用的http,ftp,maito等
 host:主机
@@ -1293,9 +1358,11 @@ port:端口号
 path:路径
 	由零或多个'/'符号隔开的字符串，一般用来表示主机上的一个目录或文件地址。
 query:查询
-	可选，用于给动态网页传递参数，可有多个参数，用'&'符号隔开，每个参数的名和值用'='符号隔开。例如：name=zs
+	可选，用于给动态网页传递参数，可有多个参数，用'&'符号隔开，每个参数的键和值用'='符号隔开。例如：name=zs
 fragment:信息片断
-	字符串，锚点.
+	字符串，锚点（hash）.
+
+后两部分在和服务器交互时常用
 ```
 
 #### 1.9.6.3. 作业
@@ -1324,20 +1391,31 @@ console.log(getQuery(location.href))
 
 ### 1.9.7. history 对象
 
-- back()
-- forward()
-- go()
+- 方法
+  - back()
+  - forward()
+  - go()
+    - history.go(1)是前进
+    - history.go(-1)是后退
 
 ### 1.9.8. navigator 对象
 
 - userAgent
+  - 获得当前操作系统和浏览器
 
 ## 1.10. 特效
 
-### 1.10.1. 偏移量
+> 好好看图
 
-- offsetParent 用于获取定位的父级元素
-- offsetParent 和 parentNode 的区别
+### 1.10.1. 偏移量(只读)
+
+- offsetParent 用于获取**最近的定位的父级元素**
+  - 和 parentNode 的区别
+- 从边框开始，相对于最近定位父元素，如果没有，就相对于 body
+  - offsetLeft 元素的横坐标
+  - offsetTop 元素的纵坐标
+  - offsetWidth 元素的宽
+  - offsetHeight 元素的高
 
 ```javascript
 var box = document.getElementById("box")
@@ -1352,6 +1430,15 @@ console.log(box.offsetHeight)
 
 ### 1.10.2. 客户区大小
 
+- clientLeft
+  - 边框左宽度
+- clientTop
+  - 边框上宽度
+- clientWidth
+  - 不包括边框的宽度。单纯可以看见的高度，有滚动条也没用
+- clientHeight
+  - 不包括边框的高度
+
 ```javascript
 var box = document.getElementById("box")
 console.log(box.clientLeft)
@@ -1364,21 +1451,46 @@ console.log(box.clientHeight)
 
 ### 1.10.3. 滚动偏移
 
+- scrollLeft
+  - 滚动条往右走，内容向左走的距离
+- scrollTop
+  - 混动条往下走，内容向上走的距离
+- scrollWidth（当没有滚动条时，clientWidth 与之相等）
+  - 内容的宽度。包含滚动条滚动的距离
+- scrollHeight
+  - 内容的高度，包含滚动条滚动的距离
+
 ```javascript
 var box = document.getElementById("box")
 console.log(box.scrollLeft)
 console.log(box.scrollTop)
 console.log(box.scrollWidth)
 console.log(box.scrollHeight)
+
+/* 试试 */
+box.onScroll = function() {
+  console.log(box.scrollLeft)
+  console.log(box.scrollTop)
+}
 ```
 
 ![1498743288621](media/1498743288621.png)
 
 ### 1.10.4. 案例
 
+#### onmousever onmouseenter
+
+- onmouseenter onmouseleave 不会触发事件冒泡
+- onmouseover onmouseout 会触发事件冒泡
+
+  > 当来没有事件冒泡时两组事件效果相同
+
 - 拖拽案例
 - 弹出登录窗口
 - 放大镜案例
+  - 注意：
+    > 之所以 mask 可以超出 box，是因为鼠标在 mask 上，鼠标移动触发 mask 的 onmousemove，由于事件冒泡，父元素 box 的 onmousemove 事件也触发了
+    > ie浏览器中会出bug，要使用onmouseenter和onmouseleave
 - 模拟滚动条
 - 匀速动画函数
 - 变速动画函数

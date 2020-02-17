@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            .div {
+                height: 200px;
+                width: 200px;
+                background-color: blue;
+            }
+            .div1 {
+                height: 100px;
+                width: 100px;
+                background-color: pink;
+                margin: 0 auto;
+            }
+            .div2 {
+                margin-left: 50px; /* 要自己算，要在父子元素宽度固定的情况下 */
+            }
+            .div3 {
+                position: absolute;
+                left: 150px; /* 都要自己算 */
+                margin-left: -15px;
+            }
+            .div4 {
+                display: inline-block;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="div">
+            <div class="div1"></div>
+        </div>
+    </body>
+</html>

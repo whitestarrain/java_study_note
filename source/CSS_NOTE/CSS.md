@@ -3972,4 +3972,37 @@ order: 1;
 
 
 
+# 居中专题
 
+## 水平居中
+
+1. 使用margin:0 auto
+2. 使用margin左右边距
+3. 先让盒子左右边缘和父盒子垂直中心线重叠，再把子盒子往回移动自身宽度的一半
+4. 先把盒子转换为行内快，然后给父盒子设置text-align:center属性使盒子水平居中
+
+```html
+ <style>
+        .div1 {
+            margin: 0 auto;
+        }
+        .div2 {
+            margin-left: 50px;/* 要自己算，要在父子元素宽度固定的情况下 */
+        }
+        .div3 {
+            position: absolute;
+            left: 150px;/* 都要自己算 */
+            margin-left: -15px;
+        }
+        .div4{
+            display: inline-block;
+            text-align: center;
+        }
+    </style>
+```
+
+## 垂直居中
+
+1. 先让子盒子上边缘和父盒子水平中心线对齐（定位，top），然后再让盒子往回移动自身的一半距离（负margin）
+2. 使用表格的vertical-align:middle实现盒子居中
+3. 使用margin计算上下边距，实现居中
