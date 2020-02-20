@@ -31,9 +31,11 @@ typora-copy-images-to media
 
 #### JavaScript 是什么
 
-- 解析执行：轻量级解释型的 
-- 语言特点：动态，头等函数 (First-class Function)
-  + 又称函数是 JavaScript 中的一等公民
+- 解析执行：轻量级解释型的。编译一行执行一行
+  > java是编译执行。全部编译后再执行
+- 语言特点：
+  - 动态，可以随意给对象添加属性和方法（java就不可以）
+  - 头等函数 (First-class Function)，又称函数是 JavaScript 中的一等公民（java中类是头等）
 - 执行环境：在宿主环境（host environment）下运行，浏览器是最常见的 JavaScript 宿主环境
   + 但是在很多非浏览器环境中也使用 JavaScript ，例如 node.js
 
@@ -311,6 +313,9 @@ var p2 = createPerson('Mike', 18)
 
 ### 构造函数
 
+> java中创建对象的模版是类，而javascript中创建对象的模版是构造函数
+> 再新版ECMAScript中，即es6中，出现了类
+
 内容引导：
 
 - 构造函数语法
@@ -358,7 +363,7 @@ p2.sayName() // => Mike
 以这种方式调用构造函数会经历以下 4 个步骤：
 
 1. 创建一个新对象
-2. 将构造函数的作用域赋给新对象（因此 this 就指向了这个新对象）
+2. 使this指向新对象
 3. 执行构造函数中的代码
 4. 返回新对象
 
@@ -382,6 +387,13 @@ function Person (name, age) {
   // return this
 }
 ```
+#### 注意！
+
+* 构造函数如果当成普通函数用的话，this指向window（普通函数中的this指向window）
+  * 详见this各种情况
+* 构造函数1也可以作为普通函数使用，只是那样里面的this会指向window，此时会创建全局变量
+* 而构造函数中使用var的话，作用域与普通函数相同
+* 使用new运算符和当作不同函数执行的区别是，一个this指向新的Object，一个this指向window。里面代码都会执行一遍（自己总结？？？）
 
 #### 构造函数和实例对象的关系
 
@@ -394,8 +406,11 @@ console.log(p2.constructor === Person) // => true
 console.log(p1.constructor === p2.constructor) // => true
 ```
 
-对象的 `constructor` 属性最初是用来标识对象类型的，
-但是，如果要检测对象的类型，还是使用 `instanceof` 操作符更可靠一些：
+对象的 `constructor` 属性最初是用来标识对象类型的（constructor事实上是原型的属性，原型之后再说）
+可以获得对象的构造函数。
+自己定义的构造函数可以获得源代码。而系统预设的构造函数（比如数组）不行
+可以通过obj.constructor===People(某构造函数名称)来判断是否为该构造函数创建对象。但是并不推荐。
+如果要检测对象的类型，还是使用 `instanceof` 操作符更可靠一些: `obj instentceof People`
 
 ```javascript
 console.log(p1 instanceof Person) // => true
@@ -489,6 +504,44 @@ console.log(p1.sayAge === p2.sayAge) // => true
 至此，我们利用自己的方式基本上解决了构造函数的内存浪费问题。
 但是代码看起来还是那么的格格不入，那有没有更好的方式呢？
 
+#### 静态函数（补充。）
+
+前面的都是想·实例函数
+
+```js
+function Person(name,age){
+    this.name = name ;
+    this.age = age;
+    this.sayHi = function(){
+    console.log('Hello...')
+    }
+    //上述的name\age\sayHi就是实例成员
+}
+Person.hobby = 'running'
+Person.climb = function(){
+    console.log('Climbing...')
+}
+//上述的hobby和climb就是静态成员
+Person.prototype.jump = function(){
+    console.log('Jumping...')
+}
+//jump为p1的__proto__属性指向的它的原型对象上的成员
+//===============那么，
+var p1 = new Person('Lucy',29)
+p1.name  //'Lucy'
+p1.age  //29
+p1.sayHi() //Hello...
+p1.jump()  // Jumping...
+Person.climb() //Climbing...
+Person.hobby  //running...
+//==============但是
+p1.climb()  //报错
+Person.sayHi()  //报错
+Person.jump() //报错
+
+```
+
+
 #### 小结
 
 - 构造函数语法
@@ -499,6 +552,20 @@ console.log(p1.sayAge === p2.sayAge) // => true
 - 构造函数的问题
 
 ### 原型
+
+#### 相关总结(补充)
+> java中成员对象在内存中也只有一份
+```
+类的实例方法在内存中是只有一份,不过肯定不会是第一个对象中,如果是第一个对象的话,那么当第一个对象被销毁的时候,那么后面的对象就永远无法调用了...
+类的实例方法存在一个专门的区叫方法区,事实上类刚装载的时候就被装载好了,不过它们在"睡眠",只是这些方法必须当有对象产生的时候才会"苏醒".(比如,一个输出类的成员变量的方法,如果连对象都没有,何来的输出成员变量).所以,方法在装载的时候就有了,但是不可用,因为它没有指象任何一个对象。
+而静态的又不一样了,静态的东西存在静态区,他们和类是一个等级的，就是说只要类被装载,它们就可以直接用.(用类名来调用).他们不依赖与任何对象,所以也不能输出任何对象的成员属性.(除非成员属性也是静态的).
+```
+> 而js中每个对象都会实例化一次成员方法
+> 而使用原型方法则不会。而是只有一分
+> 可以说java中成员方法等价于js中原型方法
+> 和java成员对象中this指向调用者一样。js中原型对象中的原型方法也指向调用者
+> 而js中构造函数中方法的存在可以用来访问私有变量，从而达到使变量私有化
+
 
 内容引导：
 
@@ -520,7 +587,9 @@ console.log(p1.sayAge === p2.sayAge) // => true
 JavaScript 规定，每一个构造函数都有一个 `prototype` 属性，指向另一个对象。
 这个对象的所有属性和方法，都会被构造函数的所拥有。
 
-这也就意味着，我们可以把所有对象实例需要共享的属性和方法直接定义在 `prototype` 对象上。
+> 注：函数是对象，构造函数当然也是。
+
+这也就意味着，我们可以把所有对象实例需要**共享**的属性和方法直接定义在 `prototype` 对象上。
 
 ```javascript
 function Person (name, age) {
@@ -545,7 +614,14 @@ console.log(p1.sayName === p2.sayName) // => true
 这时所有实例的 `type` 属性和 `sayName()` 方法，
 其实都是同一个内存地址，指向 `prototype` 对象，因此就提高了运行效率。
 
+另外，如果构造函数中也有`sayName()`方法，也就是每个对象都有实例函数，
+会优先访问示例函数，再去原型对象中查找
+
 #### 构造函数、实例、原型三者之间的关系
+ 
+两个图，哪个容易理解看哪个，最好都看看
+
+![](./media/170418.jpg)
 
 <img src="./media/构造函数-实例-原型之间的关系.png" alt="">
 
@@ -566,7 +642,8 @@ F.prototype.sayHi = function () {
 console.log(F.prototype.constructor === F) // => true
 ```
 
-通过构造函数得到的实例对象内部会包含一个指向构造函数的 `prototype` 对象的指针 `__proto__`。
+通过构造函数得到的实例对象内部会包含一个**指向构造函数的 `prototype` 对象**的指针 `__proto__`。
+实例对象之所以能够访问到原型中的函数，就是因为__oproto__的存在
 
 ```javascript
 var instance = new F()
@@ -574,10 +651,15 @@ console.log(instance.__proto__ === F.prototype) // => true
 ```
 
 <p class="tip">
-  `__proto__` 是非标准属性。
+  `__proto__` 是非标准属性。开发时不要用
 </p>
 
+prototype也有_protp_属性，执行Object构造函数的原型对象
+**也就是说，任何对象的（对应构造函数的）原型对象的（对应构造函数的）原型对象，就是Object对象（对应构造函数的的）原型对象**
+
 实例对象可以直接访问原型对象成员。
+
+原型对象中的方法里的this指向调用者对象
 
 ```javascript
 instance.sayHi() // => hi!
@@ -591,6 +673,9 @@ instance.sayHi() // => hi!
 - 所有实例都直接或间接继承了原型对象的成员
 
 #### 属性成员的搜索原则：原型链
+
+![](./media/164121.jpg)
+上图一定要看懂
 
 了解了 **构造函数-实例-原型对象** 三者之间的关系后，接下来我们来解释一下为什么实例对象可以访问原型对象中的成员。
 
@@ -611,7 +696,7 @@ instance.sayHi() // => hi!
 而这正是多个对象实例共享原型所保存的属性和方法的基本原理。
 
 总结：
-
+> **就近原则**
 - 先在自己身上找，找到即返回
 - 自己身上找不到，则沿着原型链向上查找，找到即返回
 - 如果一直到原型链的末端还没有找到，则返回 `undefined`
@@ -626,7 +711,7 @@ instance.sayHi() // => hi!
 
 值类型成员写入（`实例对象.值类型成员 = xx`）：
 
-- 当实例期望重写原型对象中的某个普通数据成员时实际上会把该成员添加到自己身上
+- 当实例期望重写原型对象中的某个普通数据成员时**实际上会把该成员添加到自己身上**,不会搜索原型链
 - 也就是说该行为实际上会屏蔽掉对原型对象成员的访问
 
 引用类型成员写入（`实例对象.引用类型成员 = xx`）：
@@ -659,9 +744,9 @@ Person.prototype = {
 ```
 
 在该示例中，我们将 `Person.prototype` 重置到了一个新的对象。
-这样做的好处就是为 `Person.prototype` 添加成员简单了，但是也会带来一个问题，那就是原型对象丢失了 `constructor` 成员。
+这样做的好处就是为 `Person.prototype` 添加成员简单了，但是也会带来一个问题，那就是原型对象丢失了 `constructor` 成员。此时指向的是Object的`constructor`
 
-所以，我们为了保持 `constructor` 的指向正确，建议的写法是：
+所以，我们为了保持 `constructor` 的指向正确，**建议的写法**是：
 
 ```javascript
 function Person (name, age) {
@@ -669,7 +754,7 @@ function Person (name, age) {
   this.age = age
 }
 
-Person.prototype = {
+Person.prototype = {/* 这是覆盖 */
   constructor: Person, // => 手动将 constructor 指向正确的构造函数
   type: 'human',
   sayHello: function () {
@@ -678,8 +763,10 @@ Person.prototype = {
 }
 ```
 
-#### 原生对象的原型
+#### 原生对象的原型，扩展原型方法
 
+> 原生对象的原型可以添加，而不可以整个修改.
+> `Array.propotype={}`没用
 <p class="tip">
   所有函数都有 prototype 属性对象。
 </p>
@@ -692,7 +779,23 @@ Person.prototype = {
 - Date.prototype
 - ...
 
-练习：为数组对象和字符串对象扩展原型方法。
+练习：为数组对象和字符串对象**扩展原型方法**。
+
+```js
+/*
+原型对象中this指向调用对象 
+ */
+
+Array.prototype.getSum = function () {
+  // 求数组中所有偶数的和
+  var sum = 0;
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] % 2 === 0) {
+      sum += this[i];
+    }
+  }
+  return sum;
+```
 
 #### 原型对象使用建议
 
@@ -701,10 +804,15 @@ Person.prototype = {
 - 如果重置了 `prototype` 记得修正 `constructor` 的指向
 
 ### 案例：随机方块
-
+* 似乎有对象中的称为方法。独立的称为函数
 ---
 
 ## 面向对象游戏案例：贪吃蛇
+收获：
+1. 每个js中的代码最好装到一个匿名函数中然后进行自调用，否则所有变量都在window下，容易产生明明冲突。
+2. 需要公开的变量可以通过window.element=element共享
+3. 
+
 
 ### 案例介绍
 
