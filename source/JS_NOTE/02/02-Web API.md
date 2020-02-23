@@ -1277,18 +1277,21 @@ var timerId = setInterval(function() {
 clearInterval(timerId)
 ```
 
+**注意:**
+定时器中的代码是会放到任务队列中的，只有当执行栈上代码执行完后，才会执行任务队列上的代码
+[详细 跳转](../03/03-JavaScript高级.md#1582什么是闭包)
+
 案例：
 
-```
-定时器
-  Demo20
+* 定时器
+  > Demo20
 
-简单动画
-  注意：elment.style.left一类获取的只是标签中的style的样式属性。
+* 简单动画
+  > 注意：elment.style.left一类获取的只是标签中的style的样式属性。
     如果标签中的style没有设置该样式属性，就会获取空字符串
     css中的也无法获取
     因此会使用offset，设置left值
-```
+
 
 ### 1.9.6. location 对象
 

@@ -7,29 +7,29 @@
 typora-copy-images-to media
 ---
 
-# JavaScript 高级
+# 1. JavaScript 高级
 
 <img src="./media/Unofficial_JavaScript_logo_2.svg.png" width="400" alt="">
 
-### 目标
+### 1.0.1. 目标
 
 - 理解面向对象开发思想
 - 掌握 JavaScript 面向对象开发相关模式
 - 掌握在 JavaScript 中使用正则表达式
 
-### 案例演示
+### 1.0.2. 案例演示
 
 - [贪吃蛇](snake/index.html)
 
 ---
 
-## 回顾
+## 1.1. 回顾
 
 > 由于 JavaScript 高级还是针对 JavaScript 语言本身的一个进阶学习，所以在开始之前我们先对以前所学过的 JavaScript 相关知识点做一个快速复习总结。
 
-### 重新介绍 JavaScript
+### 1.1.1. 重新介绍 JavaScript
 
-#### JavaScript 是什么
+#### 1.1.1.1. JavaScript 是什么
 
 - 解析执行：轻量级解释型的。编译一行执行一行
   > java是编译执行。全部编译后再执行
@@ -41,7 +41,7 @@ typora-copy-images-to media
 
   [MDN-JavaScript](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript)
 
-#### JavaScript 的组成
+#### 1.1.1.2. JavaScript 的组成
 
 - ECMAScript  - 语法规范
   - 变量、数据类型、类型转换、操作符
@@ -61,7 +61,7 @@ typora-copy-images-to media
     - 动态创建元素
     - 事件：注册事件的方式、事件的三个阶段、事件对象 
 
-#### JavaScript 可以做什么
+#### 1.1.1.3. JavaScript 可以做什么
 
 > 阿特伍德定律：
 >
@@ -74,7 +74,7 @@ typora-copy-images-to media
 - [知乎 - JavaScript 能做什么，该做什么？](https://www.zhihu.com/question/20796866)
 - [最流行的编程语言 JavaScript 能做什么？](https://github.com/phodal/articles/issues/1)
 
-### 浏览器是如何工作的
+### 1.1.2. 浏览器是如何工作的
 
 ![img](media/jszxgc.png)
 
@@ -92,7 +92,7 @@ Data Persistence(持久化)  数据持久化，数据存储  cookie、HTML5中�
 
 
 
-### JavaScript 执行过程
+### 1.1.3. JavaScript 执行过程
 
 JavaScript 运行分为两个阶段：
 
@@ -109,13 +109,13 @@ JavaScript 运行分为两个阶段：
 
 ---
 
-## JavaScript 面向对象编程
+## 1.2. JavaScript 面向对象编程
 
 <img src="./media/mxdxkf.png" width="400" alt="">
 
-### 面向对象介绍
+### 1.2.1. 面向对象介绍
 
-#### 什么是对象
+#### 1.2.1.1. 什么是对象
 
 > Everything is object （万物皆对象）
 
@@ -140,7 +140,7 @@ ECMAScript-262 把对象定义为：**无序属性的集合，其属性可以包
   提示：每个对象都是基于一个引用类型创建的，这些类型可以是系统内置的原生类型，也可以是开发人员自定义的类型。
 
 
-#### 什么是面向对象
+#### 1.2.1.2. 什么是面向对象
 
 > 面向对象不是新的东西，它只是过程式代码的一种高度封装，目的在于提高代码的开发效率和可维 护性。
 
@@ -171,7 +171,7 @@ ECMAScript-262 把对象定义为：**无序属性的集合，其属性可以包
 - [知乎：如何用一句话说明什么是面向对象思想？](https://www.zhihu.com/question/19854505)
 - [知乎：什么是面向对象编程思想？](https://www.zhihu.com/question/31021366)
 
-#### 程序中面向对象的基本体现
+#### 1.2.1.3. 程序中面向对象的基本体现
 
 在 JavaScript 中，所有数据类型都可以视为对象，当然也可以自定义对象。
 自定义的对象数据类型就是面向对象中的类（ Class ）的概念。
@@ -235,9 +235,9 @@ Class 是一种抽象概念，比如我们定义的 Class——Student ，是指
 
 面向对象的抽象程度又比函数要高，因为一个 Class 既包含数据，又包含操作数据的方法。
 
-### 创建对象
+### 1.2.2. 创建对象
 
-#### 简单方式
+#### 1.2.2.1. 简单方式
 
 我们可以直接通过 `new Object()` 创建：
 
@@ -285,7 +285,7 @@ var person2 = {
 
 通过上面的代码我们不难看出，这样写的代码太过冗余，重复性太高。
 
-#### 简单方式的改进：工厂函数
+#### 1.2.2.2. 简单方式的改进：工厂函数
 
 我们可以写一个函数，解决代码重复问题：
 
@@ -311,7 +311,7 @@ var p2 = createPerson('Mike', 18)
 这样封装确实爽多了，通过工厂模式我们解决了创建多个相似对象代码冗余的问题，
 但却没有解决对象识别的问题（即怎样知道一个对象的类型）。
 
-### 构造函数
+### 1.2.3. 构造函数
 
 > java中创建对象的模版是类，而javascript中创建对象的模版是构造函数
 > 再新版ECMAScript中，即es6中，出现了类
@@ -327,7 +327,7 @@ var p2 = createPerson('Mike', 18)
 - 构造函数的返回值
 - 构造函数的问题
 
-#### 更优雅的工厂函数：构造函数
+#### 1.2.3.1. 更优雅的工厂函数：构造函数
 
 一种更优雅的工厂函数就是下面这样，构造函数：
 
@@ -347,7 +347,7 @@ var p2 = new Person('Mike', 23)
 p2.sayName() // => Mike
 ```
 
-#### 解析构造函数代码的执行
+#### 1.2.3.2. 解析构造函数代码的执行
 
 在上面的示例中，`Person()` 函数取代了 `createPerson()` 函数，但是实现效果是一样的。
 这是为什么呢？
@@ -387,7 +387,7 @@ function Person (name, age) {
   // return this
 }
 ```
-#### 注意！
+#### 1.2.3.3. 注意！
 
 * 构造函数如果当成普通函数用的话，this指向window（普通函数中的this指向window）
   * 详见this各种情况
@@ -395,7 +395,7 @@ function Person (name, age) {
 * 而构造函数中使用var的话，作用域与普通函数相同
 * 使用new运算符和当作不同函数执行的区别是，一个this指向新的Object，一个this指向window。里面代码都会执行一遍（自己总结？？？）
 
-#### 构造函数和实例对象的关系
+#### 1.2.3.4. 构造函数和实例对象的关系
 
 使用构造函数的好处不仅仅在于代码的简洁性，更重要的是我们可以识别对象的具体类型了。
 在每一个实例对象中同时有一个 `constructor` 属性，该属性指向创建该实例的构造函数：
@@ -426,7 +426,7 @@ console.log(p2 instanceof Person) // => true
 - 可以通过实例的 `constructor` 属性判断实例和构造函数之间的关系
   + 注意：这种方式不严谨，推荐使用 `instanceof` 操作符，后面学原型会解释为什么
 
-#### 构造函数的问题
+#### 1.2.3.5. 构造函数的问题
 
 使用构造函数带来的最大的好处就是创建对象更方便了，但是其本身也存在一个浪费内存的问题：
 
@@ -504,7 +504,7 @@ console.log(p1.sayAge === p2.sayAge) // => true
 至此，我们利用自己的方式基本上解决了构造函数的内存浪费问题。
 但是代码看起来还是那么的格格不入，那有没有更好的方式呢？
 
-#### 静态函数（补充。）
+#### 1.2.3.6. 静态函数（补充。）
 
 前面的都是想·实例函数
 
@@ -542,7 +542,7 @@ Person.jump() //报错
 ```
 
 
-#### 小结
+#### 1.2.3.7. 小结
 
 - 构造函数语法
 - 分析构造函数
@@ -551,9 +551,9 @@ Person.jump() //报错
   + instanceof 操作符
 - 构造函数的问题
 
-### 原型
+### 1.2.4. 原型
 
-#### 相关总结(补充)
+#### 1.2.4.1. 相关总结(补充)
 > java中成员对象在内存中也只有一份
 ```
 类的实例方法在内存中是只有一份,不过肯定不会是第一个对象中,如果是第一个对象的话,那么当第一个对象被销毁的时候,那么后面的对象就永远无法调用了...
@@ -582,7 +582,7 @@ Person.jump() //报错
 - 原型对象的问题
 - 构造的函数和原型对象使用建议
 
-#### 更好的解决方案： `prototype`
+#### 1.2.4.2. 更好的解决方案： `prototype`
 
 JavaScript 规定，每一个构造函数都有一个 `prototype` 属性，指向另一个对象。
 这个对象的所有属性和方法，都会被构造函数的所拥有。
@@ -617,7 +617,7 @@ console.log(p1.sayName === p2.sayName) // => true
 另外，如果构造函数中也有`sayName()`方法，也就是每个对象都有实例函数，
 会优先访问示例函数，再去原型对象中查找
 
-#### 构造函数、实例、原型三者之间的关系
+#### 1.2.4.3. 构造函数、实例、原型三者之间的关系
  
 两个图，哪个容易理解看哪个，最好都看看
 
@@ -672,7 +672,7 @@ instance.sayHi() // => hi!
 - 通过构造函数得到的实例对象内部会包含一个指向构造函数的 `prototype` 对象的指针 `__proto__`
 - 所有实例都直接或间接继承了原型对象的成员
 
-#### 属性成员的搜索原则：原型链
+#### 1.2.4.4. 属性成员的搜索原则：原型链
 
 ![](./media/164121.jpg)
 上图一定要看懂
@@ -701,7 +701,7 @@ instance.sayHi() // => hi!
 - 自己身上找不到，则沿着原型链向上查找，找到即返回
 - 如果一直到原型链的末端还没有找到，则返回 `undefined`
 
-#### 实例对象读写原型对象成员
+#### 1.2.4.5. 实例对象读写原型对象成员
 
 读取：
 
@@ -724,7 +724,7 @@ instance.sayHi() // => hi!
 - 如果自己身上找不到，则沿着原型链继续查找，如果找到则修改
 - 如果一直到原型链的末端还没有找到该成员，则报错（`实例对象.undefined.xx = xx`）
 
-#### 更简单的原型语法
+#### 1.2.4.6. 更简单的原型语法
 
 我们注意到，前面例子中每添加一个属性和方法就要敲一遍 `Person.prototype` 。
 为减少不必要的输入，更常见的做法是用一个包含所有属性和方法的对象字面量来重写整个原型对象：
@@ -763,7 +763,7 @@ Person.prototype = {/* 这是覆盖 */
 }
 ```
 
-#### 原生对象的原型，扩展原型方法
+#### 1.2.4.7. 原生对象的原型，扩展原型方法
 
 > 原生对象的原型可以添加，而不可以整个修改.
 > `Array.propotype={}`没用
@@ -797,36 +797,61 @@ Array.prototype.getSum = function () {
   return sum;
 ```
 
-#### 原型对象使用建议
+#### 1.2.4.8. 原型对象使用建议
 
 - 私有成员（一般就是非函数成员）放到构造函数中
 - 共享成员（一般就是函数）放到原型对象中
 - 如果重置了 `prototype` 记得修正 `constructor` 的指向
 
-### 案例：随机方块
+### 1.2.5. 案例：随机方块
 * 似乎有对象中的称为方法。独立的称为函数
 ---
 
-## 面向对象游戏案例：贪吃蛇
-收获：
+## 1.3. 面向对象游戏案例：贪吃蛇
+### 1.3.1. 收获：
 1. 每个js中的代码最好装到一个匿名函数中然后进行自调用，否则所有变量都在window下，容易产生明明冲突。
-2. 需要公开的变量可以通过window.element=element共享
-3. 
+2. 需要公开的变量可以通过window.element=element进行暴露
+3. 函数对象的bind方法
+  > bind就是改变函数中this指向
+  > 比如贪吃蛇的定时器中this指向window，为了使this指向对象内成员，可以使用
+  > `setInterval(function(){}.bind(that),500)`
+  >例：
+  ```js
+  var a='aaa';
+  function fun1(){
+      console.log(this.a);
+  }
+  fun1();//aaa
+  var obj={
+    a:'111';
+  }
+  var fun2=fun1.bind(obj)
+  fun2();///111
+  ``` 
+4. 开发时分文件开发，但发布时要整合起来到index.js
+   1. 问题：自调用函数会有返回值undefined，连续写多个自调用函数时要加分号，儿分号要加到每个自调用函数之前(代码规范)
+   ```js
+   ;(function(){})()
+   ;(function(){})()
+   ```
+5. 压缩代码 
+6. 自调用函数的参数`;(fucntion(window,undefined))(window,undefined)`
+   1. window:让代码中window可以被压缩
+   2. undefind：在老版本浏览器中undefined可以被重新赋值，此时undefined就不会未定义了。防止undefined被重命名（？？）
 
+### 1.3.2. 案例介绍
 
-### 案例介绍
-
-#### 游戏演示
+#### 1.3.2.1. 游戏演示
 
 演示：[贪吃蛇](snake/index.html)
 
-#### 案例目标
+#### 1.3.2.2. 案例目标
 
 游戏的目的是用来体会js高级语法的使用 不需要具备抽象对象的能力，使用面向对象的方式分析问题，需要一个漫长的过程。
 
-### 功能实现
+### 1.3.3. 功能实现
 
-#### 搭建页面
+#### 1.3.3.1. 搭建页面
 
 放一个容器盛放游戏场景 div#map，设置样式
 
@@ -839,13 +864,13 @@ Array.prototype.getSum = function () {
 }
 ```
 
-#### 分析对象
+#### 1.3.3.2. 分析对象
 
 - 游戏对象
 - 蛇对象
 - 食物对象
 
-#### 创建食物对象
+#### 1.3.3.3. 创建食物对象
 
 - Food
 
@@ -904,7 +929,7 @@ Food.prototype.render = function (map) {
 window.Food = Food;
 ```
 
-#### 创建蛇对象
+#### 1.3.3.4. 创建蛇对象
 
 
 - Snake
@@ -963,7 +988,7 @@ Snake.prototype.render = function(map) {
 window.Snake = Snake;
 ```
 
-#### 创建游戏对象
+#### 1.3.3.5. 创建游戏对象
 
 游戏对象，用来管理游戏中的所有对象和开始游戏
 
@@ -1002,9 +1027,9 @@ Game.prototype.start = function () {
 }
 ```
 
-### 游戏的逻辑
+### 1.3.4. 游戏的逻辑
 
-#### 写蛇的move方法
+#### 1.3.4.1. 写蛇的move方法
 
 - 在蛇对象(snake.js)中，在Snake的原型上新增move方法
 
@@ -1044,7 +1069,7 @@ this.snake.move(this.food, this.map);
 this.snake.render(this.map);
 ```
 
-#### 让蛇自己动起来
+#### 1.3.4.2. 让蛇自己动起来
 
 - 私有方法
 
@@ -1132,7 +1157,7 @@ function bindKey() {
 bindKey();
 ```
 
-#### 判断蛇是否吃到食物
+#### 1.3.4.3. 判断蛇是否吃到食物
 
 ```js
 // 在Snake的move方法中
@@ -1155,13 +1180,13 @@ if (headX === food.x && headY === food.y) {
 }
 ```
 
-### 其它处理
+### 1.3.5. 其它处理
 
-#### 把html中的js代码放到index.js中
+#### 1.3.5.1. 把html中的js代码放到index.js中
 
 避免html中出现js代码
 
-#### 自调用函数的参数
+#### 1.3.5.2. 自调用函数的参数
 
 ```js
 (function (window, undefined) {
@@ -1179,7 +1204,7 @@ if (headX === food.x && headY === food.y) {
 在将来会看到别人写的代码中会把undefined作为函数的参数(当前案例没有使用)
 因为在有的老版本的浏览器中 undefined可以被重新赋值，防止undefined 被重新赋值
 
-#### 整理代码
+#### 1.3.5.3. 整理代码
 
 现在的代码结构清晰，谁出问题就找到对应的js文件即可。
 通过自调用函数，已经防止了变量命名污染的问题
@@ -1222,14 +1247,29 @@ var a = function () {
 
 ---
 
-## 继承
+## 1.4. 继承
 
-### 什么是继承
+> 做一些网页特效时是不会使用继承的。基本上是写一些框架等比较复杂的东西时才使用继承
+
+### 1.4.1. 什么是继承
 
 - 现实生活中的继承
 - 程序中的继承
 
-### 构造函数的属性继承：借用构造函数
+> javascript中其实并没有继承语法，但有多种方式实现拷贝或继承的方式
+
+### 1.4.2. 构造函数的属性继承：借用构造函数
+>只能继承属性和普通方法，而不能继承原型方法
+
+```
+call() 方法使用一个指定的 this 值和单独给出的一个或多个参数来调用一个函数。
+
+注意：该方法的语法和作用与 apply() 方法类似，只有一个区别，就是 call() 方法接受的是一个参数列表，
+而 apply() 方法接受的是一个包含多个参数的数组。
+
+bind()会返回一个改变this的新函数，而不会自动调用。
+而call()只是改变this指向后继续执行 ，返回函数原来的返回值。不传参数时相当于直接调用函数
+```
 
 ```javascript
 function Person (name, age) {
@@ -1247,7 +1287,8 @@ var s1 = Student('张三', 18)
 console.log(s1.type, s1.name, s1.age) // => human 张三 18
 ```
 
-### 构造函数的原型方法继承：拷贝继承（for-in）
+### 1.4.3. 构造函数的原型方法继承：拷贝继承（for-in）
+> 在借用构造函数基础上，解决继承原型方法问题
 
 ```javascript
 function Person (name, age) {
@@ -1274,7 +1315,19 @@ var s1 = Student('张三', 18)
 s1.sayName() // => hello 张三
 ```
 
-### 另一种继承方式：原型继承
+### 1.4.4. 另一种原型方法继承方式：原型继承
+
+> 更好的继承原型方法的方式 
+
+> 之所以不用Student.prototype = Person.prototype
+> 是为了避免所有父对象和子对象公用一个原型实例
+> 导致修改子类的原型对象时也会导致父类和其他子类对象的原型改变。
+> 因此要new出一个新的对象（命名为newobj），添加方法时添加到该对象中
+> 此时添加方法到Student.prototype时，会添加到newobj，而在使用父类的原型方法时，也可以顺着原型链找到：stuobj->Stuent.prototype(即newobj)->newobj.\__proto__(即Person.prototype)
+
+> teacher和Student一样都是子类
+> 这里是拿一个person对象充当原型对象
+<img src="./media/原型链3jpg.jpg"/>
 
 ```javascript
 function Person (name, age) {
@@ -1299,26 +1352,36 @@ var s1 = Student('张三', 18)
 console.log(s1.type) // => human
 
 s1.sayName() // => hello 张三
+
 ```
+```js
+//循序渐进可得，使用call以及原型继承
+function Son(){
+  Parent.call(this,...)
+}
+Son.prototype=new Parent();
+Son.prototype.constructor=Son;
+```
+
 
 ---
 
-## 函数进阶
+## 1.5. 函数进阶
 
-### 函数的定义方式
+### 1.5.1. 函数的定义方式
 
 - 函数声明
 - 函数表达式
 - `new Function`
 
-#### 函数声明
+#### 1.5.1.1. 函数声明
 
 ```javascript
 function foo () {
 }
 ```
 
-#### 函数表达式
+#### 1.5.1.2. 函数表达式
 
 ```javascript
 var foo = function () {
@@ -1326,13 +1389,22 @@ var foo = function () {
 }
 ```
 
-#### 函数声明与函数表达式的区别
+#### 1.5.1.3. new function() (基本不用)
+```js
+var fn=new function('arg1','arg2','console.log(arg1)')
+
+```
+
+>function是对象，也有原型
+<img src="./media/function原型.jpg" />
+
+#### 1.5.1.4. 函数声明与函数表达式的区别
 
 - 函数声明必须有名字
 - 函数声明会函数提升，在预解析阶段就已创建，声明前后都可以调用
-- 函数表达式类似于变量赋值
+- 函数表达式类似于**变量赋值**
 - 函数表达式可以没有名字，例如匿名函数
-- 函数表达式没有变量提升，在执行阶段创建，必须在表达式执行之后才可以调用
+- 函数表达式只会把变量名提升，而赋值不会，在执行阶段创建，**必须在表达式执行之后才可以调用**
 
 下面是一个根据条件定义函数的例子：
 
@@ -1348,9 +1420,11 @@ if (true) {
 }
 ```
 
-以上代码执行结果在不同浏览器中结果不一致。
+* 问题：以上代码执行结果在不同浏览器中结果不一致。
+  * 现代浏览器中不会提升if语句中的函数
+  *  而老版本浏览器中if语句中的函数声明也会提升
 
-不过我们可以使用函数表达式解决上面的问题：
+不过我们可以使用函数表达式（不会预解析）解决上面的问题：
 
 ```javascript
 var f
@@ -1366,14 +1440,18 @@ if (true) {
 }
 ```
 
-### 函数的调用方式
+### 1.5.2. 函数的调用方式
 
 - 普通函数
 - 构造函数
 - 对象方法
 
-### 函数内 `this` 指向的不同场景
+### 1.5.3. 函数内 `this` 指向的不同场景
 
+以前的this情景
+[跳转](../00/01-JavaScript基础.md#1218this详解)
+
+**函数内部的this，在函数调用时才确定指向**
 函数的调用方式决定了 `this` 指向的不同：
 
 | 调用方式   | 非严格模式   | 备注                |
@@ -1381,29 +1459,33 @@ if (true) {
 | 普通函数调用 | window  | 严格模式下是 undefined  |
 | 构造函数调用 | 实例对象    | 原型方法中 this 也是实例对象 |
 | 对象方法调用 | 该方法所属对象 | 紧挨着的对象            |
-| 事件绑定方法 | 绑定事件对象  |                   |
-| 定时器函数  | window  |                   |
+| 事件绑定方法 | 绑定事件对象  | addEventListener()     |
+| 定时器函数  | window  |   setInterval()     |
 
 这就是对函数内部 this 指向的基本整理，写代码写多了自然而然就熟悉了。
 
-### 函数也是对象
+### 1.5.4. 函数也是对象
 
 - 所有函数都是 `Function` 的实例
 
-### call、apply、bind
+### 1.5.5. call、apply、bind
 
 那了解了函数 this 指向的不同场景之后，我们知道有些情况下我们为了使用某种特定环境的 this 引用，
 这时候时候我们就需要采用一些特殊手段来处理了，例如我们经常在定时器外部备份 this 引用，然后在定时器函数内部使用外部 this 的引用。
 然而实际上对于这种做法我们的 JavaScript 为我们专门提供了一些函数方法用来帮我们更优雅的处理函数内部 this 指向问题。
 这就是接下来我们要学习的 call、apply、bind 三个函数方法。
 
-#### call
+#### 1.5.5.1. call
 
 `call()` 方法调用一个函数, 其具有一个指定的 `this` 值和分别地提供的参数(参数的列表)。
 
 <p class="danger">
   注意：该方法的作用和 `apply()` 方法类似，只有一个区别，就是 `call()` 方法接受的是若干个参数的列表，而 `apply()` 方法接受的是一个包含多个参数的数组。
 </p>
+
+作用：
+  * 改变函数中的this
+  * 调用函数
 
 语法：
 
@@ -1415,12 +1497,28 @@ fun.call(thisArg[, arg1[, arg2[, ...]]])
 
 - `thisArg`
   + 在 fun 函数运行时指定的 this 值
-  + 如果指定了 null 或者 undefined 则内部 this 指向 window
+  + 如果指定了 null 或者 undefined 则内部 this 指向 **window**(注意不是不变)
 
 - `arg1, arg2, ...`
   + 指定的参数列表
 
-#### apply
+应用示例：
+```js
+//伪数组：
+
+var obj={/* 数组中所谓索引，其实就是属性名称 */
+  0: 0,
+  1: 1,
+  2: 2,
+  length: 3;
+}
+obj['4']=4;//因为变量名不能以数字开否，所以使用第二种方式调用
+obj.length++;
+//等价于
+Array.prototype.push.call(obj,4);
+```
+
+#### 1.5.5.2. apply
 
 `apply()` 方法调用一个函数, 其具有一个指定的 `this` 值，以及作为一个数组（或类似数组的对象）提供的参数。
 
@@ -1434,6 +1532,11 @@ fun.call(thisArg[, arg1[, arg2[, ...]]])
 fun.apply(thisArg, [argsArray])
 ```
 
+作用：
+  * 改变this指向
+  * 将参数接收转换为数组形式
+  * 调用函数
+
 参数：
 
 - `thisArg`
@@ -1446,7 +1549,18 @@ fun.apply(thisArg, [argsArray])
 fun.apply(this, ['eat', 'bananas'])
 ```
 
-#### bind
+应用示例：
+```js
+//Math.max()只可以传入多个参数而不能传入数组
+var arr = [1,2,3,4,1,2,3];
+var max =Math.max.apply(Math,arr)//这样就能使用Math.max()了
+
+
+console.log.apply(console,arr)
+```
+
+
+#### 1.5.5.3. bind
 
 bind() 函数会创建一个新函数（称为绑定函数），新函数与被调函数（绑定函数的目标函数）具有相同的函数体（在 ECMAScript 5 规范中内置的call属性）。
 当目标函数被调用时 this 值绑定到 bind() 的第一个参数，该参数不能被重写。绑定函数被调用时，bind() 也接受预设的参数提供给原函数。
@@ -1457,6 +1571,9 @@ bind() 函数会创建一个新函数（称为绑定函数），新函数与被�
 ```javascript
 fun.bind(thisArg[, arg1[, arg2[, ...]]])
 ```
+作用：
+  * 改变this指向
+  * 并返回一个新的改变过this指向后的函数
 
 参数：
 
@@ -1511,7 +1628,7 @@ var flower = new LateBloomer();
 flower.bloom();  // 一秒钟后, 调用'declare'方法
 ```
 
-#### 小结
+#### 1.5.5.4. 小结
 
 - call 和 apply 特性一样
   + 都是用来调用函数，而且是立即调用
@@ -1529,10 +1646,11 @@ flower.bloom();  // 一秒钟后, 调用'declare'方法
     * 那到底以谁 bind 的时候传递的参数为准呢还是以调用的时候传递的参数为准
     * 两者合并：bind 的时候传递的参数和调用的时候传递的参数会合并到一起，传递到函数内部
 
-### 函数的其它成员
+### 1.5.6. 函数的其它成员
 
 - arguments
   + 实参集合
+  + 当有不固定个数的参数时，可以通过arguments来获得传入的参数
 - caller
   + 函数的调用者
 - length
@@ -1544,7 +1662,7 @@ flower.bloom();  // 一秒钟后, 调用'declare'方法
 function fn(x, y, z) {
   console.log(fn.length) // => 形参的个数
   console.log(arguments) // 伪数组实参参数集合
-  console.log(arguments.callee === fn) // 函数本身
+  console.log(arguments.caller === fn) // 函数本身
   console.log(fn.caller) // 函数的调用者
   console.log(fn.name) // => 函数的名字
 }
@@ -1556,12 +1674,14 @@ function f() {
 f()
 ```
 
-### 高阶函数
+### 1.5.7. 高阶函数
 
 - 函数可以作为参数
 - 函数可以作为返回值
+  > 类似java中的comparator一类的,这里传入匿名函数。java中传入匿名类
+  > Array中的sort()相当于传入一个comparator
 
-#### 作为参数
+#### 1.5.7.1. 作为参数
 
 ```javascript
 function eat (callback) {
@@ -1576,12 +1696,13 @@ eat(function () {
 })
 ```
 
-#### 作为返回值
+#### 1.5.7.2. 作为返回值
 
 ```javascript
 function genFun (type) {
   return function (obj) {
     return Object.prototype.toString.call(obj) === type
+    /* 让Object中的toString来输出对象 */
   }
 }
 
@@ -1590,9 +1711,23 @@ var isObject = genFun('[object Object]')
 
 console.log(isArray([])) // => true
 console.log(isArray({})) // => true
+
+
+
+//-------------------------------
+function getfun(m){
+  return function(n){
+    return m+n;
+  }
+}
+/* 获得固定100+某数 */
+var fn100=getfun(100)
+console.log(fn100(22))
 ```
 
-### 函数闭包
+### 1.5.8. 函数闭包
+
+> 示例导入
 
 ```javascript
 function fn () {
@@ -1614,7 +1749,7 @@ fns.setCount()
 fns.getCount() // => 1
 ```
 
-#### 作用域、作用域链、预解析
+#### 1.5.8.1. 作用域、作用域链、预解析
 
 - 全局作用域
 - 函数作用域
@@ -1658,19 +1793,59 @@ function fn () {
 
 - 内层作用域可以访问外层作用域，反之不行
 
-#### 什么是闭包
+#### 1.5.8.2. 什么是闭包
 
-闭包就是能够读取其他函数内部变量的函数，
+闭包就是在一个作用于能够访问到其他作用域的内部变量，作用域可以通过函数的方式实现
 由于在 Javascript 语言中，只有函数内部的子函数才能读取局部变量，
 因此可以把闭包简单理解成 “定义在一个函数内部的函数”。
 所以，在本质上，闭包就是将函数内部和函数外部连接起来的一座桥梁。
-
+> 不用太纠结于闭包是什么，会用就行
 闭包的用途：
 
 - 可以在函数外部读取函数内部成员
+  > 跨作用域访问
 - 让函数内成员始终存活在内存中
+  > 一般情况下函数调用玩后里面变量就会被清除，而如果还用函数可以访问到该变量，那么就不会被清除
 
-#### 一些关于闭包的例子
+#### 1.5.8.3. ※额外：定时器执行过程
+```js
+console.log('start');
+setTimeout(function(){console.log('timeout')},0);
+console.log('end');
+
+//结果：start->end->timeout
+
+```
+![](./media/定时器执行.jpg)
+
+#### 1.5.8.4. 一些关于闭包的例子
+
+**示例0：**
+```js
+console.log('start')
+for(var i=0;i<3;i++){
+  setTimeout(function(){console.log(i)},0)
+  /* 计时器中的执行代码会放到任务队列上，等所有执行栈代码执行完后才执行任务队列。
+  而此时i=3 */
+}
+console.log('end');
+//最终结果是三个3
+//i所指空间只有一个值
+
+
+//闭包优化：
+console.log('start')
+
+for(var i=0;i<3;i++){
+  (function(i){
+    setTimeout(function(){console.log(i)},0)//内部function访问外部function变量
+  })(i)
+//发生闭包，为0,1,2
+//因为每次传入值，都会开辟一个新的空间，而又因为任务队列中又调用的，所以不会被释放
+}
+console.log('end');
+```
+
 
 示例1：
 
@@ -1702,7 +1877,53 @@ console.log(222)
 
 示例5：沙箱模式
 
-#### 闭包的思考题
+---
+
+面试经典案例：点击输出索引
+```js
+/*
+<ul id="list">
+<li></li>
+<li></li>
+<li></li>
+<li></li>
+</ul> 
+ */
+
+//错误：
+var list=document.getElementById('list');
+var listChild=list.children;
+for(var i=0;i<listChild.length;i++){
+  listChild[i].index=i;
+  listChild[i].onclick=function(){
+    console.log(i)//这样每次都输处3了
+  }
+}
+
+//方式1 不使用闭包
+var list=document.getElementById('list');
+var listChild=list.children;
+for(var i=0;i<listChild.length;i++){
+  listChild[i].index=i;
+  listChild[i].onclick=function(){
+    console.log(this.index)//回顾：事件处理函数中的this
+  }
+}
+
+//使用闭包（效率更差，不推荐）
+var list=document.getElementById('list');
+var listChild=list.children;
+for(var i=0;i<listChild.length;i++){
+  (function(i){
+    listChild[i].onclick=function(){
+    console.log(i) 
+    }
+  })(i)
+}
+
+```
+
+#### 1.5.8.5. 闭包的思考题
 
 思考题 1：
 
@@ -1711,13 +1932,19 @@ var name = "The Window";
 var object = {
   name: "My Object",
   getNameFunc: function () {
+    console.log(this.name)//My Object
     return function () {
-      return this.name;
+      return this.name;//The Window
     };
   }
 };
 
 console.log(object.getNameFunc()())
+/* 
+  没有发生闭包。
+  只有对象中作为属性的方法this会改变
+  此处访问的是全局作用域，因此没有闭包
+*/
 ```
 
 思考题 2：
@@ -1734,13 +1961,15 @@ var object = {　　　　
   }
 };
 console.log(object.getNameFunc()())
+
+/* 使用了闭包，that是外面那个函数中的 */
 ```
 
-#### 小结
+#### 1.5.8.6. 小结
 
-### 函数递归
+### 1.5.9. 函数递归
 
-#### 递归执行模型
+#### 1.5.9.1. 递归执行模型
 
 ```javascript
 function fn1 () {
@@ -1769,7 +1998,7 @@ function fn4 () {
 fn1()
 ```
 
-#### 举个栗子：计算阶乘的递归函数
+#### 1.5.9.2. 举个栗子：计算阶乘的递归函数
 
 ```javascript
 function factorial (num) {
@@ -1781,46 +2010,130 @@ function factorial (num) {
 }
 ```
 
-#### 递归应用场景
+#### 1.5.9.3. 求斐波那契数列
+```js
+function fn(n){
+  if(n===1||n===2){
+    return 1;
+  }
+  return fn(n-1)+fn(n-2)
+}
+
+```
+
+#### 1.5.9.4. 递归应用场景
 
 - 深拷贝
+  ```js
+      // 深拷贝
+    var obj1 = {
+      name: 'zs',
+      age: 18,
+      sex: '男',
+      dog: {
+        name: '金毛',
+        age: 2
+      },
+      friends: ['ls', 'ww']
+    }
+
+    // 深拷贝  把o1的成员拷贝给o2
+    function deepCopy(o1, o2) {
+      for (var key in o1) {
+        // 获取key属性对应的值
+        var item = o1[key];
+
+        // 如果item 是对象？
+        // var o = {}
+        if (item instanceof Object) {
+          // var o = {};
+          o2[key] = {}; 
+          deepCopy(item, o2[key]);
+        } else if (item instanceof Array) {
+          // 如果item 是数组呢？
+          // var arr = [];
+          o2[key] = [];
+          deepCopy(item, o2[key]);
+        } else {
+          // 如果是简单类型
+          o2[key] = o1[key];
+        }
+      }
+    }
+
+
+    var obj2 = {};
+
+    deepCopy(obj1, obj2);
+
+    // 修改obj1中的成员 是否会影响obj2？
+    obj1.dog.name = 'xxx';
+    obj1.friends[0] = 'xxx';
+
+    console.dir(obj2);
+  
+  ```
 - 菜单树
 - 遍历 DOM 树
+  ```js
+  // 遍历指定元素下所有的子元素
+  function loadTree(parent, callback) {
+    for (var i = 0; i < parent.children.length; i++) {
+      // 遍历第一级子元素
+      var child = parent.children[i];
+      // console.log(child);
+      if (callback) {
+        // 处理找到的子元素
+        callback(child);
+      }
+
+      // 递归调用
+      loadTree(child);
+    }
+  }
+
+  var ul = document.getElementById('list');
+  loadTree(ul, function (element) {
+    element.onclick = function () {
+      console.log(this.innerText);
+    }
+  });
+  ```
 
 ---
 
-## 正则表达式
+## 1.6. 正则表达式
 
 - 了解正则表达式基本语法
 - 能够使用JavaScript的正则对象
 
-### 正则表达式简介
+### 1.6.1. 正则表达式简介
 
-#### 什么是正则表达式
+#### 1.6.1.1. 什么是正则表达式
 
 正则表达式：用于匹配规律规则的表达式，正则表达式最初是科学家对人类神经系统的工作原理的早期研究，现在在编程语言中有广泛的应用。正则表通常被用来检索、替换那些符合某个模式(规则)的文本。
 正则表达式是对字符串操作的一种逻辑公式，就是用事先定义好的一些特定字符、及这些特定字符的组合，组成一个“规则字符串”，这个“规则字符串”用来表达对字符串的一种过滤逻辑。
 
-#### 正则表达式的作用
+#### 1.6.1.2. 正则表达式的作用
 
 1. 给定的字符串是否符合正则表达式的过滤逻辑(匹配)
 2. 可以通过正则表达式，从字符串中获取我们想要的特定部分(提取)
 3. 强大的字符串替换能力(替换)
 
-#### 正则表达式的特点
+#### 1.6.1.3. 正则表达式的特点
 
 1. 灵活性、逻辑性和功能性非常的强
 2. 可以迅速地用极简单的方式达到字符串的复杂控制
 3. 对于刚接触的人来说，比较晦涩难懂
 
-### 正则表达式的测试
+### 1.6.2. 正则表达式的测试
 
 - [在线测试正则](https://c.runoob.com/front-end/854)
 - 工具中使用正则表达式
   + sublime/vscode/word
   + 演示替换所有的数字
 
-### 正则表达式的组成
+### 1.6.3. 正则表达式的组成
 
 - 普通字符abc  123
 - 特殊字符(元字符)：正则表达式中有特殊意义的字符\d  \w
@@ -1830,11 +2143,11 @@ function factorial (num) {
 - `\d` 匹配数字
 - `ab\d` 匹配 ab1、ab2
 
-### 元字符
+### 1.6.4. 元字符
 
 通过测试工具演示下面元字符的使用
 
-#### 常用元字符串
+#### 1.6.4.1. 常用元字符串
 
 | 元字符  | 说明              |
 | ---- | --------------- |
@@ -1848,7 +2161,7 @@ function factorial (num) {
 | ^    | 表示匹配行首的文本(以谁开始) |
 | $    | 表示匹配行尾的文本(以谁结束) |
 
-#### 限定符
+#### 1.6.4.2. 限定符
 
 | 限定符   | 说明       |
 | ----- | -------- |
@@ -1859,7 +2172,7 @@ function factorial (num) {
 | {n,}  | 重复n次或更多次 |
 | {n,m} | 重复n到m次   |
 
-#### 其它
+#### 1.6.4.3. 其它
 
 ```
 [] 字符串用中括号括起来，表示匹配其中的任一字符，相当于或的意思
@@ -1871,7 +2184,7 @@ function factorial (num) {
 [\u4e00-\u9fa5]  匹配汉字
 ```
 
-### 案例
+### 1.6.5. 案例
 
 验证手机号：
 
@@ -1903,9 +2216,9 @@ function factorial (num) {
 ^\d{1,3}\(.\d{1,3}){3}$
 ```
 
-## JavaScript 中使用正则表达式
+## 1.7. JavaScript 中使用正则表达式
 
-### 创建正则对象
+### 1.7.1. 创建正则对象
 
 方式1：
 
@@ -1921,7 +2234,7 @@ var reg = /\d/i;
 var reg = /\d/gi;
 ```
 
-#### 参数
+#### 1.7.1.1. 参数
 
 | 标志   | 说明         |
 | ---- | ---------- |
@@ -1929,7 +2242,7 @@ var reg = /\d/gi;
 | g    | 全局匹配       |
 | gi   | 全局匹配+忽略大小写 |
 
-### 正则匹配
+### 1.7.2. 正则匹配
 
 ```javascript
 // 匹配日期
@@ -1938,7 +2251,7 @@ var reg = /^\d{4}-\d{1,2}-\d{1,2}$/
 console.log(reg.test(dateStr));
 ```
 
-### 正则提取
+### 1.7.3. 正则提取
 
 ```javascript
 // 1. 提取工资
@@ -1970,7 +2283,7 @@ if (reg.test(str)) {
 }
 ```
 
-### 正则替换
+### 1.7.4. 正则替换
 
 ```javascript
 // 1. 替换所有空白
@@ -1984,7 +2297,7 @@ str = str.replace(/,|，/g, ".");
 console.log(str);
 ```
 
-### 案例：表单验证
+### 1.7.5. 案例：表单验证
 
 ```html
 QQ号：<input type="text" id="txtQQ"><span></span><br>
@@ -2153,24 +2466,24 @@ function getRuleByRuleName(rules, ruleName) {
 
 ---
 
-## 附录
+## 1.8. 附录
 
-### A 代码规范
+### 1.8.1. A 代码规范
 
-#### 代码风格
+#### 1.8.1.1. 代码风格
 
 - [JavaScript Standard Style ](https://github.com/feross/standard)
 - [Airbnb JavaScript Style Guide() {](https://github.com/airbnb/javascript)
 
-#### 校验工具
+#### 1.8.1.2. 校验工具
 
 - [JSLint](https://github.com/douglascrockford/JSLint)
 - [JSHint](https://github.com/jshint/jshint)
 - [ESLint](https://github.com/eslint/eslint)
 
-### B Chrome 开发者工具
+### 1.8.2. B Chrome 开发者工具
 
-### C 文档相关工具
+### 1.8.3. C 文档相关工具
 
 - 电子文档制作工具: [docute](https://github.com/egoist/docute)
 - 流程图工具：[DiagramDesigner](http://logicnet.dk/DiagramDesigner/)
