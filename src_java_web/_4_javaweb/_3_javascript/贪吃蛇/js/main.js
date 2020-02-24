@@ -132,7 +132,7 @@
                 this.snake.render();
                 this.food = new Food(this.parent);
             }
-        }, 300);
+        }, 200);
     };
     window.Game = Game;
 })();
