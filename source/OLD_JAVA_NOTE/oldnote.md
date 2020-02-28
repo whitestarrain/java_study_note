@@ -5150,6 +5150,8 @@ javaweb是应用层
 
 
 ```
+![](image/网络OSI模型.jpg)
+![](image/网络模型参考.jpg)
 
 ## IntAddress
 
@@ -5364,7 +5366,7 @@ class send implements Runnable{
 					break;
 				}
 				byte[] buf=line.getBytes();
-				DatagramPacket dp=new DatagramPacket(buf,buf.length,InetAddress.getByName("LAPTOP-AF7GFVGF"),10002);
+				DatagramPacket dp=new DatagramPacket(buf,buf.length,InetAddress.getByName("LAPTOP-AF7GFVGF"),10002);//10002根据接收端而定
 				ds.send(dp);
 			}
 		}catch(Exception e){
@@ -5818,5 +5820,3 @@ class TcpNumbersOfThreadServers{
 }
 
 ```
-
-###

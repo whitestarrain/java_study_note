@@ -1545,4 +1545,62 @@
         * ......
     * Elements：元素Element对象的集合，可以作为ArrayList<Element>来使用
     * Element：元素对象，可以获得元素属性，名称，文本等
+      * 获取子element方法（同上）：
+          * Element	getElementById​(String id)：xml中id是一个属性，用的不是特别多
+          * Elements	getElementsByTag​(String tagName)
+          * Elements	getElementsByAttribute​(String key)
+          * Elements	getElementsByAttributeValue​(String key, String value)根据属性键值对获得
+          * ......
+      * 获取属性值
+        * public String attr​(String attributeKey) 
+          > 属性名称不区分大小写。（该方法继承自Node）
+      * 获取文本内容
+        * String Text() 获取**所有**子标签纯文本内容
+        * String html() 获取InnerHtml，即标签中的所有内容，包括子标签
     * Node：节点对象，是上面四个对象的父类
+      * 是Document和Element的父类，非常多的常用函数都是Node中的
+
+  * 快捷查询方式（两种都行，喜欢哪个用哪个）
+    * selector：选择器（即css）
+       * Element select(String cssQuery)
+          * 语法：参考Selector类来写选择器 
+    * Xpath ：w3c提供的快捷查询xml的语法。XPath即为XML路径语言（XML Path Language），它是一种用来确定XML文档中某部分位置的语言。
+       * 使用Jsoup的Xpath，需要独立导入jar包
+       * JXpath语法要额外学
+        >[跳转](https://www.w3school.com.cn/xpath/xpath_syntax.asp) 
+
+# tomcat
+
+## 回顾
+1. 软件架构
+   1. C/S：客户端/服务端
+   2. B/S：浏览器端/服务端（javaee开发大部分基于此）
+2. 资源分类
+   1. 静态资源：所有用户访问后得到结果相同，
+      1. 如：html，css，JavaScrip
+      2. 访问后直接返回给客户端，浏览器有静态资源解析引擎
+   2. 动态资源：每个用户访问相同资源 ，可能得到的结果不相同
+      1. 如：Servlet/jsp,php,asp。必须依赖web服务器 
+      2. 访问后会先将动态资源转换为静态资源，再返回给客户端
+   > ![](./image/请求响应模型.jpg) 
+3. 网络通信三要素
+   1. IP：电子设备（计算机）在网络中唯一标识。
+   2. 端口：应用程序在计算机中的唯一标识 0~63356
+      >端口0-65535可以任选，但是0-1024一般被系统程序保留，比如web服务：80，tomcat服务器：8080，数据库：3306。程序端口可以自动改 
+   3. 传输协议：规定了数据通信规则
+      1. 基础协议
+         1. tcp：安全协议 三次握手 速度稍慢
+         2. udp：不安全协议，速度快
+
+## web服务器软件
+* 服务器：安装了服务器软件的计算机
+* 服务器软件：接收用户的请求，处理请求做出响应
+* web服务器软件：接受用户请求，处理请求，做出响应
+  * 在web服务器软件中，可以部署web项目，让用户通过浏览器来访问这些项目。比如html界面，css资源等 
+  * 因为动态资源依赖web服务器软件，因此也被称为web容器
+* 常见java相关web服务器软件
+  * webLogic:oracle公司，大型javaEE服务器，收费，支持所有javaEE规范
+    >javaEE是java语言在企业级开发中使用的技术规范总和，一共规定了13项大的规范
+  * webSphere：IBM公司，大型javaEE服务器，收费，支持所有javaEE规范
+  * JBoss：JBoss公司，大型javaEE服务器，收费，支持所有javaEE规范 
+  * tomcat：Apache基金组织，中小型javaEE服务器，仅支持少量javaEE规范。开源免费

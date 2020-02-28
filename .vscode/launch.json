@@ -6,6 +6,34 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - _1_Selector_Demo",
+            "request": "launch",
+            "mainClass": "_4_javaweb.xml._1_Selector_Demo",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - _0_Jsoup_Document_Demo",
+            "request": "launch",
+            "mainClass": "_4_javaweb.xml._0_Jsoup_Document_Demo",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - test",
+            "request": "launch",
+            "mainClass": "test",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - ChatDemo",
+            "request": "launch",
+            "mainClass": "_0_old.net.ChatDemo",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - Jsoup_Demo0",
             "request": "launch",
             "mainClass": "_4_javaweb.xml.Jsoup_Demo0",
