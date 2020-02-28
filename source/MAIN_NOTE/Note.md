@@ -1169,7 +1169,7 @@
       3. 获取数据或结束
       - 也就是一个循环遍历
 - PreparedStatement：Statement 的子类，执行（动态/预编译）sql 的对象，功能更强大
-  - SQL 注入问题：在拼接 sql 时，有一些 sql 的特殊关键字参与字符串的拼接。会造成安全问题
+  - SQL 注入问题：在拼接 sql 时，有一些 sql 的特殊关键字参与字符串的拼接。会造成安全问题（JDBCDemo6）
     > sql="select _ from account where username='"+ username +"' and where password='"+password+"'";
     > 用户名随便输入，然后密码输入：a' or 'a'='a 这里首尾无引号
     > sql:select _ from account where username='adfjiohae' and password='a' or 'a'='a'
@@ -1199,6 +1199,8 @@
     - 效率更高
 
 ## 7.4. JDBC 控制事务
+
+>JDBCDemo7
 
 - 事务定义：[跳转](#610-事务)
 - 通过 Connection 对象来管理事务
@@ -1400,20 +1402,147 @@
             1. yes：不依赖其他文件（但尽管 yes 也能以来其他文件）
             2. no：依赖其他文件（约束）
    1. 指令（了解）
-      1. 相当于css，现在基本不用
-   2. 标签
+      1. 相当于 css，现在基本不用
+   1. 标签
       1. 命名规则
          1. 名称可以含字母、数字以及其他的字符
          2. 名称不能以数字或者标点符号开始
          3. 名称不能以字符 “xml”（或者 XML、Xml）开始
          4. 名称不能包含空格
          5. 可使用任何名称，没有保留
-   3. 属性
-      1. id属性唯一。标签中的id不代表id。只有还要学约束
-   4. 文本
-      1. CDATA区
-         1. 该区域中的内容会被原样展示，不用&amp表示空格
+   1. 属性
+      1. id 属性唯一。标签中的 id 不代表 id。只有还要学约束
+   1. 文本
+      1. CDATA 区
+         1. 该区域中的内容会被原样展示，不用&amp 表示空格
          2. 格式：<![CDATA[ ]]>
 3. 快速入门
 
+## 约束
+
+- 背景：
+  ![](./image/xml-1.jpg)
+
+- 概念：规定 xml 的书写规则
+- 要求：
+  1. 能够在 xml 中引入约束文档
+  2. 能够读懂约束文档（IDE 能够自动读取给出提示）
+- 分类：
+
+  1. DTD：简单的约束技术（可以做到标签的限定）
+
+     1. 内部 dtd：将约束规则定义到 xml 中（不常用）
+
+        ```dtd
+        <!DOCTYPE students [
+           <!ELEMENT students (student*)>
+           <!ELEMENT student (name,age,sex)>
+           <!ELEMENT name (#PCDATA)>
+           <!ELEMENT age (#PCDATA)>
+           <!ELEMENT sex (#PCDATA)>
+           <!ATTLIST student number ID #REQUIRED>
+        ]>
+
+        ```
+
+     2. 外部 dtd：将 dtd 约束规则定义到 dtd 文件中
+        1. 本地：<!DOCTYPE student(根标签名) SYSTEM "./student.dtd"（dtd本地文件目录）>
+        2. 网络：<!DOCTYPE student(根标签名) PUBLIC "dtd文件名字，随便" "dtd文件位置 url">
+
+  2. Schema：一种复杂的约束技术（进一步可以做到内容的限定）
+
+     1. 后缀名：xsd
+     2. 引用方式：
+
+        1. 填写 xml 文档的根元素
+        2. 引入 xsi 前缀，xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        3. 引入 xsd 文件命名空间(可以引入多个文件)。 xsi:schemaLocation="http://www.itcast.cn/xml(这是命名) student.xsd(这是路径)"
+        4. 为每个 xsd 约束声明一个前缀，作为标识 xmlns="http://www.itcast.cn/xml"
+
+        ```
+        当引入多个约束文档时加前缀就变得很有用此时：
+
+        如果有命名空间的话
+        应该写成
+        <http://www.itcast.cn/xml:students>
+          <http://www.itcast.cn/xml:student>
+          </http://www.itcast.cn/xml:student>
+        </http://www.itcast.cn/xml:/students>
+        每个标签前都要写（注意结束标签是在/后）
+
+        因此可以简化书写，为命名空间起前缀： xmlns:a="http://www.itcast.cn/xml"
+        之后写成
+        <a:students>
+        </a:students>
+
+        当只有一个约束文档时，这样太麻烦，那么写成xmlns="http://www.itcast.cn/xml"
+        就成了空前缀，默认前缀。直接写成：
+        <student>
+        </student>
+        ```
+
+        ```
+
+        整体示例：
+        <students xmlns="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schmelLocation="
+                          http://www.itcast.cn/xml student.xsd
+                          http://www.itcast1.cn/xml student1.xsd    "
+                  xmlns:a="http://www.itcast.cn/xml"
+                  xmlns:b="http://www.itcast1.cn/xml"
+        >
+        </students>
+        ```
+
+        ![](./image/schema-1.jpg)
+
 ## 解析
+
+- 概念：操作 xml 文档，将文档中的数据读取到内存中
+- 操作 xml 文档：
+
+  - 解析（读取），将文档中的数据读取到内存中
+  - 写入：将内存中的数据保存到 xml 文档中。持久化的存储
+
+- 解析方式：
+
+  - DOM：将标记语言文档一次性加载进内存，内存中会形成一颗 DOM 树（服务端使用）
+    - 优点：操作比较方便，并且可以对文档进行 CRUD 的所有操作
+    - 缺点：消耗内存
+      - 注：如果代码写的不好，文档解析出的 DOM 树是文档体积的 1000-10000 倍左右
+  - SAX：逐行读取，基于事件驱动的（移动端使用）
+    - 优点：不占内存。读取一行，释放一行
+    - 缺点：只能读取，不能增删改
+
+- xml 常用解析器：
+  - JAXP:sun 公司提供的解析器，支持 dom 和 sax 两种思想
+    > 挺烂的，每人用
+  - DOM4J:一款优秀的解析器
+  - Jsoup:java 的 Html 解析器。但也可以用来解析 xml
+  - PULL:Android 操作系统内置解析器 sax 方式
+
+* JsouP
+  * 快速入门
+    1. 导入jar包
+    2. 获取Document对象
+    3. 获取对应标签Element对象
+    4. 获取数据
+  * 对象使用
+    > 多查文档，这里知识列举比较重要的 
+    * Jsoup：工具类，parse()方法可以解析html或者xml文档，返回Document
+      * parse()方法：解析html和xml
+        1. parse(File in,String charseName) ：File对象和字符集名称
+        2. parse(String html):解析xml或html字符串（直接整个文档即可）
+        3. parse​(URL url, int timeoutMillis)： 通过网络路径获取指定的xml或html文档,timeoutMillis是超时时间
+          > parse(new URL("https://www.w3school.com.cn"),10000)
+    * Document；文档对象。代表内存中的Dom树
+      >继承Element类 
+      * 获取Element方法（从Element对象中继承的）
+        * Element	getElementById​(String id)：xml中id是一个属性，用的不是特别多
+        * Elements	getElementsByTag​(String tagName)
+        * Elements	getElementsByAttribute​(String key)
+        * Elements	getElementsByAttributeValue​(String key, String value)根据属性键值对获得
+        * ......
+    * Elements：元素Element对象的集合，可以作为ArrayList<Element>来使用
+    * Element：元素对象，可以获得元素属性，名称，文本等
+    * Node：节点对象，是上面四个对象的父类

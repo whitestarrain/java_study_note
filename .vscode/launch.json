@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - Jsoup_Demo0",
+            "request": "launch",
+            "mainClass": "_4_javaweb.xml.Jsoup_Demo0",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - JDBC_10_Demo1",
             "request": "launch",
             "mainClass": "_3_jdbc.JDBC_10_Demo1",

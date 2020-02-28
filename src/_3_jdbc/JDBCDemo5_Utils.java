@@ -16,7 +16,7 @@ public class JDBCDemo5_Utils {
     private static String user = null;
     private static String password = null;
     private static String driver = null;
-    static {
+    /* static */ {
         try {
             Properties pro = new Properties();
             // 读取配置文件

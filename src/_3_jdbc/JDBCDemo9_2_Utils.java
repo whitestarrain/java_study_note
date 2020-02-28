@@ -20,7 +20,7 @@ public class JDBCDemo9_2_Utils {
      */
     private static Properties pro = null;
     private static DataSource ds = null;
-    static {
+    /* static */ /*  *以后做笔记不开mysql */{
         pro = new Properties();
         try {
             pro.load(JDBC_9_Demo1.class.getClassLoader().getResourceAsStream("druid.properties"));
