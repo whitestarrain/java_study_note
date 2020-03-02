@@ -6,6 +6,34 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - ServerDemo",
+            "request": "launch",
+            "mainClass": "_0_old.net.ServerDemo",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - _3_tcpWeb",
+            "request": "launch",
+            "mainClass": "_0_old.net._3_tcpWeb",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - TcpClient",
+            "request": "launch",
+            "mainClass": "_0_old.net.TcpClient",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - TcpServer",
+            "request": "launch",
+            "mainClass": "_0_old.net.TcpServer",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - _1_Selector_Demo",
             "request": "launch",
             "mainClass": "_4_javaweb.xml._1_Selector_Demo",

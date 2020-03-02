@@ -5477,8 +5477,6 @@ class TcpServe{
 		System.out.println(new String(buf,0,len)+s.getInetAddress().getHostAddress());
 		s.close();//关闭客户端，不需要继续连了
 		ss.close();//可选
-
-
 	}
 }
 

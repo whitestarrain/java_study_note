@@ -1200,7 +1200,7 @@
 
 ## 7.4. JDBC 控制事务
 
->JDBCDemo7
+> JDBCDemo7
 
 - 事务定义：[跳转](#610-事务)
 - 通过 Connection 对象来管理事务
@@ -1359,9 +1359,9 @@
   > 不在括号中加>是整个层次降低一次，比如 P>（各种样式），后面的各种样式都在 p 中。括号中是局部。有多个元素的括号后不能加>和^，因为无法分辨是哪个下面，那个上面
   > 多练才行，意外得十分不熟
 
-# XML
+# 9. XML
 
-## 概念
+## 9.1. 概念
 
 1. Extensible Markup Language 可扩展标记语言
    1. 可扩展：标签都是自定义的\<people\>
@@ -1383,7 +1383,7 @@
       2. xml 语法十分严格，html 语法松散
       3. xml 是存储数据的，html 是展示数据的
 
-## 语法
+## 9.2. 语法
 
 1. 基本语法
    1. xml 文档后缀名.xml
@@ -1418,7 +1418,7 @@
          2. 格式：<![CDATA[ ]]>
 3. 快速入门
 
-## 约束
+## 9.3. 约束
 
 - 背景：
   ![](./image/xml-1.jpg)
@@ -1496,7 +1496,7 @@
 
         ![](./image/schema-1.jpg)
 
-## 解析
+## 9.4. 解析
 
 - 概念：操作 xml 文档，将文档中的数据读取到内存中
 - 操作 xml 文档：
@@ -1522,85 +1522,195 @@
   - PULL:Android 操作系统内置解析器 sax 方式
 
 * JsouP
-  * 快速入门
-    1. 导入jar包
-    2. 获取Document对象
-    3. 获取对应标签Element对象
+
+  - 快速入门
+    1. 导入 jar 包
+    2. 获取 Document 对象
+    3. 获取对应标签 Element 对象
     4. 获取数据
-  * 对象使用
-    > 多查文档，这里知识列举比较重要的 
-    * Jsoup：工具类，parse()方法可以解析html或者xml文档，返回Document
-      * parse()方法：解析html和xml
-        1. parse(File in,String charseName) ：File对象和字符集名称
-        2. parse(String html):解析xml或html字符串（直接整个文档即可）
-        3. parse​(URL url, int timeoutMillis)： 通过网络路径获取指定的xml或html文档,timeoutMillis是超时时间
-          > parse(new URL("https://www.w3school.com.cn"),10000)
-    * Document；文档对象。代表内存中的Dom树
-      >继承Element类 
-      * 获取Element方法（从Element对象中继承的）
-        * Element	getElementById​(String id)：xml中id是一个属性，用的不是特别多
-        * Elements	getElementsByTag​(String tagName)
-        * Elements	getElementsByAttribute​(String key)
-        * Elements	getElementsByAttributeValue​(String key, String value)根据属性键值对获得
-        * ......
-    * Elements：元素Element对象的集合，可以作为ArrayList<Element>来使用
-    * Element：元素对象，可以获得元素属性，名称，文本等
-      * 获取子element方法（同上）：
-          * Element	getElementById​(String id)：xml中id是一个属性，用的不是特别多
-          * Elements	getElementsByTag​(String tagName)
-          * Elements	getElementsByAttribute​(String key)
-          * Elements	getElementsByAttributeValue​(String key, String value)根据属性键值对获得
-          * ......
-      * 获取属性值
-        * public String attr​(String attributeKey) 
-          > 属性名称不区分大小写。（该方法继承自Node）
-      * 获取文本内容
-        * String Text() 获取**所有**子标签纯文本内容
-        * String html() 获取InnerHtml，即标签中的所有内容，包括子标签
-    * Node：节点对象，是上面四个对象的父类
-      * 是Document和Element的父类，非常多的常用函数都是Node中的
+  - 对象使用
 
-  * 快捷查询方式（两种都行，喜欢哪个用哪个）
-    * selector：选择器（即css）
-       * Element select(String cssQuery)
-          * 语法：参考Selector类来写选择器 
-    * Xpath ：w3c提供的快捷查询xml的语法。XPath即为XML路径语言（XML Path Language），它是一种用来确定XML文档中某部分位置的语言。
-       * 使用Jsoup的Xpath，需要独立导入jar包
-       * JXpath语法要额外学
-        >[跳转](https://www.w3school.com.cn/xpath/xpath_syntax.asp) 
+    > 多查文档，这里知识列举比较重要的
 
-# tomcat
+    - Jsoup：工具类，parse()方法可以解析 html 或者 xml 文档，返回 Document
+      - parse()方法：解析 html 和 xml
+        1. parse(File in,String charseName) ：File 对象和字符集名称
+        2. parse(String html):解析 xml 或 html 字符串（直接整个文档即可）
+        3. parse​(URL url, int timeoutMillis)： 通过网络路径获取指定的 xml 或 html 文档,timeoutMillis 是超时时间
+           > parse(new URL("https://www.w3school.com.cn"),10000)
+    - Document；文档对象。代表内存中的 Dom 树
+      > 继承 Element 类
+      - 获取 Element 方法（从 Element 对象中继承的）
+        - Element getElementById​(String id)：xml 中 id 是一个属性，用的不是特别多
+        - Elements getElementsByTag​(String tagName)
+        - Elements getElementsByAttribute​(String key)
+        - Elements getElementsByAttributeValue​(String key, String value)根据属性键值对获得
+        - ......
+    - Elements：元素 Element 对象的集合，可以作为 ArrayList<Element>来使用
+    - Element：元素对象，可以获得元素属性，名称，文本等
+      - 获取子 element 方法（同上）：
+        - Element getElementById​(String id)：xml 中 id 是一个属性，用的不是特别多
+        - Elements getElementsByTag​(String tagName)
+        - Elements getElementsByAttribute​(String key)
+        - Elements getElementsByAttributeValue​(String key, String value)根据属性键值对获得
+        - ......
+      - 获取属性值
+        - public String attr​(String attributeKey)
+          > 属性名称不区分大小写。（该方法继承自 Node）
+      - 获取文本内容
+        - String Text() 获取**所有**子标签纯文本内容
+        - String html() 获取 InnerHtml，即标签中的所有内容，包括子标签
+    - Node：节点对象，是上面四个对象的父类
+      - 是 Document 和 Element 的父类，非常多的常用函数都是 Node 中的
 
-## 回顾
+  - 快捷查询方式（两种都行，喜欢哪个用哪个）
+    - selector：选择器（即 css）
+      - Element select(String cssQuery)
+        - 语法：参考 Selector 类来写选择器
+    - Xpath ：w3c 提供的快捷查询 xml 的语法。XPath 即为 XML 路径语言（XML Path Language），它是一种用来确定 XML 文档中某部分位置的语言。
+      - 使用 Jsoup 的 Xpath，需要独立导入 jar 包
+      - JXpath 语法要额外学
+        > [跳转](https://www.w3school.com.cn/xpath/xpath_syntax.asp)
+
+# 10. tomcat
+
+## 10.1. 回顾
+
 1. 软件架构
    1. C/S：客户端/服务端
-   2. B/S：浏览器端/服务端（javaee开发大部分基于此）
+   2. B/S：浏览器端/服务端（javaee 开发大部分基于此）
 2. 资源分类
    1. 静态资源：所有用户访问后得到结果相同，
       1. 如：html，css，JavaScrip
       2. 访问后直接返回给客户端，浏览器有静态资源解析引擎
    2. 动态资源：每个用户访问相同资源 ，可能得到的结果不相同
-      1. 如：Servlet/jsp,php,asp。必须依赖web服务器 
+      1. 如：Servlet/jsp,php,asp。必须依赖 web 服务器
       2. 访问后会先将动态资源转换为静态资源，再返回给客户端
-   > ![](./image/请求响应模型.jpg) 
+         > ![](./image/请求响应模型.jpg)
 3. 网络通信三要素
    1. IP：电子设备（计算机）在网络中唯一标识。
    2. 端口：应用程序在计算机中的唯一标识 0~63356
-      >端口0-65535可以任选，但是0-1024一般被系统程序保留，比如web服务：80，tomcat服务器：8080，数据库：3306。程序端口可以自动改 
+      > 端口 0-65535 可以任选，但是 0-1024 一般被系统程序保留，比如 web 服务：80，tomcat 服务器：8080，数据库：3306。程序端口可以自动改
    3. 传输协议：规定了数据通信规则
       1. 基础协议
          1. tcp：安全协议 三次握手 速度稍慢
          2. udp：不安全协议，速度快
 
-## web服务器软件
-* 服务器：安装了服务器软件的计算机
-* 服务器软件：接收用户的请求，处理请求做出响应
-* web服务器软件：接受用户请求，处理请求，做出响应
-  * 在web服务器软件中，可以部署web项目，让用户通过浏览器来访问这些项目。比如html界面，css资源等 
-  * 因为动态资源依赖web服务器软件，因此也被称为web容器
-* 常见java相关web服务器软件
-  * webLogic:oracle公司，大型javaEE服务器，收费，支持所有javaEE规范
-    >javaEE是java语言在企业级开发中使用的技术规范总和，一共规定了13项大的规范
-  * webSphere：IBM公司，大型javaEE服务器，收费，支持所有javaEE规范
-  * JBoss：JBoss公司，大型javaEE服务器，收费，支持所有javaEE规范 
-  * tomcat：Apache基金组织，中小型javaEE服务器，仅支持少量javaEE规范。开源免费
+## 10.2. web 服务器软件
+
+### 10.2.1. 概念
+
+- 服务器：安装了服务器软件的计算机
+- 服务器软件：接收用户的请求，处理请求做出响应
+- web 服务器软件：接受用户请求，处理请求，做出响应
+  - 在 web 服务器软件中，可以部署 web 项目，让用户通过浏览器来访问这些项目。比如 html 界面，css 资源等
+  - 因为动态资源依赖 web 服务器软件，因此也被称为 web 容器
+- 常见 java 相关 web 服务器软件
+  - webLogic:oracle 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
+    > javaEE 是 java 语言在企业级开发中使用的技术规范总和，一共规定了 13 项大的规范
+  - webSphere：IBM 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
+  - JBoss：JBoss 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
+  - tomcat：Apache 基金组织，中小型 javaEE 服务器，仅支持少量 javaEE 规范。开源免费
+
+### 10.2.2. tomcat
+
+- 开始
+  - 下载
+    - tomcat 官网
+  - 安装
+    - 解压即可（建议目录不要有空格和中文）
+  - 卸载
+    - 删除即可
+- 目录结构（大多数项目目录结构差不多，因此很重要）
+  - bin\：存放可执行文件（sh 在 linux 下可执行）
+  - conf\：存放配置文件(xml 以及 properties 等)
+  - lib\：存放依赖 jar 包
+  - logs\：存放日志文件
+  - temp\：存放临时数据
+  - webapps\：存放 web 项目
+  - work\：存放运行时数据。之后学 jsp 后再看
+- 启动：双击 bin 下的 startup.bat
+  > 其实以后不常用这种方式，因为有 ide
+  - 出现问题：
+    1. 窗口一闪而过：JAVA_HOME 没有正确配置
+    2. 启动报错：8080 被占用
+       1. 杀死占用 8080 端口的进程
+          1. netstat -ano
+          2. 找到对应 PID（一个数字）
+             > ![](./image/pid.jpg)
+          3. 去任务管理器关闭那个进程
+       2. 改变端口号
+          1. conf 文件夹
+          2. server.xml 文件
+          3. 找 Connector 元素，里面有相关属性，有访问端口号
+          4. 端口号改的不是一个两个，把所有 port 属性改了
+          - 一般会降 tomcat 默认端口号修改为 80。是 http 协议默认端口号，在访问时就不用输入端口号了
+  - 访问：
+    - 本地：http://localhost:8080
+    - 别人：http://【ip】:8080
+  - 关闭：
+    - 强制关闭：点击窗口叉号（不推荐）
+    - 正常关闭：
+      - bin 目录下 shutdown.bat
+      - 窗口上按 ctrl+c
+- 配置
+  - 部署项目的方式：
+    - 将文件夹放到 webapps 下
+      - 直接
+        - /hello：项目的访问路径-->虚拟目录
+          > 该方式下虚拟路径名称与文件路径名称必须相同
+      - 简化部署：打包成 war 包后，再放到 webapps 下（可以 winrar 压缩为 zip 后再改名）
+        - 会自动解压缩，删除后也会自动删除解压文件夹
+    - 配置 xml 文件
+      1. xml 文件最下面 host 标签中 添加 Context 标签
+      ```xml
+      <!--
+         docBase:文件存放路径
+      路径名称
+      可以不同
+       		 	-->
+      <Context docBase="" Path=""/>
+      <!--
+        缺点：在核心配置文件中添加木梳项目可能导致整个服务器崩溃
+              一般不会在这里配置
+       -->
+      ```
+    - 热部署方式（推荐）
+      - conf/Catalina/localhost 下创建任意名称 xml 文件
+      - 写一个 Context 标签，不能加 Path 属性
+      - 虚拟目录是 xml 文件名称
+        > 可以将 xml 文件删除或者后缀名加\_bak 来禁止访问一个项目
+        > 修改后不需要重启服务器，而修改 serve 文件需要重启
+  - 静态项目和动态项目
+    - 目录结构
+      - java 动态项目
+        - 项目根目录
+          - web-inf 目录
+            - web.xml:web 项目核心配置文件
+            - classes 目录：防止字节码文件
+            - lib 目录：存放依赖 jar 包
+          - 其他文件
+  * 与 idea 集成
+    - 添加 tomcat
+      - 步骤：
+        1. Run
+        2. Edit Configurations
+        3. Defaults
+        4. Tomcat Server
+        5. Local
+        6. 选择 Tomcat 安装目录
+    - 创建 web 项目
+      1.  file
+      2.  New
+      3.  Moudle
+      4.  Java EnterPrise（jsp3.0 对应 javaEE7）
+      5.  此时 Application Server 默认 tomcat
+      6.  下面 web Application 打上勾
+      7.  勾上最下面 Creat web.xml （Server3.1 规范中，不勾也没事儿）
+    - 改为热部署
+      1. Run
+      2. Edit Configurations
+      3. tomcat下某个服务器
+      4. on update action选项和 on frame deactivation
+      5. 改为Update resources
+      6. （其实就是添加资源刷新，但因为java代码改得较多，所以不加updata Classes了）
