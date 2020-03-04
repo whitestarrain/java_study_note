@@ -4415,7 +4415,7 @@ File对象
 字节数输出流
 字符输出流
 
-该流提供了一系列打印方法，可以把所有数据按照原数据形式打印
+该流提供了一系列打印方法，可以把所有数据按照 原数据 形式打印
 
 
 PrintStrean是写入一串8bit的数据的。
@@ -5818,3 +5818,6 @@ class TcpNumbersOfThreadServers{
 }
 
 ```
+
+# host
+![](./image/host.jpg)
