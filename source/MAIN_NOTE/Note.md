@@ -1,4 +1,4 @@
-# 1. 反射：框架设计的灵魂
+﻿# 1. 反射：框架设计的灵魂
 
 > 也要看看代码，很重要
 
@@ -97,6 +97,7 @@
 - @Overrides :检测被该注解标注的方法是否重写父类方法(或实现接口接口)
 - @Deprecated :将该注解标注的内容以过时，有更好的替代内容
 - @SuppressWarnings :压制警告
+  
   - 一般添加"all"参数，@SuppressWarnings("all")，放在类或者方法上面，使不显示警告
 - @SafeVarargs：参数安全类型注解。它的目的是提醒开发者不要用参数做一些不安全的操作,它的存在会阻止编译器产生 unchecked 这样的警告。它是在 Java 1.7 的版本中加入的。
 
@@ -215,7 +216,7 @@
     @Person(role="coder")
     @Person(role="PM")
     public class SuperMan{
-
+    
     }
     ```
 
@@ -305,9 +306,11 @@
     2. 退出：exit
   - 远程：
     1. 登陆： mysql -h127.0.0.1 -uroot -proot
+       
        > -h 后直接加上 ip 地址，本机为 127.0.0.1
     2. 退出：exit 或者 quit
     3. 登陆： mysql --host=127.0.0.1 --user=root --password=root
+       
        > 相当于全称，这里有两个-
 
 ## 5.3. 数据结构
@@ -364,10 +367,13 @@
 - 对数据库整体
   1. C(Create) 创建
      - create database 数据库名
+       
        > 重名时会报错
      - create database if not exists 数据库名
+       
        > 当指定数据库名不存在时才创建，存在也不会报错
      - create database 数据库名 character set gbk
+       
        > 以指定字符集创建数据库，这里为 gbk
   2. R(Retrieve) 查询
      - show databases;
@@ -377,19 +383,25 @@
        > performance_schema 用来存放调整数据库性能的一些数据
        > 这是三个都最好不要改
      - show creat database 数据库名称
+       
        > 查看某一个数据库字符集：查询某个数据库创建语句
   3. U(Update) 修改
      - alter database 数据库名称 character set 字符集名称
+       
        > 修改某个数据库字符集（utf8，没有-）
   4. D(Delete) 删除
      - drop database 数据库名称
+       
        > 一般不会做的操作
      - drop database if exists
+       
        > 当数据库存在时才删除
   5. 使用数据库
      - select database()
+       
        > 查询正在使用的数据库名称
      - use 数据库名称
+       
        > 使用数据库，相当于进入数据库
 - 对表整体
   1. C(Create) 创建
@@ -424,29 +436,40 @@
        );
        ```
      - create 新表 like 已经存在表
+       
        > 创建一个新的表和已经存在的一个表结构相同，也就是赋值表
   2. R(Retrieve) 查询
      - show tables
+       
        > 查询一个数据库中所有表的名称
      - desc 表名
+       
        > 查询表结构
      - show create table 表名
+       
        > 查询表的字符集
   3. U(Update) 修改<p id="DML_update"> </p>
      - alter table 表名 rename to 新表名;
+       
        > 修改表名
      - alter table 表名 character set 字符集;
+       
        > 修改表的字符集
      - alter table 表名 add 列名 数据类型;
+       
        > 增加一列
      - alter table 表名 drop 列名;
+       
        > 删除列
      - alter table 表名 change 旧列名 新列名 新列名类型
+       
        > 修改列名称，类型
      - alter table 表名 modify 列名 新的类型
+       
        > 只修改列的类型
   4. D(Delete) 删除
      - drop table (if exists) 表名
+       
        > 删除表
      - truncate table 表名
        > 删除整个表再创建一个一模一样结构的表
@@ -478,6 +501,7 @@
 ### 6.5.3. DQL(表内数据查询)
 
 - select \* from 表名
+  
   > 查询表中所有数据
 
 1. 整体语法： >所有语句都涉及到
@@ -507,6 +531,7 @@
         > ![](image/MySQL-5-1.jpg)
    2. 去除重复结果集
       - select distinct 字段名 from 表名;
+        
         > 如果指定的多个字段名都相同，才可以去重
    3. 计算列
       - select 字段 1+字段 2 from 表名;
@@ -547,6 +572,8 @@
    1. count:计算个数
       - 一般选择非空的列
       - 或者使用 count(\*)（不推荐）
+        
+        > count (distinct nam) 来去重（mysql是否可用未证实） 
    2. max:计算最大值
    3. min:计算最小值
    4. sum:计算和；
@@ -607,6 +634,7 @@
      > [跳转到列数据类型修改](#DML_update)
 3. 创建表后添加非空约束
    - alter table 表名 modify 字段名 字段类型 not null
+     
      > 和上面同理
 
 ### 6.6.4. 唯一约束
@@ -627,6 +655,7 @@
      > [跳转到列数据类型修改](#DML_update)
 3. 创建表后添加唯一约束
    - alter table 表名 modify 字段名 字段类型 unique
+     
      > 和非空约束添加同理，但当添加时，该列数据必须不能有重复的，否则会报错
 
 ### 6.6.5. 主键约束
@@ -644,9 +673,11 @@
      ```
 2. 删除主键约束
    - alter table 表名 drop primary key;
+     
      > 主键只有一个，所以不需要指定
 3. 创建表后添加主键
    - alter table 表名 modify 字段名 字段类型 primary key;
+     
      > 不能有重复数据以及空数据。
 4. 自动增长
    - 概念：如果某一列是数值类型的，使用 auto_increment 可以完成值的自动增长
@@ -703,25 +734,33 @@
    > 同样，新加的其他表记录也必须与主表关联记录的所有数据中来取。例如这里新建员工体条目 dep_id 只能取 1 和 2 或者保留为 null
 
 2. 删除外键
+   
    - alter table 其他表的名 drop foreign key 外键名（自己起的那个）
 3. 创建表之后，添加外键
    - alter table 其他表的名 add constraint 外键名称（自己起名，不能重复） foreign key 外键列名称 references 主表名称(主表列名称)
+     
      > 中文括号是备注，英文括号中需要填东西
 4. 级联操作
    - 情景
+     
      > 当修改主表中的记录时，必须先修改与之关联的记录。为了方便修改数据，就有了级联操作。也就是修改一的同时自动修改多
    - 概念：当修改主表中的记录时，其他表中的记录也会跟着修改（使用一定要谨慎）
+     
      > 比如这里修改 department 表中的一个 id 为 5，employee 表中对应 dep_id 也会修改为 5
    - 添加级联更新：
+     
      - 在添加外键语句后 加上：on update cascade
    - 添加级联删除：
      - 在添加外键语句后 加上：on delete cascade
+
        例：
+
      ```SQL
      -- 先取消键的关联
      alter table employee drop foreign key emp_dept
      -- 再重新加上外键，此时添加级联更新语句和级联删除语句
-     alter table employee add constraint emp_dept foreign key dem_id references department(id) on update cascade on delete cascade
+     alter table employee add constraint emp_dept foreign key dem_id references department(id) on
+ 	update cascade on delete cascade
      ```
 
 ## 6.7. 数据库设计
@@ -731,6 +770,7 @@
 1. 多表间关系：
    - 一对一（了解）：
      - 如人的身份证
+       
        > 一个人只能有一个身份证
    - 一对多（多对一）：
      - 如部门和部门
@@ -760,6 +800,7 @@
 - 分类(一般前三个就足够)：
 
   1. 第一范式（1NF）：每一列都是不可分割的原子数据项
+     
      > 即每列不可分割。所有的表创建出来后都满足该范式
   2. 第二范式（2NF）：在 1NF 的基础上，非码属性必须依赖于候选码（在 1NF 基础上消除非主属性对主码的部分函数依赖）
      - 函数依赖：通过 A 的属性的值，可以确定唯一 B 的属性的值（A-->B），则称 B 依赖于 A。
@@ -770,6 +811,7 @@
      - 码：如果一个属性或者属性组在一张表中被其他所有属性完全依赖，则称该属性或属性组为该表的**码**。比如学号和课程名称组合可以称为码
        _ 主属性：码属性组中的所有属性
        _ 非主属性：除码属性组中的所有属性
+       
        > 即消除部分函数依赖
   3. 第三范式（3NF）：在 2NF 的基础上，任何非主属性不依赖于其他非主属性。（在 2 范式的基础上消除传递依赖。）
   4. Boyce-Codd 范式（BCNF）
@@ -829,35 +871,42 @@
 #### 6.9.2.1. 内连接查询
 
 1. 隐式内连接
-   - from 后有过个表，使用 where 条件消除无用的数据。表名.'列名' 来表示某表某列，单引号加不加都行
+
+   - from 后有多个表，使用 where 条件消除无用的数据。表名.'列名' 来表示某表某列，单引号加不加都行
+
      > 例：emp.'dept_id'=dept.'id'
-   ```SQL
-   -- 例：
-   select
-       t1.name,
-       t1.sex,
-       t2.name  -- 2
-   from
-       employee t1,
-       department t2   -- 1 先起别名，避免表名过长过于麻烦
-   where
-       t1.id=t2.id -- 3
-   -- 格式仿照这样写，多分行方便加注释
-   ```
+
+     ```SQL
+     -- 例：
+     select
+         t1.name,
+         t1.sex,
+         t2.name  -- 2
+     from
+         employee t1,
+         department t2   -- 1 先起别名，避免表名过长过于麻烦
+     where
+         t1.id=t2.id -- 3
+     -- 格式仿照这样写，多分行方便加注释
+     ```
+
 2. 显式内连接
+
    - select 字段列表 from 表名 inner join 表名 2 on 条件
-     > 将其他表加入到主表中,这样会显示其他表的所有信息而不能指定只显示哪几项，通过 where 进行记录筛选
-   ```SQL
-   -- 例：
-   select
-       *
-   from
-       employee t1
-   [inner] join
-       department t2
-   where
-       t1.id=t2.id;
-   ```
+
+     > 将其他表加入到主表中,这样会显示其他表的所有信息而不能指定只显示哪几项，通过 where 进行记录筛选。效果与隐式内连接相同
+
+     ```SQL
+     -- 例：
+     select
+         *
+     from
+         employee t1
+     [inner] join
+         department t2
+     where
+         t1.id=t2.id;
+     ```
 
 - 内连接查询注意：
   1. 从那些表中查数据
@@ -906,6 +955,7 @@
 
   1. 子查询结果是单行单列
      - 子查询可以作为条件（或者单个数值），使用运算符来进行判断
+       
        > 例：上面
   2. 子查询结果是多行单列
 
@@ -964,6 +1014,7 @@
        ```
 
 - 多表查询练习，再看下视频？
+  
   - 自关联映射（不会的话看 30 分钟处）
 
 ## 6.10. 事务
@@ -1057,22 +1108,29 @@
 - 管理用户
   1. 添加用户
      - creat user '用户名'@'主机名' identified by '密码'
+       
        > 主机名可以写 localhost 和%等
   2. 删除用户
+     
      - drop user '用户名'@'主机名'
   3. 修改用户密码
      1. 普通修改密码
         - update user set password=password('新密码') where user='用户名'
+          
           > password()是 MySQL 密码加密函数
         - set password for '用户名'@'主机名'=password('新密码')
+          
           > 同样效果，DCL 特有方式。
      2. 当忘记 root 账户密码
         1. cmd --> net stop mysql
+           
            > 停止 MySQL 服务
         2. mysqld --skip-grant-tables
+           
            > 使用无验证方式打开 MySQL 服务，此时光标会卡住
         3. 打开一个新的 cmd，输入 mysql 回车，登录成功
         4. 通过命令行修改密码，关闭两个窗口
+           
            - update user set password=password('新密码') where user='root'
         5. 打开任务管理器，手动结束 mysqld.exe 这一进程
         6. 打开新 cmd，正常登陆
@@ -1083,12 +1141,14 @@
      数据库中密码会进行加密
 - 权限管理
   - 查询权限
+    
     - show grants for '用户名'@'主机名';
   - 授予权限
     - grant 权限列表 on 数据库名.表名 to '用户名'@'主机名';
       > 所有权限关键字：all
       > 所有数据库和表：_ ._ ><br>所有权限分类：SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, SHUTDOWN, PROCESS, FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES, SUPER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, REPLICATION SLAVE, REPLICATION CLIENT, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER
   - 撤销权限
+    
     - revoke 权限列表 on 数据库名.表名 from '用户名'@'主机名';
 
 # 7. JDBC
@@ -1133,6 +1193,7 @@
        - static Connection getConnection(String url, String user, String password)
          - url:指定连接的路径（包括 ip 端口以及数据库名称）
            - jdbc://ip 地址（域名）:端口号/数据库名称
+             
              > 例："jdbc:mysql://localhost:3306/student"
            - 如果连接的是本机的 mysql 服务器，并且默认端口为 3306，那么可以简写为 jdbc:///student（即把 localhost:3306 省略）
          - user:
@@ -1153,6 +1214,7 @@
       > 执行 DML 语句语句以及 DDL 语句。
       > 返回值是影响的行数。可以通过判断是否大于 0 来判断是否执行成功
     - ResultSet executeQuery(String sql)
+      
       > 返回结果集对象
   - 练习：见 JDBCDemo2_Practice
 - ResultSet：结果集对象，封装查询结果
@@ -1175,6 +1237,7 @@
     > sql:select _ from account where username='adfjiohae' and password='a' or 'a'='a'
     > 最后构成： 式 1 and 式 2 or 式 3。 导致最后结果一直为 ture，会查出所有账户
   - 解决：通过 PreparedStatemnet
+    
     - 预编译 SQL:参数通过?作为占位符替代
   - 步骤：
     1. 导入驱动 jar 包
@@ -1182,6 +1245,7 @@
     3. 获取数据库连接对象 Connection
     4. 定义 sql 语句
        - 注意：sql 的参数使用?作为占位符
+         
          > select \* from account where username=? and password=?
     5. 获取执行 sql 语句的对象 PreparedStatement
        \*Connection 接口中： PreparedStatement prepareStatement(String sql)
@@ -1192,6 +1256,7 @@
            - 参数 1：?的位置
            - 参数 2：?的值
     7. 执行 sql，处理结果（不需要传递 sql 语句，传参是其父类 Statement 的）
+       
        - 方法和 Statement 同名
     8. 释放资源
   - 注意：以后会一直使用 PreparedStatement 来完成操作
@@ -1247,6 +1312,7 @@
   - 标准接口：javax.sql.DataSource
     - 方法：
       - 获取连接：getConnection()
+        
         > 会不断获取下一个连接
       - 归还连接：如果连接对象 conn 是从连接池中获取的，则 conn.close()不会关闭连接而是归还连接
   - 有数据库厂商来实现，不用我们实现（已两个为例）
@@ -1262,8 +1328,10 @@
      > 路径：src 目录文件下（classpath 指的就是 src 目录）
      > 一般不使用硬编码（就是把一些设置直接卸载代码中），维护太麻烦。推荐使用配置文件
   3. 创建核心对象：ComboPooledDataSource 数据库连接池对象
+     
      > 该对象实现的 DataSource 接口
   4. 获取连接：getConnection()
+     
      > 会不断获取下一个连接
 - 复习笔记需要查阅文件：
   - JDBCDemo8_C3P0.java
@@ -1280,6 +1348,7 @@
      > 需要手动加载
   3. 加载配置文件 properties
   4. 获取数据库连接池对象
+     
      > 通过工厂类 DruidDataSourceFactory 的 静态方法 createDataSource(properties 对象)来获取
   5. 通过 getConnection 获取连接
 
@@ -1291,6 +1360,7 @@
 4. 获取连接方法
 5. 释放资源
 6. 获取连接池方法
+   
    > 某些框架仅需要连接池即可
 
 ## 7.7. Spring JDBC
@@ -1298,6 +1368,7 @@
 ### 7.7.1. 概念
 
 - 是 Spring 对 JDBC 的简单封装，提供了 JdbcTemplate 来简化 JDBC 的开发
+  
   > Spring 是 javaEE 的灵魂框架，这只是 Spring 的一小部分，之后会有 Spring 的专题
 
 ### 7.7.2. 步骤
@@ -1305,6 +1376,7 @@
 1. 导入 jar 包
 2. 创建 JdbcTemplate 对象，依赖于数据源 DataSource
    - JdbcTemplate template=new Jdbctemplate(ds);
+     
      > 只需要传入 DataSource，而申请连接和释放资源以及归还到连接池都在框架内部自己做的。
 3. 调用方法：
    - update:执行 DML 语句
@@ -1320,6 +1392,7 @@
              > 参见 JDBCDemo11_DML_DQL.java 文件
              > 其中自己定义的类要满足与数据库每个字段的映射
    - queryForObject():查寻结果，将结果封装为对象
+     
      - 一般用于聚合函数的查寻
 
 ### 7.7.3. 练习
@@ -1516,6 +1589,7 @@
 
 - xml 常用解析器：
   - JAXP:sun 公司提供的解析器，支持 dom 和 sax 两种思想
+    
     > 挺烂的，每人用
   - DOM4J:一款优秀的解析器
   - Jsoup:java 的 Html 解析器。但也可以用来解析 xml
@@ -1537,6 +1611,7 @@
         1. parse(File in,String charseName) ：File 对象和字符集名称
         2. parse(String html):解析 xml 或 html 字符串（直接整个文档即可）
         3. parse​(URL url, int timeoutMillis)： 通过网络路径获取指定的 xml 或 html 文档,timeoutMillis 是超时时间
+           
            > parse(new URL("https://www.w3school.com.cn"),10000)
     - Document；文档对象。代表内存中的 Dom 树
       > 继承 Element 类
@@ -1556,13 +1631,15 @@
         - ......
       - 获取属性值
         - public String attr​(String attributeKey)
+          
           > 属性名称不区分大小写。（该方法继承自 Node）
       - 获取文本内容
         - String Text() 获取**所有**子标签纯文本内容
         - String html() 获取 InnerHtml，即标签中的所有内容，包括子标签
-    - Node：节点对象，是上面四个对象的父类
+  - Node：节点对象，是上面四个对象的父类
+      
       - 是 Document 和 Element 的父类，非常多的常用函数都是 Node 中的
-
+  
   - 快捷查询方式（两种都行，喜欢哪个用哪个）
     - selector：选择器（即 css）
       - Element select(String cssQuery)
@@ -1570,6 +1647,7 @@
     - Xpath ：w3c 提供的快捷查询 xml 的语法。XPath 即为 XML 路径语言（XML Path Language），它是一种用来确定 XML 文档中某部分位置的语言。
       - 使用 Jsoup 的 Xpath，需要独立导入 jar 包
       - JXpath 语法要额外学
+        
         > [跳转](https://www.w3school.com.cn/xpath/xpath_syntax.asp)
 
 # 10. tomcat
@@ -1586,10 +1664,12 @@
    2. 动态资源：每个用户访问相同资源 ，可能得到的结果不相同
       1. 如：Servlet/jsp,php,asp。必须依赖 web 服务器
       2. 访问后会先将动态资源转换为静态资源，再返回给客户端
+         
          > ![](./image/请求响应模型.jpg)
 3. 网络通信三要素
    1. IP：电子设备（计算机）在网络中唯一标识。
    2. 端口：应用程序在计算机中的唯一标识 0~63356
+      
       > 端口 0-65535 可以任选，但是 0-1024 一般被系统程序保留，比如 web 服务：80，tomcat 服务器：8080，数据库：3306。程序端口可以自动改
    3. 传输协议：规定了数据通信规则
       1. 基础协议
@@ -1607,6 +1687,7 @@
   - 因为动态资源依赖 web 服务器软件，因此也被称为 web 容器
 - 常见 java 相关 web 服务器软件
   - webLogic:oracle 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
+    
     > javaEE 是 java 语言在企业级开发中使用的技术规范总和，一共规定了 13 项大的规范
   - webSphere：IBM 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
   - JBoss：JBoss 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
@@ -1637,6 +1718,7 @@
        1. 杀死占用 8080 端口的进程
           1. netstat -ano
           2. 找到对应 PID（一个数字）
+             
              > ![](./image/pid.jpg)
           3. 去任务管理器关闭那个进程
        2. 改变端口号
@@ -1658,8 +1740,10 @@
     - 将文件夹放到 webapps 下
       - 直接
         - /hello：项目的访问路径-->虚拟目录
+          
           > 该方式下虚拟路径名称与文件路径名称必须相同
       - 简化部署：打包成 war 包后，再放到 webapps 下（可以 winrar 压缩为 zip 后再改名）
+        
         - 会自动解压缩，删除后也会自动删除解压文件夹
     - 配置 xml 文件
       1. xml 文件最下面 host 标签中 添加 Context 标签
@@ -1681,6 +1765,7 @@
       - 虚拟目录是 xml 文件名称
         > 可以将 xml 文件删除或者后缀名加\_bak 来禁止访问一个项目
         > 修改后不需要重启服务器，而修改 serve 文件需要重启
+      - ROOT.xml的话则会作为**主目录**
   - 静态项目和动态项目
     - 目录结构
       - java 动态项目
@@ -1710,7 +1795,796 @@
     - 改为热部署
       1. Run
       2. Edit Configurations
-      3. tomcat下某个服务器
-      4. on update action选项和 on frame deactivation
-      5. 改为Update resources
-      6. （其实就是添加资源刷新，但因为java代码改得较多，所以不加updata Classes了）
+      3. tomcat 下某个服务器
+      4. on update action 选项和 on frame deactivation
+      5. 改为 Update resources
+      6. （其实就是添加资源刷新，但因为 java 代码改得较多，所以不加 updata Classes 了）
+
+# 11. 快捷键
+
+<table>
+<thead>
+<tr>
+<th style="text-align:center">快捷键</th>
+<th>英文说明</th>
+<th>中文说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Ctrl + Space（我改为了ctrl+alt+/）</td>
+<td>Basic code completion (the name of any class, method or variable)</td>
+<td>补全代码，由于经常与操作系统的输入法的切换冲突，所以实际很少用。一般直接在 idea 中开启输入自动补全机制。</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + Space</td>
+<td>Smart code completion (filters the list of methods and variables by expected type</td>
+<td>在列出的可选项中只显示出你所输入的关键字最相关的信息。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + Enter</td>
+<td>Complete statement</td>
+<td>代码补全后，自动在代码末尾添加分号结束符。（vscode中没有）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + P</td>
+<td>Parameter info (within method call arguments)</td>
+<td>在某个方法中，调用该按键后，会展示出这个方法的调用参数列表信息。（vscode中是查询文件）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Q</td>
+<td>Quick documentation lookup</td>
+<td>展示某个类或者方法的 API 说明文档<br />（不用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + mouse</td>
+<td>over code Brief Info</td>
+<td>跳进到某个类或者方法源代码中进行查看。<br />vscode是f12（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Alt + Insert</td>
+<td>Generate code… (Getters, Setters, Constructors, hashCode/equals, toString)</td>
+<td>自动生成某个类的 Getters, Setters, Constructors, hashCode/equals, toString 等代码。<br />（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + O</td>
+<td>Override methods</td>
+<td>展示该类中所有覆盖或者实现的方法列表，注意这里是字母小写的 O！</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Alt + T</td>
+<td>Surround with… (if..else,try..catch, for, synchronized, etc.)</td>
+<td>自动生成具有环绕性质的代码，比如：if..else,try..catch, for, synchronized 等等，使用前要先选择好需要环绕的代码块。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + /</td>
+<td>Comment/uncomment with line comment</td>
+<td>对单行代码，添加或删除注释。分为两种情况：如果只是光标停留在某行，那么连续使用该快捷键，会不断注释掉下一行的代码；如果选定了某行代码（选定了某行代码一部分也算这种情况），那么连续使用该快捷键，会在添加或删除该行注释之间来回切换。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + /</td>
+<td>Comment/uncomment with block comment</td>
+<td>对代码块，添加或删除注释。它与 Ctrl + / 的区别是，它只会在代码块的开头与结尾添加注释符号！（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + W</td>
+<td>Select successively increasing code blocks</td>
+<td>选中当前光标所在的代码块，多次触发，代码块会逐级变大。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + W</td>
+<td>Decrease current selection to previous state</td>
+<td>是 Ctrl + W 的反向操作，多次触发，代码块会逐级变小，最小变为光标。</td>
+</tr>
+<tr>
+<td style="text-align:center">Alt + Q</td>
+<td>Context info</td>
+<td>展示包含当前光标所在代码的父节点信息，比如在 java 方法中调用，就会展示方法签名信息。<br />（不用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Alt + Enter</td>
+<td>Show intention actions and quick-fixes</td>
+<td>展示当前当前光标所在代码，可以变化的扩展操作<br />vscode中为重构</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Alt + L</td>
+<td>Reformat code</td>
+<td>格式化代码&nbsp;（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + L</td>
+<td>Reformat code</td>
+<td>格式化选中代码&nbsp;此处为vscode特有</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Alt + O</td>
+<td>Optimize imports</td>
+<td>去除没有实际用到的包，这在 java 类中特别有用。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Alt + I</td>
+<td>Auto-indent line(s)</td>
+<td>按照缩进的设定，自动缩进所选择的代码段。</td>
+</tr>
+<tr>
+<td style="text-align:center">Tab / Shift + Tab</td>
+<td>Indent/unindent selected lines</td>
+<td>缩进或者不缩进一次所选择的代码段。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + X 或 Shift Delete</td>
+<td>Cut current line or selected block to clipboard</td>
+<td>剪切当前代码。&nbsp;（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + C 或 Ctrl + Insert</td>
+<td>Copy current line or selected block to clipboard</td>
+<td>拷贝当前代码。&nbsp;（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + V 或 Shift + Insert</td>
+<td>Paste from clipboard</td>
+<td>粘贴之前剪切或拷贝的代码。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + V</td>
+<td>Paste from recent buffers…</td>
+<td>从之前的剪切或拷贝的代码历史记录中，选择现在需要粘贴的内容。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + D</td>
+<td>Duplicate current line or selected block</td>
+<td>复制当前选中的代码。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Y</td>
+<td>Delete line at caret</td>
+<td>删除当前光标所在的代码行。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + J</td>
+<td>Smart line join</td>
+<td>把下一行的代码接续到当前的代码行。</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Enter</td>
+<td>Smart line split</td>
+<td>当前代码行与下一行代码之间插入一个空行，原来所在的光标不变。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Shift + Enter</td>
+<td>Start new line</td>
+<td>当前代码行与下一行代码之间插入一个空行，原来光标现在处于新加的空上。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + U</td>
+<td>Toggle case for word at caret or selected block</td>
+<td>所选择的内容进行大小写转换。。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + ]/[</td>
+<td>Select till code block end/start</td>
+<td>从当前光标所在位置开始，一直选择到当前光标所在代码段起始或者结束位置。</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Delete</td>
+<td>Delete to word end</td>
+<td>删除从当前光标所在位置开始，直到这个单词的结尾的内容。</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + NumPad(+/-)</td>
+<td>Expand/collapse code block</td>
+<td>展开或收缩代码段。&nbsp;（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + NumPad(+)</td>
+<td>Expand all</td>
+<td>展开所有代码段。</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + Shift + NumPad(-)</td>
+<td>Collapse all</td>
+<td>收缩所有代码段。</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + F4 </td>
+<td>Close active editor tab</td>
+<td>关闭当前标签页。</td>
+</tr>
+<tr>
+<td style="text-align:center">Shift + F6</td>
+<td></td>
+<td>修改名字。（常用）</td>
+</tr>
+<tr>
+<td style="text-align:center">Ctrl + N </td>
+<td></td>
+<td>打开类查询框（常用）</td>
+</tr></tr>
+<tr>
+<td style="text-align:center">Ctrl + Alt + 右箭头/左箭头</td>
+<td></td>
+<td>在曾经浏览过的代码行中来回跳（常用）</td>
+</tr>
+
+</tbody>
+</table>
+
+<main class="page"> <div class="theme-default-content content__default"><h4 id="通用类快捷键"><a href="#通用类快捷键" class="header-anchor">#</a> 通用类快捷键</h4> <p><strong>方法参数提示</strong> <code>ctrl + p</code></p> <blockquote><p>非常实用的快捷键, 有的时候我们自己写的方法, 或者在看一些源码时, 都非常有用</p></blockquote> <p><strong>折叠代码/展开代码</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + - / ctrl + +
+</code></pre></div><p><strong>全局查找文本</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + shift + F
+</code></pre></div><p><strong>快速查找和打开最近使用过的文件码</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + E
+</code></pre></div><p><strong>自动代码片</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + j
+</code></pre></div><p><strong>实现接口方法</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + i
+</code></pre></div><p><strong>查看当前类的子类</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + h
+</code></pre></div><p><strong>将当前行和下一行进行合并</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + shfit + j
+</code></pre></div><p><strong>将光标跳到当前行的上一行</strong></p> <blockquote><p>有时候在写完一行代码的时候需要添加注释, 或者为类属性添加注释的时候需要跳到当前行的上一行, 这个快捷键就非常方便</p></blockquote> <div class="language- extra-class"><pre class="language-text"><code>ctrl + alt + enter
+</code></pre></div><p><img src="https://raw.githubusercontent.com/xiaoxiunique/Web-Tip/master/ctrlaltenter.gif" alt=""></p> <p><strong>idea git 提交</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + k
+</code></pre></div><p><strong>删除当前行</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + y
+</code></pre></div><p><strong>重写 或者 实现接口或父类方法</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + o
+</code></pre></div><p><strong>显示类之间的关系</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + alt + u
+</code></pre></div><p><strong>删除类中没有用到的 package</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + alt + o
+</code></pre></div><p><strong>进入设置界面</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + alt + s
+</code></pre></div><p><strong>在当前光标在的这样一行的下一行添加一行</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + shfit + enter
+</code></pre></div><p><strong>弹出， 当前类中的方法集合</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + F12
+</code></pre></div><blockquote><p>最常用的快捷键之一, 快速的查找方法</p></blockquote> <p><strong>添加书签</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + f11
+</code></pre></div><p><strong>搜索文件</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + shift + n
+</code></pre></div><p><strong>搜索类合</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + n
+</code></pre></div><blockquote><p>最常用的快捷键之一, 项目慢慢的变大, 文件越来越多, 每次用鼠标去找 就太低效了</p></blockquote> <h5 id="快速生成-try-if-等语句"><a href="#快速生成-try-if-等语句" class="header-anchor">#</a> 快速生成 <code>try, if</code> 等语句</h5> <div class="language- extra-class"><pre class="language-text"><code>alt + shift + t
+</code></pre></div><blockquote><p>当你试用了之后, 你会爱上这个快捷键的</p></blockquote> <p><strong>抽取局部变量</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + alt + v
+</code></pre></div><blockquote><p>将当前选中的代码抽取为一个局部变量</p></blockquote> <p><strong>进入到实现子类中</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + alt + b
+</code></pre></div><blockquote><p>在使用<code>mvc</code>框架的时候, 往往我们只有一个接口的实例 这个快捷键可以直接到实现类中</p></blockquote> <p><strong>格式化代码</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + alt + L
+</code></pre></div><blockquote><p>让代码变得优美, 是每个程序员都应该注意的事, 方便自己和他人阅读, 利人利己</p></blockquote> <p><strong>idea 多光标选择</strong></p> <div class="language- extra-class"><pre class="language-text"><code>按下滚轮上下拖动鼠标即可，
+</code></pre></div><h5 id="idea-批量修改相同内容"><a href="#idea-批量修改相同内容" class="header-anchor">#</a> idea 批量修改相同内容</h5> <blockquote><p>有的时候数据需要批量处理, 比如, 正常来说我们的实体类, 在使用<code>mybatis</code> 等逆向工程进行生成的时候, 一般属性是有注释的, 但是在针对如果我们使用了<code>swagger</code> 等插件需要来显示传递实体所代表的含义的时候, 就需要我们自己一个个的去写, 就会显得异常麻烦</p></blockquote> <div class="language- extra-class"><pre class="language-text"><code>ctrl + alt + shift + j
+</code></pre></div><p><a href="http://images.atomblogs.com/test.gif" target="_blank" rel="noopener noreferrer">演示<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" x="0px" y="0px" viewBox="0 0 100 100" width="15" height="15" class="icon outbound"><path fill="currentColor" d="M18.8,85.1h56l0,0c2.2,0,4-1.8,4-4v-32h-8v28h-48v-48h28v-8h-32l0,0c-2.2,0-4,1.8-4,4v56C14.8,83.3,16.6,85.1,18.8,85.1z" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path> <polygon fill="currentColor" points="45.7,48.7 51.3,54.3 77.2,28.5 77.2,37.2 85.2,37.2 85.2,14.9 62.8,14.9 62.8,22.9 71.5,22.9" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></polygon></svg></a></p> <p><strong>运行当前类</strong></p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + shift + F10
+</code></pre></div><blockquote><p>在写一些测试代码的时候 这个快捷键就显得特别方便</p></blockquote> <p><strong>从多项目中启动一个 debug 模式</strong></p> <div class="language- extra-class"><pre class="language-text"><code>alt + shfit + F9
+</code></pre></div><blockquote><p>在微服务中 多个工程在一个项目中的时候, 这个方法就比较的好用, 这样就不用自己一个一个的去点省去很多没必要的操作</p></blockquote> <p><strong>从多项目中启动一个 正常模式</strong></p> <div class="language- extra-class"><pre class="language-text"><code>alt + shfit + F10
+</code></pre></div><h5 id="重新编译当前项目"><a href="#重新编译当前项目" class="header-anchor">#</a> 重新编译当前项目</h5> <div class="language- extra-class"><pre class="language-text"><code>ctrl + shift + F9
+</code></pre></div><blockquote><p>当你发现有的问题 特别的奇怪, 命名表面上没问题, 但就是项目运行不了的时候, 重新编译一下获取就好了</p></blockquote> <p>查看当前类在哪些地方被使用过</p> <h5 id="快速的查看选中类-选中方法的定义"><a href="#快速的查看选中类-选中方法的定义" class="header-anchor">#</a> 快速的查看选中类, 选中方法的定义</h5> <blockquote><p>有的时候我们不想进入方法内部, 或者进入类的内部查看细节, 想要在外面就探查清楚, 就可以使用此种方法</p></blockquote> <div class="language-java extra-class"><pre class="language-java"><code>ctrl <span class="token operator">+</span> shift <span class="token operator">+</span> i
+</code></pre></div><p><img src="http://193.112.98.8/atomImg/key/ctrl-shift-i.png" alt="asdf"></p> <p>比较强大的几个快捷键之一 <code>Ctrl + ~</code>(感叹号旁边的按键)</p> <div class="language- extra-class"><pre class="language-text"><code>ctrl + ~
+</code></pre></div><p><strong>共有五种可供选择的操作</strong></p> <p><strong>Switch Code Formatter (切换代码格式化程序)</strong></p> <p><strong>1. Color Scheme (配色方案)</strong></p> <p>可以设置一些常用的配色, 字体样式, 可以一键切换</p> <p><img src="http://193.112.98.8/atomImg/key/ctrl-~-change-background.gif" alt="asdf"></p> <p><strong>2. <code>Code Style Scheme</code></strong></p> <p><strong>3. <code>Keymap</code> (快捷键列表)</strong></p> <p><img src="http://193.112.98.8/atomImg/key/ctrl-~-keymap.gif" alt="asdf"></p> <p><strong>4. View Mode (显示模式)</strong></p> <p><img src="http://193.112.98.8/atomImg/key/ctrl-~-view-model.gif" alt="asdf"></p> <p><strong>5. Look and Feel (设置软件主题)</strong></p> <p><strong>idea 调出版本控制操作</strong></p> <div class="language- extra-class"><pre class="language-text"><code>alt + ~
+</code></pre></div></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/idea/" class="prev router-link-active">
+        开源项目
+      </a></span> <span class="next"><a href="/idea/IDEA 常用设置.html" class="">
+        IDEA 常用设置
+      </a>
+      →
+    </span></p></div> </main>
+
+# 12. Servlet
+
+## 12.1. 概念
+
+- server applet:运行在服务端的小程序
+  - servlet 就是一个接口，定义了 java 类被浏览器访问到（或被服务器识别到）的规则
+  - 将来要自定义一个类，实现 Servlet 接口，复写方法。
+- 图示
+
+  > ![](./image/servlet.jpg)
+
+## 12.2. 快速入门
+
+1. 创建 javaee 项目，勾选 web application,勾选 web.xml（Servlet3.0 版本后面再说）
+2. 定义一个类，实现 Servlet 接口
+3. 实现 5 个抽象方法
+4. 配置 Servlet
+
+> 实质就是让一个虚拟路径映射到一个实现Servlet接口的类。类中有相关方法。
+
+## 12.3. 执行原理
+
+1. 当服务器接收到客户端浏览器的请求后，会解析 url 请求的路径，获取访问的 servlet 的资源路径
+2. 查找 web.xml 文件是否有对应的<url-pattern>标签及内容
+3. 如果有，则再找到对应的<servlet-class>全类名
+4. tomcat 会将字节码文件加载进内存，并创建其对象
+5. 调用其方法
+6. 图示
+
+   > ![](./image/servlet2.jpg)
+
+## 12.4. Servlet 中的生命周期
+
+- init()方法：初始化方法，再 Servlet 创建时被执行，只执行一次
+
+  - 什么时候被创建：
+
+    - 默认情况下第一次被访问时，Servlet 被创建
+    - web.xml 中修改可以改变设置
+      ```xml
+      <servlet>
+      <servlet-name>demo1</servlet-name>
+      <servlet-class>ServletTest</servlet-class><!--全类名-->
+      <!--
+      指定被创建时间，
+      1. 第一次被访问时
+          * load-on-startup为负数（默认-1）
+      2. 在服务器启动时
+          * load-on-startup为非负数即可
+      		-->
+      <load-on-startup>1</load-on-startup>
+      </servlet>
+      ```
+
+  - Servlet 的 init()方法只执行一次，说明一个 Servlet 在内存中只存在一个对象，Servlet 时单例的
+    - 多个用户同时访问时，可能存在线程安全问题
+    - 解决：
+      - 加锁。才怪。性能影响太严重。根本不可能这样干
+      - 尽量不要在 Servlet 中定义成员变量，而使用局部变量。即使定义了成员变量，也不要对其进行赋值
+
+- service()方法：提供服务方法，每一次 Servlet 被访问时执行。执行多次
+- destory()：销毁方法，在 Servlet 被销毁前执行（也就是服务器**正常**关闭时）
+- 其他方法
+  - servletConfig()：获取 ServletConfig 对象，也就是 ServletConfig 配置对象
+  - getServletInfo()：获取 servlet 的一些信息，比如版本，作者（一般不会实现）
+
+## 12.5. Servlet3.0
+
+> 背景：
+> 当有多个 Servlet 的时候需要重复配置很多次
+
+- 好处：
+  - 支持注解配置。可以不需要 web.xml
+
+    > 复习：如果一个注解中有一个名称为 value 的属性，且你只想设置 value 属性(即其他属性都采用默认值或者你只有一个 value 属性)，
+    > 那么可以省略掉“value=”部分。
+
+* 步骤：
+  1. 创建 Javaee，选择 Servlet3.0 以上，不用勾选 web.xml
+     
+     > javaee6 开始才支持 Servlet3.0
+  2. 定义一个类，实现 Servlet 接口
+  3. 复写方法
+  4. 在类上使用注解进行配置
+     
+     > @WebServlet("资源路径") 。例：@WebServlet("/demo")
+
+## 12.6. IDEA 与 tomcat 配置
+
+- IDEA 会为每一个 tomcat 部署的项目单独建立一根配置
+
+  ```
+  tomcat log日志：
+  Using CATALINA_BASE:   "C:\Users\稀落的星\.IntelliJIdea2019.3\system\tomcat\Tomcat_8_5_51_笔记"
+  Using CATALINA_HOME:   "D:\learn\tomcat\apache-tomcat-8.5.51"
+  Using CATALINA_TMPDIR: "D:\learn\tomcat\apache-tomcat-8.5.51\temp"
+  Using JRE_HOME:        "D:\learn\ideaIU-2019.2.4.win\jbr"
+  Using CLASSPATH:       "D:\learn\tomcat\apache-tomcat-8.5.51\bin\bootstrap.jar;D:\learn\tomcat\apache-tomca
+  ```
+
+  - C:\Users\稀落的星\.IntelliJIdea2019.3\system\tomcat\Tomcat*8_5_51*笔记 就是当前项目配置的位置
+  - 可以发现，修改配置后 conf 中的端口后 service.xml 会改变
+  - 以及 conf/Catalina/localhost 下也有热部署 xml 文件
+
+- 工作空间项目（源码） 和 tomcat 部署的 web 项目（.java 编译后，以及 html，jsp 复制过去，在 out 目录下） 不再同一路径
+  - tomcat 访问的是 tomcat 部署的 web 项目
+    - 寻找设置文件夹下热部署的xml文件可以发现有这个属性：docBase="D:\learn\IdeaProject\笔记\out\artifacts\servlet_war_exploded"
+  - WEB-INF 下的资源是不能被浏览器直接访问的（有其他技术可以访问到）
+  - tomcat 中断点调试方式：在 Servlet 方法中打断点。然后 debug 方式启动
+  ```
+      某project下层级关系示例：（分辨一下对应关系）
+      （通过指令 tree /f）
+    ├─.idea
+    │  │  encodings.xml
+    │  │  misc.xml
+    │  │  modules.xml
+    │  │  uiDesigner.xml
+    │  │  workspace.xml
+    │  │
+    │  ├─artifacts
+    │  │      servlet_war_exploded.xml
+    │  │
+    │  ├─dictionaries
+    │  │      .xml
+    │  │
+    │  └─inspectionProfiles
+    │          Project_Default.xml
+    │
+    ├─out
+    │  ├─artifacts
+    │  │  └─servlet_war_exploded
+    │  │      │  index.jsp
+    │  │      │
+    │  │      └─WEB-INF
+    │  │          └─classes
+    │  │              │  ServletTest.class
+    │  │              │  ServletTest2.class
+    │  │              │  ServletTest3.class
+    │  │              │
+    │  │              └─META-INF
+    │  │                      servlet.kotlin_module
+    │  │
+    │  └─production
+    │      └─servlet
+    │          │  ServletTest.class
+    │          │  ServletTest2.class
+    │          │  ServletTest3.class
+    │          │
+    │          └─META-INF
+    │                  servlet.kotlin_module
+    │
+    └─servlet
+        │  servlet.iml
+        │
+        ├─src
+        │      ServletTest.java
+        │      ServletTest2.java
+        │      ServletTest3.java
+        │
+        └─web
+            │  index.jsp
+            │
+            └─WEB-INF
+  ```
+
+## 12.7. Servlet 体系结构
+
+> 背景：每次都要把所有 5 个方法都重载
+
+- Servlet 接口
+
+  - GenericServlet 抽象类（其实并不用这个）
+    - httpServlet 抽象类（而用这个）
+
+- GenericcServlet
+  - 原理：复写了 Servlet 的方法，将 service 做了抽象，而其他都是空实现（类似适配器）
+  
+- HttpServlet
+  - 实质：对http协议的一种封装，简化操作。
+  - 该类使用原因：
+    - 如果使用Servlet的话，当接受表单提交数据时，要判断提交方式为post/get，再进行不同的处理
+    - 为了方便，所以出现了httpServlet类，在内部进行了判断
+  - 使用方式：
+    1. 定义继承HttpServlet的类
+    2. 复写doGet()和doPost方法（类似于Servlet接口中的service方法）
+       1. 浏览器访问时的直接请求是get方式
+       2. 表单可以实现post方式，其他方式以后会学
+          ```html
+          <!-- 实现HttpServlet接口的类上注解内容为： @WebServlet("/demo3") -->
+          <form action="/demo3" method="post"><!-- 通过这里的action属性来指定目的地 -->
+          <input name="username">
+          <input type="submit" value="提交">
+          </form>
+          ``` 
+
+- Servlet相关配置
+  1. urlpatten:Servlet访问路径
+     1. 一个Servlet可以定义多个访问路径
+        > @WebServlet({"/d4","/dd4"})
+        > 一般只会定义一个访问路径
+  2. 路径定义规则
+     1. /xxx
+     2. /xxx/xxx:多层路径，目录结构
+        1. 也有`/xxx/*，/*`。  * 表示的是通配符
+        2. 但当有`/*`以及`/demo`时，/demo优先要更高
+     3. *.xxx：看似是文件，后缀名自定
+
+## 12.8. HTTP：
+
+### 12.8.1. 基础概念
+
+> 在old中有笔记，可以看看那里的，这里是复习+补充
+
+- 概念：Hyper Text Transfer Protocol超文本传输协议
+- 传输协议：定义了客户端与服务端发送数据时的格式
+- 特点：
+  1. 基于tcp/ip的高级协议
+  2. http默认端口是80
+  3. 基于请求响应模型，一次请求，一次响应
+    > 当访问一个网页时，请求次数不只为一次，每个单独的资源要访问一次
+    > ![](./image/http-1.jpg)
+    > 上面的每一项都是一次请求和响应
+  
+  4. **无状态的：每次请求之间相互独立，不能交互数据**
+- 历史版本
+  - 1.0（每次请求响应后都会断开，在新建连接）
+  - 1.1（复用连接，不会立马断掉，如果一段时间没有数据传输才会断开）
+
+### 12.8.2. http请求消息
+
+- 请求消息数据格式
+  - 例：（被chrome解析整理过了）
+    > ![](./image/http-2.jpg) 
+    > 
+    > 字符串格式示例：
+    > 
+    > POST/login.htmlHTTP/1.1
+    > Host:localhost
+    > User-Agent:Mozilla/5.0(windows NT 6.1;Win64;x64;rv:60.0)Gecko/20100101 > Firefox/60.0
+    > Accept:text/html,application/xhtml+xml,application/xml;q=0.9,\*/\*;q=0.8
+    > Accept-Language:zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2
+    > Accept-Encoding:gzip,deflate
+    > Regerer: http://localhost/login.html
+    > Connection:keep-alive
+    > Upgrade-Insecure-Requests:1
+    > 
+    > username="1111"
+  1. 请求行
+     1. 格式： 请求方式 请求url 请求协议/版本
+        > 例:GET /login.html HTTP/1.1
+     2. 请求方式：（http有7种，常用的有两种）
+        1. GET：
+           1. 请求参数在请求行中（也就是url后），后面会加上  ?键=值
+           2. 请求的url长度有限制
+           3. 不太安全
+        2. POST：
+           1. 请求参数在请求体中
+           2. 请求ur长度没有限制。（因此文件上传用post方式）
+           3. 相对安全（但拦截了请求消息头也能提取信息）
+  2. 请求头
+     1. 格式：
+        > 请求头名称1 : 请求头值1 
+        > 请求头名称2 : 请求头值2-1,请求头值2-2     (有多个值用逗号隔开) 
+        > 请求头名称3 : 请求头值3 
+     2. 常见请求头：
+        1. User-Agent:浏览器告诉服务器自己的浏览器版本信息。
+           1. 可以在服务器端获取该信息来解决浏览器的兼容性问题。
+        2. Accept:告诉服务器该浏览器可以响应的什么样的文件格式
+        3. Accept-Language：支持语言环境
+        4. Referer:客户端浏览器告诉服务器，我（当前请求）从哪里来。
+           > 在www.baidu.com转到一个链接时referer="http://www.baidu.com"。当直接在地址栏输入时referer为null
+           1. 作用：
+              1. 防盗链：
+                 ```java
+                 if(referer.equals("自家网页")){
+                   //返回有效资源
+                 }else{
+                   //草泥马的，盗链可耻
+                 }
+                 ``` 
+              2. 统计工作：
+                 ```java
+                 //统计花钱去别的网站打广告，过来访问的次数有多少
+                 if(referer.equals("打广告所在网站1")){
+                   打广告所在网站++;
+                 }
+                 ``` 
+        5. Connectiong:keep-alive就是连接不会断，可以复用
+  3. 请求空行
+     1. 就是一个空行，用来分隔请求头和请求体。但是绝对必要
+  4. 请求体 （正文）
+     1. 格式：参数名=参数值
+     2. 用处：用来封装POST请求消息的一些请求参数。
+        > GET是没有请求体的，POST有。
+        ```html
+        <!-- 例： -->
+          <form action="/demo3" method="post">
+          <input name="username">
+          <input type="submit" value="提交">
+          </form>
+          <!-- 点击提交后，请求体中会有 username=填入内容 -->
+        ```
+        ![](./image/http-3.jpg)
+  
+
+### 12.8.3. http响应消息
+
+- 响应消息数据格式
+
+
+## 12.9. Request对象，Response对象
+
+### 12.9.1. 原理：
+![](./image/http-4.jpg) 
+1. request和response对象是由服务器创建的，我们来使用它们
+2. request对象是用来获取请求消息的，response对象是用来设置响应消息
+
+### 12.9.2. Request
+
+* 继承体系结构：
+  * ServeltRequest接口
+    * HttpServletRequest子接口
+      * org.apache.catalina.connector.RequestFacade 类  
+        > //通过System.out.println(rep);得到。tomcat中实现HttpServletRequest接口的类。tomcat是apache公司的
+
+* Request功能：
+  > **以下方法都是来自HttpServletRequest及ServletRequest** 
+  * 获取请求消息
+    * 获取请求行数据
+      ```java
+      //以GET /test/demo1?username=111 HTTP/1.1
+
+      //获取请求方式
+      String getMethod()
+
+      //(重要)获取虚拟目录 /test
+      String getContextPath()
+
+      //获取Servlet路径 /demo1 
+      String getSErvletPath()
+
+      //获取get方式请求参数 username=111
+      String getQueryString()
+
+      //(重要)获取请求uri test/demo1
+      String getRequestURI()
+
+      //（重要）获取请求URL http://localhost/test/demo1
+      StringBuffer getRequestURL()
+
+      //获取协议及其版本 HTTP/1.1
+      String getProtocol()
+
+      //获取客户机ip地址
+      String getRemoteAddr()
+
+      /*
+      URL：统一资源定位符
+      URI：统一资源标识符 代表范围更大
+      */
+      ``` 
+    * 获取请求头数据
+      ```java
+      //(重要)通过请求头名称获取请求头的值
+      String getHeader(String name)
+
+      //获取所有请求头名称。返回一个枚举（其实就是一个简易版的迭代器）
+      Enumeration<String> getHeadNames()
+
+      //使用举例：
+      //1. 遍历列出
+      Enumeration<String> headNames=req.getHeaderNames();
+      while(headNames.hasMoreElements()){
+        String name=headNames.nextElement();
+        System.out.println(req.getHeader(name));
+      }
+
+      //2. 防盗链
+      String referer=req.getHeader("referer");
+      if(!"http://www.zijia.com".equals(referer)){//判断条件用referer.contains("某网址片段")也行
+        //通过response 一顿操作
+      }else{
+        //正常返回数据（通过response）
+      }
+      ``` 
+    * 获取请求体数据
+      > 只有POST请求方式，才有请求体，在请求体中封装了POST请求的请求参数
+      > 其中将请求体数据封装成了流
+      > 步骤：
+      1. 获取流对象
+      2. 再从流中获取数据
+      ```java
+      //获取字符输入流，只能操作字符数据
+      BufferReader getReader()
+
+      //获取字节输入流,可以操作所有类型的数据。返回值当作InputStream使用就行，因为它继承了InputStream （在文件上传中再进行讲解）
+      ServletInpputStream getInputStream();
+
+
+      //----------------------------------------------------------------------
+      @WebServlet("/demo5")
+      public class ServletTest3 extends HttpServlet {
+          @Override
+          protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+          }
+
+          @Override
+          protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+              //获取请求消息体
+
+              //1 获取字符流
+              BufferedReader reader = req.getReader();
+              //2 获取读取数据
+              String line=null;
+              while((line=reader.readLine())!=null){
+                  System.out.println(line);
+              }
+          }
+
+      }
+
+      //结果为：username=131&passowrd=231312
+      //和get方式中的格式相同
+      ```
+
+  * 其他功能（都很常用）
+    * 获取请求参数（通用，get，post都适用）：
+      ```java
+      总结：get方式时，通过获取请求行数据中的 String getQueryString()方法 来获取请求参数。
+      Post方式时,通过获取请求体数据中的 BufferReader getReader()方法 来获得请求参数的流
+      ------------------------------------
+      因为通用函数，get和post代码基本就相同了。可以在doGet中调用 this.doPost(req,resp) 来减少代码量
+      ```
+      * String getParameter（String name）:根据参数名称获取参数值 username=111&password=222
+      * String[] getParameterValues(String name)：根据参数名称返回获取参数值的数组(有多个值时使用。复选框时也可以用) hobby=game&hobby=boll
+        > 此时使用getParameter也不会报错，但是只会返回一个值
+        ```html
+        <form>
+          <input type="checkbox" name=hobby value="game">游戏
+          <input type="checkbox" name=hobby value="boll">球
+          <input type="submit" value="注册">
+        </form>
+        <!-- 两个都选中且当点击提交时，会有hobby=game&hobby=boll -->
+        ``` 
+        ![](./image/request-1.jpg)
+      * Enumeration<String> getParameterNames():获取所有请求的参数名称
+      * Map<String,String[]> getParameterMap():获取所有键值对
+        > 值为数组是为了避免有的键有多个值。
+        ```java
+        //例：
+        Map<String,String[]> map=req.getParameterMap();
+        Set<String> set=map.keySet();
+        for(String name:set){
+          System.out.println(name);
+          String[] values=map.get(name);
+          for(String str:values){
+            System.out.println(str);
+          }
+          System.out.println("----------------");
+        }
+        ```
+      * 中文乱码问题：
+        > tomcat8已经将get方式的中文乱码问题解决了
+        > post方式依旧会乱码 
+        > **解决：**在获取参数前，添加一句：req.setCharacterEncoding("utf-8")//此处的编码与网页编码一致
+        > 原理：post方式时，getParameter()内部依旧使用流的方式
+    * 请求转发
+      > 一种在服务器内部的资源跳转方式   
+      * 示意图：
+         ![](./image/servelt-5.jpg)
+      * 步骤：
+        1. 通过 ServeltRequest中的方法：RequestDispatcher getRequestDispatcher(String s) 获取请求转发器对象
+        2. 使用RequestDispatcher进行转发：使用该对象中的forward(ServeltRequest request,ServeltResponse response)方法进行转发
+      * 示例
+        ```java
+        @WebServlet("/demo6")
+        class ServletTest6 extends HttpServlet {
+          @Override
+          protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            this.doPost(req,resp);
+          }
+
+          @Override
+          protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            System.out.println("ServletTest6被访问了,要转到ServletTest7");
+            
+            RequestDispatcher rp=req.getRequestDispatcher("/demo7");
+            rp.forward(req,resp);
+          }
+        }
+
+        @WebServlet("/demo7")
+        class ServletTest7 extends HttpServlet {
+          @Override
+          protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+            System.out.println("ServletTest7被访问了");
+          }
+
+          @Override
+          protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+             this.doGet(req,resp);
+          }
+        }
+        ``` 
+      * 特点（面试）：
+        1. 浏览器地址栏路径一直是最初的路径，不会发生变化
+        2. 只能转发到当前服务器内部资源中。（比如转发到www.baidu.com就不行）
+        3.  多个资源间，使用的是同一个请求。（也就是访问最开始那个资源时的请求）
+    * 共享数据
+      > ![](./image/servlet-4.jpg)
+      > 红线圈住的是request域。
+      * 域对象：一个有作用范围的对象，可以在范围内共享数据
+      * request域：代表一次请求的范围，一般用于请求转发的多个资源中共享数据（比如ServeltA转发到ServletB，那么该次请求的request域为这两个Servlet）
+      * 方法：(ServletRequest中)
+        1. void setAttribute(String name,Object obj)存储数据
+        2. Object getAttribute(String name)根据键获取值
+        3. void removeAttribute(String name)根据键移除键值对
+
+    * 获取ServletContext
+      > 该对象后面会讲使用
+      * ServletContext getServletContext(); 
+
+> 当两个Servlet类的对应虚拟地址相同时，服务器开启时会报错。
+
+### 12.9.3. Request案例
+
+* 用户需求：
+  1. 编写login.html登陆界面
+    > username和password两个输入框
+  2. 使用Druid连接池技术，操作mysql，存放用户数据
+  3. 使用jdbcTemplate技术封装JDBC
+  4. 登陆成功跳转SuccessServlet展示：登陆成功！ 用户名，欢迎您
+  5. 登陆失败跳转FailServlet展示：登录失败，用户名或密码错误
+
+* 案例分析：
+  ![](./image/Servlet-6.jpg) 

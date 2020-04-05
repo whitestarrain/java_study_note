@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - testServer",
+            "request": "launch",
+            "mainClass": "_0_old.net.testServer",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - _0_testServer",
+            "request": "launch",
+            "mainClass": "_0_old.net._0_testServer",
+            "projectName": "java_study_note"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - test",
             "request": "launch",
             "mainClass": "_0_old.net.test",
