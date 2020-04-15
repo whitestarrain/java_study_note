@@ -54,6 +54,7 @@ class UserThead implements Runnable {
 
 @filePathAnno("src/_0_old/net/test.html")
 class testServer {
+
     public static void main(String[] args) throws IOException {
         filePathAnno filepath=testServer.class.getAnnotation(filePathAnno.class);
         String file = filepath.value();

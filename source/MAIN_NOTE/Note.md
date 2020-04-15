@@ -1163,7 +1163,7 @@
 ## 7.2. JDBC 快速入门
 
 - 步骤：
-  1. 导入驱动 jar 包
+  1. 导入驱动 jar 包（此处是使用mysql，导入mysql-connector-java-5.1.48.jar）
      1. 复制到 lib 目录下，方便管理
      2. vscode：修改.classpath 文件；idea:add as library
   2. 编写代码， 注册驱动
@@ -2259,7 +2259,7 @@
         2. 但当有`/*`以及`/demo`时，/demo优先要更高
      3. *.xxx：看似是文件，后缀名自定
 
-## 12.8. HTTP：
+## 12.8. HTTP请求协议：
 
 ### 12.8.1. 基础概念
 
@@ -2578,6 +2578,8 @@
 
 ### 12.9.3. Request案例
 
+#### 12.9.3.1. 分析
+
 * 用户需求：
   1. 编写login.html登陆界面
     > username和password两个输入框
@@ -2588,3 +2590,435 @@
 
 * 案例分析：
   ![](./image/Servlet-6.jpg) 
+
+* 步骤：
+  1. 创建项目，导入html页面，配置文件，jar包
+      > jar包要放在 web下的WEB-INF(没有就创建一个)
+  2. 创建数据库环境
+  3. 创建用户实体类 cn.whitestarain.itcase.domain.user
+  4. 创建dao包，用来和数据库连接，提供login方法
+     > 和数据库链接使用的包都有 dao （database access object） 
+     - 在此之前，创建util包，用来存放数据库连接工具类，供dao包使用
+  5. 编写 Servlet 
+     > form中action里写：虚拟目录+Servlet路径。以后会重点讲，现在只做了解 
+     1. LoginServlet：判断是否存在用户并进行转发到下面两个中的一个
+     2. FailServlet
+     3. SuccessServlet
+
+
+#### 12.9.3.2. 代码：从上到下（不想看折叠或跳过）
+
+* 目录结构：
+    ```
+    D:.
+    │  1.txt
+    │  loginDemo.iml
+    │  
+    ├─src
+    │  │  druid.properties
+    │  │  
+    │  ├─cn
+    │  │  └─whitestarrain
+    │  │      └─itcast
+    │  │          ├─dao
+    │  │          │      DaoUser.java
+    │  │          │      
+    │  │          ├─domain
+    │  │          │      User.java
+    │  │          │      
+    │  │          ├─util
+    │  │          │      JDBCUtils.java
+    │  │          │      
+    │  │          └─web
+    │  │              └─servlet
+    │  │                      FailServlet.java
+    │  │                      LoginServlet.java
+    │  │                      SuccessServlet.java
+    │  │                      
+    │  └─test
+    │          test.java
+    │          
+    └─web
+        │  index.jsp
+        │  login.html
+        │  
+        └─WEB-INF
+            └─lib
+                    commons-logging-1.2.jar
+                    druid-1.0.9.jar
+                    mchange-commons-java-0.2.12.jar
+                    mysql-connector-java-5.1.48-bin.jar
+                    spring-beans-5.1.10.RELEASE.jar
+                    spring-core-5.1.10.RELEASE.jar
+                    spring-jdbc-5.1.10.RELEASE.jar
+                    spring-tx-5.1.10.RELEASE.jar
+    ```
+
+```
+driverClassName=com.mysql.jdbc.Driver
+url=jdbc:mysql://127.0.0.1:3306/test
+username=root
+password=root
+# 初始话连接数量
+initialSize=5
+# 最大连接数量
+maxActive=10
+# 超时时间
+maxWait=3000
+```
+
+```java
+package cn.whitestarrain.itcast.dao;
+
+import cn.whitestarrain.itcast.util.JDBCUtils;
+import cn.whitestarrain.itcast.domain.User;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+/**
+ * 操作数据库中User表的类
+ *
+ * @author 稀落的星
+ */
+public class DaoUser {
+
+    /**
+     * 声明一个JDBCTemplate对象共用
+     */
+    private JdbcTemplate template = new JdbcTemplate(JDBCUtils.getDataSource());
+    //JdbcTemplate会自动关闭资源
+
+    public User login(User loginUser) {
+
+        try {
+            String sql = "select * from user where name= ? and password= ?";
+            return template.queryForObject(sql, new BeanPropertyRowMapper<User>(User.class), loginUser.getName(), loginUser.getPassword());
+        } catch (DataAccessException e) {
+            //当查询结果为0时，上面的 new BeanPropertyRowMapper会报错。后期会在这里记录日志，而不是打印在控制台
+            e.printStackTrace();
+            System.out.println("没有结果");
+            return null;
+        }
+
+    }
+}
+
+```
+```java
+package cn.whitestarrain.itcast.domain;
+
+/**
+ * 用户实体类
+ */
+public class User {
+    private int id;
+    private String name;
+    private String password;
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+}
+
+```
+```java
+package cn.whitestarrain.itcast.util;
+
+import com.alibaba.druid.pool.DruidDataSourceFactory;
+
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
+
+/**
+ * JDBC工具类 Durid连接池
+ * @author 稀落的星
+ */
+public class JDBCUtils {
+    private static DataSource ds;
+
+    static{
+        // 1. 加载配置文件
+        Properties pro=new Properties();
+        //使用classLoader加载配置文件，获取字节输入流
+        InputStream is = JDBCUtils.class.getClassLoader().getResourceAsStream("druid.properties");
+        try {
+            if (is != null) {
+                pro.load(is);
+            }else{
+                System.out.println("获取键值对失败");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 2. 初始化连接池对象
+        try {
+            ds = DruidDataSourceFactory.createDataSource(pro);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获取连接池对象
+     */
+    public static DataSource getDataSource(){
+        return ds;
+    }
+    /**
+     * 获取连接对象
+     */
+    public static Connection getConnnection() throws SQLException {
+        return ds.getConnection();
+    }
+}
+```
+```java
+package cn.whitestarrain.itcast.web.servlet;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@WebServlet("/failServlet")
+public class FailServlet extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("text/html;charset=utf-8");
+        response.getWriter().write("登录失败，与户名或者密码错误");
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        this.doPost(request,response);
+    }
+}
+
+```
+```java
+package cn.whitestarrain.itcast.web.servlet;
+
+import cn.whitestarrain.itcast.dao.DaoUser;
+import cn.whitestarrain.itcast.domain.User;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@WebServlet("/loginServlet")
+public class LoginServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //设置编码
+        req.setCharacterEncoding("utf-8");
+        // 获得请求参数
+        String username = req.getParameter("username");
+        String password = req.getParameter("password");
+
+        //封装user对象
+        User loginuser = new User();
+        loginuser.setPassword(password);
+        loginuser.setName(username);
+
+        //调用UserDao方法
+        DaoUser daoUser = new DaoUser();
+        User returnuser = daoUser.login(loginuser);
+        if(returnuser!=null){
+            //登陆成功
+            req.setAttribute("user",returnuser);
+            req.getRequestDispatcher("/successServlet").forward(req,resp);
+        }else{
+            req.getRequestDispatcher("/failServlet").forward(req,resp);
+            //登陆失败
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        this.doGet(req,resp);
+    }
+}
+```
+```java
+package cn.whitestarrain.itcast.web.servlet;
+
+import cn.whitestarrain.itcast.domain.User;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * @author 稀落的星
+ */
+@WebServlet("/successServlet")
+public class SuccessServlet extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        User user = (User)request.getAttribute("user");
+        response.setContentType("text/html;charset=utf-8");
+        response.getWriter().write("登录成功，欢迎您");
+        response.getWriter().write(user.getName());
+
+
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        this.doPost(request,response);
+    }
+}
+
+```
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>login</title>
+</head>
+<body>
+<form action="/loginDemo/loginServlet"><!--虚拟目录+Servlet路径-->
+    用户名：
+    <label>
+        <input type="text" placeholder="请输入用户名" name="username">
+    </label><br>
+    密码：
+    <label>
+        <input type="text" placeholder="请输入密码" name="password">
+    </label><br/>
+    <input type="submit" value="登录">
+
+</form>
+</body>
+</html>
+```
+
+#### 12.9.3.3. BeanUtils基本使用
+
+> 主要用来简化数据封装，用来封装JavaBean
+
+* JavaBean:标准的java类
+  > 这些类一般放到domain等命名的包里面 
+  * 格式要求
+    1. 类必须被public修饰
+    2. 必须提供空参构造器
+    3. 成员变量必须被private修饰
+    4. 提供公共setter和getter方法
+  * 功能：封装数据
+
+* 概念：
+  * 成员变量：就是类中的成员变量
+  * 属性：getter和setter方法截取后的产物。虽说可以不一样，但是大多树情况下和成员变量相同。
+      >例如getUsername() --> Username --> username
+      ```java
+      class Person(){
+        String name=null;
+        String test=null;
+        public String getName(){
+          return this.name;
+        }
+        public String getHehe(){//这里只是演示，以后正常写成一样就行了
+          return this.test;
+        }
+      }
+      /*
+      这里的成员变量时name和test，对应属性为name和hehe
+      */
+      ```
+* 方法：
+  1. setProperty(Object bean,key,value):给某个对象中的某个属性赋特定值（必须是属性名称）
+  2. getProperty(Object bean,key,value):获取某个对象中某个属性的值（必须是属性值）
+  3. populate(Object bean,Map map):将map中键的值作为属性的名称，设置到传入的对象中
+
+## HTTP响应协议
+
+### HTTP响应消息
+
+```
+示例：
+
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Content-Type: text/html;charset=UTF-8
+Content-Length: 80
+Date: Mon, 02 Mar 2020 14:21:37 GMT
+
+<html>
+  <head>
+     test
+  </head>
+  <body>
+     hello
+  </body>
+</html>
+```
+* 数据格式
+  * 响应行
+    * 格式：协议/版本 响应状态码 状态码描述
+    * 响应状态码：服务器告诉客户端浏览器本次请求和响应的一个状态。(**更详细的网上一查就能查到，此处是常用状态码**)
+      * 特征：状态码都是3位数字
+      * 分类：
+        * 1xx:服务器接收客户端消息但是没有接收完成，等待一段时间后发送1xx状态码，询问是否还有数据
+        * 2xx:响应成功
+        * 3xx:重定向。302（重定向）。304（访问缓存）
+           > ![](./image/respond-1.jpg) 
+           > 请求A资源，响应302状态码，告诉客户端去访问C。
+           > 重定向也是资源跳转的一种方式<br />
+           > ![](./image/respond-2.jpg)
+           > 访问缓存是指本地已经本次要访问的服务端的资源，去访问本地缓存即可，再次访问服务端过于浪费时间
+        * 4xx：客户端错误
+          > 代表:
+          > 404：路径没有对应资源 
+          > 405：请求方式没有对应的doXxx方法。比如没有写doGet方法时，访问该Servlet会报405错误
+        * 5xx：服务端错误
+          > 代表 
+          > 500：服务器内部异常，会展示在页面上。此处是写了个除零的错误
+          > ![](./image/respond-3.jpg)
+  * 响应头：键值对形式，保存各种信息。
+  * 响应空行：分隔空行
+  * 响应体：响应的内容，多为html页面

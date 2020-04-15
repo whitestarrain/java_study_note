@@ -12,7 +12,7 @@ class JDBC_8_Demo1 {
 
         // 1 创建数据库连接池对象
         DataSource ds = new ComboPooledDataSource();
-        //此处什么也不传，默认使用xml下default-config
+        //此处什么也不传，默认使用c3p0-config.xml配置文件中的default-config
         //也可以传入String类型参数来指定设置的名字，比如"accountc3p0""
         //但将来也基本只会用默认设置
 

@@ -29,7 +29,7 @@ class myIe {
         while ((line = bufr.readLine()) != null) {
             System.out.println(line);
         }
-        s.close();
+        s.close();//不关闭连接的话标签页上面会一直有个加载的圈圈在转
     }
 }
 /**

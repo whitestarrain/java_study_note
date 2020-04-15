@@ -1366,6 +1366,11 @@ fragment:信息片断
 	字符串，锚点（hash）.
 
 后两部分在和服务器交互时常用
+
+补充：
+URI:统一资源标识符。URL是URI的子集。比如
+  URL：http://localhost/test/demo1
+  URI：test/demo1
 ```
 
 #### 1.9.6.3. 作业
