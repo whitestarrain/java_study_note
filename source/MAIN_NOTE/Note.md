@@ -97,8 +97,9 @@
 - @Overrides :检测被该注解标注的方法是否重写父类方法(或实现接口接口)
 - @Deprecated :将该注解标注的内容以过时，有更好的替代内容
 - @SuppressWarnings :压制警告
-  
+
   - 一般添加"all"参数，@SuppressWarnings("all")，放在类或者方法上面，使不显示警告
+
 - @SafeVarargs：参数安全类型注解。它的目的是提醒开发者不要用参数做一些不安全的操作,它的存在会阻止编译器产生 unchecked 这样的警告。它是在 Java 1.7 的版本中加入的。
 
   ```java
@@ -216,7 +217,7 @@
     @Person(role="coder")
     @Person(role="PM")
     public class SuperMan{
-    
+
     }
     ```
 
@@ -298,6 +299,7 @@
   1. net start mysql 开启 mysql（管理员权限打开 cmd）
   2. net stop mysql 关闭 mysql（管理员权限打开 cmd）
 - 登陆与退出（cmd 下）
+
   - 本地：
     1. 登陆：mysql -uroot -proot
        > -u:user，后面直接加用户名 -p:password,后面直接加密码
@@ -305,12 +307,14 @@
        > 或者不直接加，只输入-p（即：mysql -uroot -p,之后输入密码会以\*反显）
     2. 退出：exit
   - 远程：
+
     1. 登陆： mysql -h127.0.0.1 -uroot -proot
-       
+
        > -h 后直接加上 ip 地址，本机为 127.0.0.1
+
     2. 退出：exit 或者 quit
     3. 登陆： mysql --host=127.0.0.1 --user=root --password=root
-       
+
        > 相当于全称，这里有两个-
 
 ## 5.3. 数据结构
@@ -365,17 +369,23 @@
 ### 6.5.1. DDL(操作数据库)
 
 - 对数据库整体
+
   1. C(Create) 创建
+
      - create database 数据库名
-       
+
        > 重名时会报错
+
      - create database if not exists 数据库名
-       
+
        > 当指定数据库名不存在时才创建，存在也不会报错
+
      - create database 数据库名 character set gbk
-       
+
        > 以指定字符集创建数据库，这里为 gbk
+
   2. R(Retrieve) 查询
+
      - show databases;
        > 额外知识：
        > information_schema 用来 MySQL 中的一些信息，里面存放的是视图（以后才学），而不是表，并且并不对应物理文件
@@ -383,28 +393,39 @@
        > performance_schema 用来存放调整数据库性能的一些数据
        > 这是三个都最好不要改
      - show creat database 数据库名称
-       
+
        > 查看某一个数据库字符集：查询某个数据库创建语句
+
   3. U(Update) 修改
+
      - alter database 数据库名称 character set 字符集名称
-       
+
        > 修改某个数据库字符集（utf8，没有-）
+
   4. D(Delete) 删除
+
      - drop database 数据库名称
-       
+
        > 一般不会做的操作
+
      - drop database if exists
-       
+
        > 当数据库存在时才删除
+
   5. 使用数据库
+
      - select database()
-       
+
        > 查询正在使用的数据库名称
+
      - use 数据库名称
-       
+
        > 使用数据库，相当于进入数据库
+
 - 对表整体
+
   1. C(Create) 创建
+
      - create table (if not exists) 表名(
        列名 1 数据类型 1,
        列名 2 数据类型 2,
@@ -436,41 +457,55 @@
        );
        ```
      - create 新表 like 已经存在表
-       
+
        > 创建一个新的表和已经存在的一个表结构相同，也就是赋值表
+
   2. R(Retrieve) 查询
+
      - show tables
-       
+
        > 查询一个数据库中所有表的名称
+
      - desc 表名
-       
+
        > 查询表结构
+
      - show create table 表名
-       
+
        > 查询表的字符集
+
   3. U(Update) 修改<p id="DML_update"> </p>
+
      - alter table 表名 rename to 新表名;
-       
+
        > 修改表名
+
      - alter table 表名 character set 字符集;
-       
+
        > 修改表的字符集
+
      - alter table 表名 add 列名 数据类型;
-       
+
        > 增加一列
+
      - alter table 表名 drop 列名;
-       
+
        > 删除列
+
      - alter table 表名 change 旧列名 新列名 新列名类型
-       
+
        > 修改列名称，类型
+
      - alter table 表名 modify 列名 新的类型
-       
+
        > 只修改列的类型
+
   4. D(Delete) 删除
+
      - drop table (if exists) 表名
-       
+
        > 删除表
+
      - truncate table 表名
        > 删除整个表再创建一个一模一样结构的表
        > 相当于一下两条语句整合
@@ -501,7 +536,7 @@
 ### 6.5.3. DQL(表内数据查询)
 
 - select \* from 表名
-  
+
   > 查询表中所有数据
 
 1. 整体语法： >所有语句都涉及到
@@ -524,15 +559,18 @@
    </pre>
 
 2. 基础查询：
+
    1. 多个字段查询
       - select 字段名 from 表名;
         > 例：-- 查询姓名和年龄：SELECT NAME,age FROM student;
         > 一般不使用\*号，阅读性太差,也可以分分行，多加些注释
         > ![](image/MySQL-5-1.jpg)
    2. 去除重复结果集
+
       - select distinct 字段名 from 表名;
-        
+
         > 如果指定的多个字段名都相同，才可以去重
+
    3. 计算列
       - select 字段 1+字段 2 from 表名;
         > 计算两个字段相加结果,这里可以进行四则运算。
@@ -547,6 +585,7 @@
       - select 字段 1+字段 2 as 新名称 from 表名;
         > 将某个结果（列名字段或者表名）起一个别名用来显示出来,as 也能用**一个或者多个空格**表示。
         > 此时多分行比较好
+
 3. 条件查询
    1. where 条件
    2. 运算符
@@ -569,20 +608,25 @@
      > DESC:降序
      > 越靠后，排序优先度越低，只有靠第一种排序相同时，那么才考虑之后的排序方式
 5. 聚合函数:将一列数据作为一个整体，进行**纵向**的计算。
+
    1. count:计算个数
+
       - 一般选择非空的列
       - 或者使用 count(\*)（不推荐）
-        
-        > count (distinct nam) 来去重（mysql是否可用未证实） 
+
+        > count (distinct nam) 来去重（mysql 是否可用未证实）
+
    2. max:计算最大值
    3. min:计算最小值
    4. sum:计算和；
    5. avg:计算平均值
+
    - 注意：聚合函数计算会自动**排除 null 值**，可以通过 ifnull()来避免
    - 语法：select 函数(字段名) from 表名
      或者 select 函数(ifnull(字段名,值)) from 表名
      > 例：
      > ![](image/MySQL-5-7.jpg)
+
 6. 分组查询
    - group by 分组字段;
      > 例：select sex,AVG(math),count(id) from student group by sex;
@@ -633,8 +677,9 @@
      > 也就是说后面什么都不加，就取消掉了约束
      > [跳转到列数据类型修改](#DML_update)
 3. 创建表后添加非空约束
+
    - alter table 表名 modify 字段名 字段类型 not null
-     
+
      > 和上面同理
 
 ### 6.6.4. 唯一约束
@@ -654,8 +699,9 @@
      > 唯一约束有时候也称为唯一索引，所有有 drop index
      > [跳转到列数据类型修改](#DML_update)
 3. 创建表后添加唯一约束
+
    - alter table 表名 modify 字段名 字段类型 unique
-     
+
      > 和非空约束添加同理，但当添加时，该列数据必须不能有重复的，否则会报错
 
 ### 6.6.5. 主键约束
@@ -672,13 +718,17 @@
      );
      ```
 2. 删除主键约束
+
    - alter table 表名 drop primary key;
-     
+
      > 主键只有一个，所以不需要指定
+
 3. 创建表后添加主键
+
    - alter table 表名 modify 字段名 字段类型 primary key;
-     
+
      > 不能有重复数据以及空数据。
+
 4. 自动增长
    - 概念：如果某一列是数值类型的，使用 auto_increment 可以完成值的自动增长
    - 基本上都是和主键一起使用，但也可以分开使用，但是这种情况很少
@@ -734,23 +784,31 @@
    > 同样，新加的其他表记录也必须与主表关联记录的所有数据中来取。例如这里新建员工体条目 dep_id 只能取 1 和 2 或者保留为 null
 
 2. 删除外键
-   
+
    - alter table 其他表的名 drop foreign key 外键名（自己起的那个）
+
 3. 创建表之后，添加外键
+
    - alter table 其他表的名 add constraint 外键名称（自己起名，不能重复） foreign key 外键列名称 references 主表名称(主表列名称)
-     
+
      > 中文括号是备注，英文括号中需要填东西
+
 4. 级联操作
+
    - 情景
-     
+
      > 当修改主表中的记录时，必须先修改与之关联的记录。为了方便修改数据，就有了级联操作。也就是修改一的同时自动修改多
+
    - 概念：当修改主表中的记录时，其他表中的记录也会跟着修改（使用一定要谨慎）
-     
+
      > 比如这里修改 department 表中的一个 id 为 5，employee 表中对应 dep_id 也会修改为 5
+
    - 添加级联更新：
-     
+
      - 在添加外键语句后 加上：on update cascade
+
    - 添加级联删除：
+
      - 在添加外键语句后 加上：on delete cascade
 
        例：
@@ -760,7 +818,7 @@
      alter table employee drop foreign key emp_dept
      -- 再重新加上外键，此时添加级联更新语句和级联删除语句
      alter table employee add constraint emp_dept foreign key dem_id references department(id) on
- 	update cascade on delete cascade
+     e
      ```
 
 ## 6.7. 数据库设计
@@ -768,10 +826,13 @@
 ### 6.7.1. 多表间关系
 
 1. 多表间关系：
+
    - 一对一（了解）：
+
      - 如人的身份证
-       
+
        > 一个人只能有一个身份证
+
    - 一对多（多对一）：
      - 如部门和部门
        > 一个部门能有多个员工
@@ -780,6 +841,7 @@
      - 如大学生选择课程
        > 一个学生能选多门课程，
        > 一个课程能被多个学生选择
+
 2. 实现关系：
    - 一对多（多对一）
      - 实现方式：在多的一方建立外键，指向一的一方的主键
@@ -800,9 +862,11 @@
 - 分类(一般前三个就足够)：
 
   1. 第一范式（1NF）：每一列都是不可分割的原子数据项
-     
+
      > 即每列不可分割。所有的表创建出来后都满足该范式
+
   2. 第二范式（2NF）：在 1NF 的基础上，非码属性必须依赖于候选码（在 1NF 基础上消除非主属性对主码的部分函数依赖）
+
      - 函数依赖：通过 A 的属性的值，可以确定唯一 B 的属性的值（A-->B），则称 B 依赖于 A。
      - 属性组：如果（A,B）-->C，则（A,B）称为一个属性组，合称为 D。
      - 完全函数依赖：如果 D 是一个**属性组**，通过 D 中所有属性才能确定 B 属性的唯一值，那么则称 B 完全依赖于 D
@@ -811,8 +875,9 @@
      - 码：如果一个属性或者属性组在一张表中被其他所有属性完全依赖，则称该属性或属性组为该表的**码**。比如学号和课程名称组合可以称为码
        _ 主属性：码属性组中的所有属性
        _ 非主属性：除码属性组中的所有属性
-       
+
        > 即消除部分函数依赖
+
   3. 第三范式（3NF）：在 2NF 的基础上，任何非主属性不依赖于其他非主属性。（在 2 范式的基础上消除传递依赖。）
   4. Boyce-Codd 范式（BCNF）
   5. 第四范式（4NF）
@@ -954,9 +1019,11 @@
 - 不同情况
 
   1. 子查询结果是单行单列
+
      - 子查询可以作为条件（或者单个数值），使用运算符来进行判断
-       
+
        > 例：上面
+
   2. 子查询结果是多行单列
 
      - 使用运算符 in 来进行所有值的 or 操作：
@@ -1014,7 +1081,7 @@
        ```
 
 - 多表查询练习，再看下视频？
-  
+
   - 自关联映射（不会的话看 30 分钟处）
 
 ## 6.10. 事务
@@ -1106,49 +1173,65 @@
   基本上不常用，因为会有 DBA（数据库管理员）专门管一个公司的数据库，并且分配给职员账户，所以 DCL 了解即可
 
 - 管理用户
+
   1. 添加用户
+
      - creat user '用户名'@'主机名' identified by '密码'
-       
+
        > 主机名可以写 localhost 和%等
+
   2. 删除用户
-     
+
      - drop user '用户名'@'主机名'
+
   3. 修改用户密码
+
      1. 普通修改密码
+
         - update user set password=password('新密码') where user='用户名'
-          
+
           > password()是 MySQL 密码加密函数
+
         - set password for '用户名'@'主机名'=password('新密码')
-          
+
           > 同样效果，DCL 特有方式。
+
      2. 当忘记 root 账户密码
+
         1. cmd --> net stop mysql
-           
+
            > 停止 MySQL 服务
+
         2. mysqld --skip-grant-tables
-           
+
            > 使用无验证方式打开 MySQL 服务，此时光标会卡住
+
         3. 打开一个新的 cmd，输入 mysql 回车，登录成功
         4. 通过命令行修改密码，关闭两个窗口
-           
+
            - update user set password=password('新密码') where user='root'
+
         5. 打开任务管理器，手动结束 mysqld.exe 这一进程
         6. 打开新 cmd，正常登陆
+
   4. 查询用户：
      mysql 数据库-->user 表
      ![](image/MySQL-4.11-1.jpg)
      localhost 是本地主机，%时通配符，表示任意主机，可以用来远程登陆
      数据库中密码会进行加密
+
 - 权限管理
+
   - 查询权限
-    
+
     - show grants for '用户名'@'主机名';
+
   - 授予权限
     - grant 权限列表 on 数据库名.表名 to '用户名'@'主机名';
       > 所有权限关键字：all
       > 所有数据库和表：_ ._ ><br>所有权限分类：SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, SHUTDOWN, PROCESS, FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES, SUPER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, REPLICATION SLAVE, REPLICATION CLIENT, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER
   - 撤销权限
-    
+
     - revoke 权限列表 on 数据库名.表名 from '用户名'@'主机名';
 
 # 7. JDBC
@@ -1163,7 +1246,7 @@
 ## 7.2. JDBC 快速入门
 
 - 步骤：
-  1. 导入驱动 jar 包（此处是使用mysql，导入mysql-connector-java-5.1.48.jar）
+  1. 导入驱动 jar 包（此处是使用 mysql，导入 mysql-connector-java-5.1.48.jar）
      1. 复制到 lib 目录下，方便管理
      2. vscode：修改.classpath 文件；idea:add as library
   2. 编写代码， 注册驱动
@@ -1179,7 +1262,9 @@
 > java 包中以下除 DriverManger 都是接口
 
 - DriverManager:驱动管理对象
+
   - 功能：
+
     1. 注册驱动
        - static void registerDriver(Driver driver)
          > 写代码使用：Class.forName("com.mysql.jdbc.Driver");来进行驱动注册
@@ -1190,14 +1275,20 @@
          > ![](image/JDBC-5.3-1.jpg)
          > 但最好写上
     2. 获取数据库连接
+
        - static Connection getConnection(String url, String user, String password)
+
          - url:指定连接的路径（包括 ip 端口以及数据库名称）
+
            - jdbc://ip 地址（域名）:端口号/数据库名称
-             
+
              > 例："jdbc:mysql://localhost:3306/student"
+
            - 如果连接的是本机的 mysql 服务器，并且默认端口为 3306，那么可以简写为 jdbc:///student（即把 localhost:3306 省略）
+
          - user:
          - password:
+
 - Connection：数据库连接对象
   - 功能：
     1. 获取执行 sql 的对象
@@ -1208,15 +1299,19 @@
        - 提交事务：commit()
        - 回滚事务：rollback()
 - Statement：执行（静态）sql 对象
+
   - 执行 sql：
+
     - boolean execute(String sql) //了解即可，不常用
     - int executeUpdate(String sql)
       > 执行 DML 语句语句以及 DDL 语句。
       > 返回值是影响的行数。可以通过判断是否大于 0 来判断是否执行成功
     - ResultSet executeQuery(String sql)
-      
+
       > 返回结果集对象
+
   - 练习：见 JDBCDemo2_Practice
+
 - ResultSet：结果集对象，封装查询结果
   - boolean next():游标向下移动一行（默认一开始会指向表头，不会指向任何一行数据），返回值代表移动之后的游标指向的行是否有数据
   - getXxx():获取数据（get 后接 java 中的数据类型）
@@ -1231,22 +1326,27 @@
       3. 获取数据或结束
       - 也就是一个循环遍历
 - PreparedStatement：Statement 的子类，执行（动态/预编译）sql 的对象，功能更强大
+
   - SQL 注入问题：在拼接 sql 时，有一些 sql 的特殊关键字参与字符串的拼接。会造成安全问题（JDBCDemo6）
     > sql="select _ from account where username='"+ username +"' and where password='"+password+"'";
     > 用户名随便输入，然后密码输入：a' or 'a'='a 这里首尾无引号
     > sql:select _ from account where username='adfjiohae' and password='a' or 'a'='a'
     > 最后构成： 式 1 and 式 2 or 式 3。 导致最后结果一直为 ture，会查出所有账户
   - 解决：通过 PreparedStatemnet
-    
+
     - 预编译 SQL:参数通过?作为占位符替代
+
   - 步骤：
+
     1. 导入驱动 jar 包
     2. 编写代码， 注册驱动
     3. 获取数据库连接对象 Connection
     4. 定义 sql 语句
+
        - 注意：sql 的参数使用?作为占位符
-         
+
          > select \* from account where username=? and password=?
+
     5. 获取执行 sql 语句的对象 PreparedStatement
        \*Connection 接口中： PreparedStatement prepareStatement(String sql)
     6. 给？赋值：
@@ -1256,9 +1356,11 @@
            - 参数 1：?的位置
            - 参数 2：?的值
     7. 执行 sql，处理结果（不需要传递 sql 语句，传参是其父类 Statement 的）
-       
+
        - 方法和 Statement 同名
+
     8. 释放资源
+
   - 注意：以后会一直使用 PreparedStatement 来完成操作
     - 可以防止 SQL 注入问题
     - 效率更高
@@ -1309,12 +1411,17 @@
     1. 节约资源
     2. 用户访问高效
 - 实现
+
   - 标准接口：javax.sql.DataSource
+
     - 方法：
+
       - 获取连接：getConnection()
-        
+
         > 会不断获取下一个连接
+
       - 归还连接：如果连接对象 conn 是从连接池中获取的，则 conn.close()不会关闭连接而是归还连接
+
   - 有数据库厂商来实现，不用我们实现（已两个为例）
     1. C3P0:数据库连接池技术(较老)
     2. Druid:数据库连接池技术，由阿里巴巴开发(较新)(最好的数据库连接池技术之一)
@@ -1322,17 +1429,20 @@
 ### 7.6.2. C3P0
 
 - 步骤：
+
   1. 导入 jar 包 c3p0-0.9.5.2.jar mchange-commons-java-0.2.12.jar（为依赖包）
   2. 定义 c3p0.properties 或 c3p0-config.xml
      > 会自动寻找这两个文件
      > 路径：src 目录文件下（classpath 指的就是 src 目录）
      > 一般不使用硬编码（就是把一些设置直接卸载代码中），维护太麻烦。推荐使用配置文件
   3. 创建核心对象：ComboPooledDataSource 数据库连接池对象
-     
+
      > 该对象实现的 DataSource 接口
+
   4. 获取连接：getConnection()
-     
+
      > 会不断获取下一个连接
+
 - 复习笔记需要查阅文件：
   - JDBCDemo8_C3P0.java
   - c3p0-config.xml
@@ -1341,6 +1451,7 @@
 ### 7.6.3. Druid
 
 - 步骤：
+
   1. 导入 jar 包
   2. 定义配置文件
      > properties 形式
@@ -1348,8 +1459,9 @@
      > 需要手动加载
   3. 加载配置文件 properties
   4. 获取数据库连接池对象
-     
+
      > 通过工厂类 DruidDataSourceFactory 的 静态方法 createDataSource(properties 对象)来获取
+
   5. 通过 getConnection 获取连接
 
 ### 7.6.4. 练习：工具类
@@ -1360,7 +1472,7 @@
 4. 获取连接方法
 5. 释放资源
 6. 获取连接池方法
-   
+
    > 某些框架仅需要连接池即可
 
 ## 7.7. Spring JDBC
@@ -1368,17 +1480,20 @@
 ### 7.7.1. 概念
 
 - 是 Spring 对 JDBC 的简单封装，提供了 JdbcTemplate 来简化 JDBC 的开发
-  
+
   > Spring 是 javaEE 的灵魂框架，这只是 Spring 的一小部分，之后会有 Spring 的专题
 
 ### 7.7.2. 步骤
 
 1. 导入 jar 包
 2. 创建 JdbcTemplate 对象，依赖于数据源 DataSource
+
    - JdbcTemplate template=new Jdbctemplate(ds);
-     
+
      > 只需要传入 DataSource，而申请连接和释放资源以及归还到连接池都在框架内部自己做的。
+
 3. 调用方法：
+
    - update:执行 DML 语句
    - queryForMap():查询结果，将结果集封装为 map 集合
    - queryForList():查询结果，将结果集封装为 list 集合
@@ -1392,7 +1507,7 @@
              > 参见 JDBCDemo11_DML_DQL.java 文件
              > 其中自己定义的类要满足与数据库每个字段的映射
    - queryForObject():查寻结果，将结果封装为对象
-     
+
      - 一般用于聚合函数的查寻
 
 ### 7.7.3. 练习
@@ -1588,9 +1703,11 @@
     - 缺点：只能读取，不能增删改
 
 - xml 常用解析器：
+
   - JAXP:sun 公司提供的解析器，支持 dom 和 sax 两种思想
-    
+
     > 挺烂的，每人用
+
   - DOM4J:一款优秀的解析器
   - Jsoup:java 的 Html 解析器。但也可以用来解析 xml
   - PULL:Android 操作系统内置解析器 sax 方式
@@ -1607,12 +1724,15 @@
     > 多查文档，这里知识列举比较重要的
 
     - Jsoup：工具类，parse()方法可以解析 html 或者 xml 文档，返回 Document
+
       - parse()方法：解析 html 和 xml
+
         1. parse(File in,String charseName) ：File 对象和字符集名称
         2. parse(String html):解析 xml 或 html 字符串（直接整个文档即可）
         3. parse​(URL url, int timeoutMillis)： 通过网络路径获取指定的 xml 或 html 文档,timeoutMillis 是超时时间
-           
+
            > parse(new URL("https://www.w3school.com.cn"),10000)
+
     - Document；文档对象。代表内存中的 Dom 树
       > 继承 Element 类
       - 获取 Element 方法（从 Element 对象中继承的）
@@ -1623,6 +1743,7 @@
         - ......
     - Elements：元素 Element 对象的集合，可以作为 ArrayList<Element>来使用
     - Element：元素对象，可以获得元素属性，名称，文本等
+
       - 获取子 element 方法（同上）：
         - Element getElementById​(String id)：xml 中 id 是一个属性，用的不是特别多
         - Elements getElementsByTag​(String tagName)
@@ -1630,24 +1751,29 @@
         - Elements getElementsByAttributeValue​(String key, String value)根据属性键值对获得
         - ......
       - 获取属性值
+
         - public String attr​(String attributeKey)
-          
-          > 属性名称不区分大小写。（该方法继承自 Node）
+
+          > 属性名称不区分大小写。��� 该方法继承自 Node）
+
       - 获取文本内容
         - String Text() 获取**所有**子标签纯文本内容
         - String html() 获取 InnerHtml，即标签中的所有内容，包括子标签
+
   - Node：节点对象，是上面四个对象的父类
-      
-      - 是 Document 和 Element 的父类，非常多的常用函数都是 Node 中的
-  
+
+    - 是 Document 和 Element 的父类，非常多的常用函数都是 Node 中的
+
   - 快捷查询方式（两种都行，喜欢哪个用哪个）
+
     - selector：选择器（即 css）
       - Element select(String cssQuery)
         - 语法：参考 Selector 类来写选择器
     - Xpath ：w3c 提供的快捷查询 xml 的语法。XPath 即为 XML 路径语言（XML Path Language），它是一种用来确定 XML 文档中某部分位置的语言。
+
       - 使用 Jsoup 的 Xpath，需要独立导入 jar 包
       - JXpath 语法要额外学
-        
+
         > [跳转](https://www.w3school.com.cn/xpath/xpath_syntax.asp)
 
 # 10. tomcat
@@ -1658,19 +1784,24 @@
    1. C/S：客户端/服务端
    2. B/S：浏览器端/服务端（javaee 开发大部分基于此）
 2. 资源分类
+
    1. 静态资源：所有用户访问后得到结果相同，
       1. 如：html，css，JavaScrip
       2. 访问后直接返回给客户端，浏览器有静态资源解析引擎
    2. 动态资源：每个用户访问相同资源 ，可能得到的结果不相同
+
       1. 如：Servlet/jsp,php,asp。必须依赖 web 服务器
       2. 访问后会先将动态资源转换为静态资源，再返回给客户端
-         
+
          > ![](./image/请求响应模型.jpg)
+
 3. 网络通信三要素
+
    1. IP：电子设备（计算机）在网络中唯一标识。
    2. 端口：应用程序在计算机中的唯一标识 0~63356
-      
+
       > 端口 0-65535 可以任选，但是 0-1024 一般被系统程序保留，比如 web 服务：80，tomcat 服务器：8080，数据库：3306。程序端口可以自动改
+
    3. 传输协议：规定了数据通信规则
       1. 基础协议
          1. tcp：安全协议 三次握手 速度稍慢
@@ -1686,9 +1817,11 @@
   - 在 web 服务器软件中，可以部署 web 项目，让用户通过浏览器来访问这些项目。比如 html 界面，css 资源等
   - 因为动态资源依赖 web 服务器软件，因此也被称为 web 容器
 - 常见 java 相关 web 服务器软件
+
   - webLogic:oracle 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
-    
+
     > javaEE 是 java 语言在企业级开发中使用的技术规范总和，一共规定了 13 项大的规范
+
   - webSphere：IBM 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
   - JBoss：JBoss 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
   - tomcat：Apache 基金组织，中小型 javaEE 服务器，仅支持少量 javaEE 规范。开源免费
@@ -1711,22 +1844,30 @@
   - webapps\：存放 web 项目
   - work\：存放运行时数据。之后学 jsp 后再看
 - 启动：双击 bin 下的 startup.bat
+
   > 其实以后不常用这种方式，因为有 ide
+
   - 出现问题：
+
     1. 窗口一闪而过：JAVA_HOME 没有正确配置
     2. 启动报错：8080 被占用
+
        1. 杀死占用 8080 端口的进程
+
           1. netstat -ano
           2. 找到对应 PID（一个数字）
-             
+
              > ![](./image/pid.jpg)
+
           3. 去任务管理器关闭那个进程
+
        2. 改变端口号
           1. conf 文件夹
           2. server.xml 文件
           3. 找 Connector 元素，里面有相关属性，有访问端口号
           4. 端口号改的不是一个两个，把所有 port 属性改了
           - 一般会降 tomcat 默认端口号修改为 80。是 http 协议默认端口号，在访问时就不用输入端口号了
+
   - 访问：
     - 本地：http://localhost:8080
     - 别人：http://【ip】:8080
@@ -1735,16 +1876,23 @@
     - 正常关闭：
       - bin 目录下 shutdown.bat
       - 窗口上按 ctrl+c
+
 - 配置
+
   - 部署项目的方式：
+
     - 将文件夹放到 webapps 下
+
       - 直接
+
         - /hello：项目的访问路径-->虚拟目录
-          
+
           > 该方式下虚拟路径名称与文件路径名称必须相同
+
       - 简化部署：打包成 war 包后，再放到 webapps 下（可以 winrar 压缩为 zip 后再改名）
-        
+
         - 会自动解压缩，删除后也会自动删除解压文件夹
+
     - 配置 xml 文件
       1. xml 文件最下面 host 标签中 添加 Context 标签
       ```xml
@@ -1765,7 +1913,8 @@
       - 虚拟目录是 xml 文件名称
         > 可以将 xml 文件删除或者后缀名加\_bak 来禁止访问一个项目
         > 修改后不需要重启服务器，而修改 serve 文件需要重启
-      - ROOT.xml的话则会作为**主目录**
+      - ROOT.xml 的话则会作为**主目录**
+
   - 静态项目和动态项目
     - 目录结构
       - java 动态项目
@@ -1775,6 +1924,7 @@
             - classes 目录：防止字节码文件
             - lib 目录：存放依赖 jar 包
           - 其他文件
+
   * 与 idea 集成
     - 添加 tomcat
       - 步骤：
@@ -2070,7 +2220,7 @@
 3. 实现 5 个抽象方法
 4. 配置 Servlet
 
-> 实质就是让一个虚拟路径映射到一个实现Servlet接口的类。类中有相关方法。
+> 实质就是让一个虚拟路径映射到一个实现 Servlet 接口的类。类中有相关方法。
 
 ## 12.3. 执行原理
 
@@ -2079,8 +2229,7 @@
 3. 如果有，则再找到对应的<servlet-class>全类名
 4. tomcat 会将字节码文件加载进内存，并创建其对象
 5. 调用其方法
-6. 图示
-
+6. 图示：
    > ![](./image/servlet2.jpg)
 
 ## 12.4. Servlet 中的生命周期
@@ -2124,19 +2273,22 @@
 > 当有多个 Servlet 的时候需要重复配置很多次
 
 - 好处：
+
   - 支持注解配置。可以不需要 web.xml
 
     > 复习：如果一个注解中有一个名称为 value 的属性，且你只想设置 value 属性(即其他属性都采用默认值或者你只有一个 value 属性)，
     > 那么可以省略掉“value=”部分。
 
 * 步骤：
+
   1. 创建 Javaee，选择 Servlet3.0 以上，不用勾选 web.xml
-     
+
      > javaee6 开始才支持 Servlet3.0
+
   2. 定义一个类，实现 Servlet 接口
   3. 复写方法
   4. 在类上使用注解进行配置
-     
+
      > @WebServlet("资源路径") 。例：@WebServlet("/demo")
 
 ## 12.6. IDEA 与 tomcat 配置
@@ -2158,7 +2310,7 @@
 
 - 工作空间项目（源码） 和 tomcat 部署的 web 项目（.java 编译后，以及 html，jsp 复制过去，在 out 目录下） 不再同一路径
   - tomcat 访问的是 tomcat 部署的 web 项目
-    - 寻找设置文件夹下热部署的xml文件可以发现有这个属性：docBase="D:\learn\IdeaProject\笔记\out\artifacts\servlet_war_exploded"
+    - 寻找设置文件夹下热部署的 xml 文件可以发现有这个属性：docBase="D:\learn\IdeaProject\笔记\out\artifacts\servlet_war_exploded"
   - WEB-INF 下的资源是不能被浏览器直接访问的（有其他技术可以访问到）
   - tomcat 中断点调试方式：在 Servlet 方法中打断点。然后 debug 方式启动
   ```
@@ -2217,77 +2369,92 @@
             └─WEB-INF
   ```
 
-## 12.7. Servlet 体系结构
+## 12.7. Servlet 体系结构及路径配置
 
 > 背景：每次都要把所有 5 个方法都重载
 
-- Servlet 接口
+- 体系结构图解
+  ![](./image/servlet-7.jpg)
+
+* Servlet 接口
 
   - GenericServlet 抽象类（其实并不用这个）
     - httpServlet 抽象类（而用这个）
 
-- GenericcServlet
+* GenericcServlet
+
   - 原理：复写了 Servlet 的方法，将 service 做了抽象，而其他都是空实现（类似适配器）
-  
-- HttpServlet
-  - 实质：对http协议的一种封装，简化操作。
+
+* HttpServlet
+
+  - 实质：对 http 协议的一种封装，简化操作。
+  - 原理：实现 doGet 和 doPost 方法，service 中进行自动调用
+    > 伪代码：
+    > ![](./image/servlet-8.jpg)
+    > 实际代码：
+    > ![](./image/servlet-9.jpg)
   - 该类使用原因：
-    - 如果使用Servlet的话，当接受表单提交数据时，要判断提交方式为post/get，再进行不同的处理
-    - 为了方便，所以出现了httpServlet类，在内部进行了判断
+    - 如果使用 Servlet 的话，当接受表单提交数据时，要判断提交方式为 post/get，再进行不同的处理
+    - 为了方便，所以出现了 httpServlet 类，在内部进行了判断
   - 使用方式：
-    1. 定义继承HttpServlet的类
-    2. 复写doGet()和doPost方法（类似于Servlet接口中的service方法）
-       1. 浏览器访问时的直接请求是get方式
-       2. 表单可以实现post方式，其他方式以后会学
+    1. 定义继承 HttpServlet 的类
+    2. 复写 doGet()和 doPost 方法（类似于 Servlet 接口中的 service 方法）
+       1. 浏览器访问时的直接请求是 get 方式
+       2. 表单可以实现 post 方式，其他方式以后会学
           ```html
           <!-- 实现HttpServlet接口的类上注解内容为： @WebServlet("/demo3") -->
-          <form action="/demo3" method="post"><!-- 通过这里的action属性来指定目的地 -->
-          <input name="username">
-          <input type="submit" value="提交">
+          <form action="/demo3" method="post">
+            <!-- 通过这里的action属性来指定目的地 -->
+            <input name="username" />
+            <input type="submit" value="提交" />
           </form>
-          ``` 
+          ```
 
-- Servlet相关配置
-  1. urlpatten:Servlet访问路径
-     1. 一个Servlet可以定义多个访问路径
+* Servlet 相关配置
+  1. urlpatten:Servlet 访问路径
+     1. 一个 Servlet 可以定义多个访问路径
         > @WebServlet({"/d4","/dd4"})
         > 一般只会定义一个访问路径
   2. 路径定义规则
      1. /xxx
      2. /xxx/xxx:多层路径，目录结构
-        1. 也有`/xxx/*，/*`。  * 表示的是通配符
-        2. 但当有`/*`以及`/demo`时，/demo优先要更高
-     3. *.xxx：看似是文件，后缀名自定
+        1. 也有`/xxx/*，/*`。 \* 表示的是通配符
+        2. 但当有`/*`以及`/demo`时，/demo 优先要更高
+     3. \*.xxx：看似是文件，后缀名自定
 
-## 12.8. HTTP请求协议：
+## 12.8. HTTP 请求协议：
 
 ### 12.8.1. 基础概念
 
-> 在old中有笔记，可以看看那里的，这里是复习+补充
+> 在 old 中有笔记，可以看看那里的，这里是复习+补充
 
-- 概念：Hyper Text Transfer Protocol超文本传输协议
+- 概念：Hyper Text Transfer Protocol 超文本传输协议
 - 传输协议：定义了客户端与服务端发送数据时的格式
 - 特点：
-  1. 基于tcp/ip的高级协议
-  2. http默认端口是80
+
+  1. 基于 tcp/ip 的高级协议
+  2. http 默认端口是 80
   3. 基于请求响应模型，一次请求，一次响应
-    > 当访问一个网页时，请求次数不只为一次，每个单独的资源要访问一次
-    > ![](./image/http-1.jpg)
-    > 上面的每一项都是一次请求和响应
-  
+
+     > 当访问一个网页时，请求次数不只为一次，每个单独的资源要访问一次
+     > ![](./image/http-1.jpg)
+     > 上面的每一项都是一次请求和响应
+
   4. **无状态的：每次请求之间相互独立，不能交互数据**
+
 - 历史版本
   - 1.0（每次请求响应后都会断开，在新建连接）
   - 1.1（复用连接，不会立马断掉，如果一段时间没有数据传输才会断开）
 
-### 12.8.2. http请求消息
+### 12.8.2. http 请求消息
 
 - 请求消息数据格式
-  - 例：（被chrome解析整理过了）
-    > ![](./image/http-2.jpg) 
-    > 
+
+  - 例：（被 chrome 解析整理过了）
+    > ![](./image/http-2.jpg)
+    >
     > 字符串格式示例：
-    > 
+    >
     > POST/login.htmlHTTP/1.1
     > Host:localhost
     > User-Agent:Mozilla/5.0(windows NT 6.1;Win64;x64;rv:60.0)Gecko/20100101 > Firefox/60.0
@@ -2297,32 +2464,33 @@
     > Regerer: http://localhost/login.html
     > Connection:keep-alive
     > Upgrade-Insecure-Requests:1
-    > 
+    >
     > username="1111"
+
   1. 请求行
-     1. 格式： 请求方式 请求url 请求协议/版本
+     1. 格式： 请求方式 请求 url 请求协议/版本
         > 例:GET /login.html HTTP/1.1
-     2. 请求方式：（http有7种，常用的有两种）
+     2. 请求方式：（http 有 7 种，常用的有两种）
         1. GET：
-           1. 请求参数在请求行中（也就是url后），后面会加上  ?键=值
-           2. 请求的url长度有限制
+           1. 请求参数在请求行中（也就是 url 后），后面会加上 ?键=值
+           2. 请求的 url 长度有限制
            3. 不太安全
         2. POST：
            1. 请求参数在请求体中
-           2. 请求ur长度没有限制。（因此文件上传用post方式）
+           2. 请求 ur 长度没有限制。（因此文件上传用 post 方式）
            3. 相对安全（但拦截了请求消息头也能提取信息）
   2. 请求头
      1. 格式：
-        > 请求头名称1 : 请求头值1 
-        > 请求头名称2 : 请求头值2-1,请求头值2-2     (有多个值用逗号隔开) 
-        > 请求头名称3 : 请求头值3 
+        > 请求头名称 1 : 请求头值 1
+        > 请求头名称 2 : 请求头值 2-1,请求头值 2-2 (有多个值用逗号隔开)
+        > 请求头名称 3 : 请求头值 3
      2. 常见请求头：
         1. User-Agent:浏览器告诉服务器自己的浏览器版本信息。
            1. 可以在服务器端获取该信息来解决浏览器的兼容性问题。
         2. Accept:告诉服务器该浏览器可以响应的什么样的文件格式
         3. Accept-Language：支持语言环境
         4. Referer:客户端浏览器告诉服务器，我（当前请求）从哪里来。
-           > 在www.baidu.com转到一个链接时referer="http://www.baidu.com"。当直接在地址栏输入时referer为null
+           > 在 www.baidu.com 转到一个链接时 referer="http://www.baidu.com"。当直接在地址栏输入时referer为null
            1. 作用：
               1. 防盗链：
                  ```java
@@ -2331,56 +2499,62 @@
                  }else{
                    //草泥马的，盗链可耻
                  }
-                 ``` 
+                 ```
               2. 统计工作：
                  ```java
                  //统计花钱去别的网站打广告，过来访问的次数有多少
                  if(referer.equals("打广告所在网站1")){
                    打广告所在网站++;
                  }
-                 ``` 
-        5. Connectiong:keep-alive就是连接不会断，可以复用
+                 ```
+        5. Connectiong:keep-alive 就是连接不会断，可以复用
   3. 请求空行
      1. 就是一个空行，用来分隔请求头和请求体。但是绝对必要
   4. 请求体 （正文）
      1. 格式：参数名=参数值
-     2. 用处：用来封装POST请求消息的一些请求参数。
-        > GET是没有请求体的，POST有。
+     2. 用处：用来封装 POST 请求消息的一些请求参数。
+        > GET 是没有请求体的，POST 有。
         ```html
         <!-- 例： -->
-          <form action="/demo3" method="post">
-          <input name="username">
-          <input type="submit" value="提交">
-          </form>
-          <!-- 点击提交后，请求体中会有 username=填入内容 -->
+        <form action="/demo3" method="post">
+          <input name="username" />
+          <input type="submit" value="提交" />
+        </form>
+        <!-- 点击提交后，请求体中会有 username=填入内容 -->
         ```
         ![](./image/http-3.jpg)
-  
 
-### 12.8.3. http响应消息
+### 12.8.3. http 响应消息
 
 - 响应消息数据格式
 
-
-## 12.9. Request对象，Response对象
+## 12.9. Request 对象
 
 ### 12.9.1. 原理：
-![](./image/http-4.jpg) 
-1. request和response对象是由服务器创建的，我们来使用它们
-2. request对象是用来获取请求消息的，response对象是用来设置响应消息
+
+![](./image/http-4.jpg)
+
+1. request 和 response 对象是由服务器创建的，我们来使用它们
+2. request 对象是用来获取请求消息的，response 对象是用来设置响应消息
 
 ### 12.9.2. Request
 
-* 继承体系结构：
-  * ServeltRequest接口
-    * HttpServletRequest子接口
-      * org.apache.catalina.connector.RequestFacade 类  
-        > //通过System.out.println(rep);得到。tomcat中实现HttpServletRequest接口的类。tomcat是apache公司的
+- 继承体系结构：
+  - ServeltRequest 接口
+    - HttpServletRequest 子接口
+      - org.apache.catalina.connector.RequestFacade 类
+        > //通过 System.out.println(rep);得到。tomcat 中实现 HttpServletRequest 接口的类。tomcat 是 apache 公司的
 
-* Request功能：
-  > **以下方法都是来自HttpServletRequest及ServletRequest** 
-  * 获取请求消息
-    * 获取请求行数据
+#### 12.9.2.1. Request 基本方法
+
+- Request 功能：
+
+  > **以下方法都是来自 HttpServletRequest 及 ServletRequest**
+
+  - 获取请求消息
+
+    - 获取请求行数据
+
       ```java
       //以GET /test/demo1?username=111 HTTP/1.1
 
@@ -2390,7 +2564,7 @@
       //(重要)获取虚拟目录 /test
       String getContextPath()
 
-      //获取Servlet路径 /demo1 
+      //获取Servlet路径 /demo1
       String getSErvletPath()
 
       //获取get方式请求参数 username=111
@@ -2412,8 +2586,10 @@
       URL：统一资源定位符
       URI：统一资源标识符 代表范围更大
       */
-      ``` 
-    * 获取请求头数据
+      ```
+
+    - 获取请求头数据
+
       ```java
       //(重要)通过请求头名称获取请求头的值
       String getHeader(String name)
@@ -2436,19 +2612,24 @@
       }else{
         //正常返回数据（通过response）
       }
-      ``` 
-    * 获取请求体数据
-      > 只有POST请求方式，才有请求体，在请求体中封装了POST请求的请求参数
+      ```
+
+    - 获取请求体数据
+
+      > 只有 POST 请求方式，才有请求体，在请求体中封装了 POST 请求的请求参数
       > 其中将请求体数据封装成了流
       > 步骤：
+
       1. 获取流对象
       2. 再从流中获取数据
+
       ```java
       //获取字符输入流，只能操作字符数据
       BufferReader getReader()
 
       //获取字节输入流,可以操作所有类型的数据。返回值当作InputStream使用就行，因为它继承了InputStream （在文件上传中再进行讲解）
-      ServletInpputStream getInputStream();
+      ServletInputStream getInputStream();
+      ```
 
 
       //----------------------------------------------------------------------
@@ -2477,182 +2658,199 @@
       //和get方式中的格式相同
       ```
 
-  * 其他功能（都很常用）
-    * 获取请求参数（通用，get，post都适用）：
-      ```java
-      总结：get方式时，通过获取请求行数据中的 String getQueryString()方法 来获取请求参数。
-      Post方式时,通过获取请求体数据中的 BufferReader getReader()方法 来获得请求参数的流
-      ------------------------------------
-      因为通用函数，get和post代码基本就相同了。可以在doGet中调用 this.doPost(req,resp) 来减少代码量
+#### 12.9.2.2. 获取参数通用方法
+
+- 其他功能（都很常用）
+  - 获取请求参数（通用，get，post 都适用）：
+    ```java
+    小总结：get方式时，通过获取请求行数据中的 String getQueryString()方法 来获取请求参数。
+    Post方式时,通过获取请求体数据中的 BufferReader getReader()方法 来获得请求参数的流
+    ------------------------------------
+    因为通用函数，get和post代码基本就相同了。可以在doGet中调用 this.doPost(req,resp) 来减少代码量
+    ```
+    - String getParameter（String name）:根据参数名称获取参数值 username=111&password=222
+    - String[] getParameterValues(String name)：根据参数名称返回获取参数值的数组(有多个值时使用。复选框时也可以用) hobby=game&hobby=boll
+      > 此时使用 getParameter 也不会报错，但是只会返回一个值
+      ```html
+      <form>
+        <input type="checkbox" name="hobby" value="game" />游戏
+        <input type="checkbox" name="hobby" value="boll" />球
+        <input type="submit" value="注册" />
+      </form>
+      <!-- 两个都选中且当点击提交时，会有hobby=game&hobby=boll -->
       ```
-      * String getParameter（String name）:根据参数名称获取参数值 username=111&password=222
-      * String[] getParameterValues(String name)：根据参数名称返回获取参数值的数组(有多个值时使用。复选框时也可以用) hobby=game&hobby=boll
-        > 此时使用getParameter也不会报错，但是只会返回一个值
-        ```html
-        <form>
-          <input type="checkbox" name=hobby value="game">游戏
-          <input type="checkbox" name=hobby value="boll">球
-          <input type="submit" value="注册">
-        </form>
-        <!-- 两个都选中且当点击提交时，会有hobby=game&hobby=boll -->
-        ``` 
-        ![](./image/request-1.jpg)
-      * Enumeration<String> getParameterNames():获取所有请求的参数名称
-      * Map<String,String[]> getParameterMap():获取所有键值对
-        > 值为数组是为了避免有的键有多个值。
-        ```java
-        //例：
-        Map<String,String[]> map=req.getParameterMap();
-        Set<String> set=map.keySet();
-        for(String name:set){
-          System.out.println(name);
-          String[] values=map.get(name);
-          for(String str:values){
-            System.out.println(str);
-          }
-          System.out.println("----------------");
+      ![](./image/request-1.jpg)
+    - Enumeration<String> getParameterNames():获取所有请求的参数名称
+    - Map<String,String[]> getParameterMap():获取所有键值对
+      > 值为数组是为了避免有的键有多个值。
+      ```java
+      //例：
+      Map<String,String[]> map=req.getParameterMap();
+      Set<String> set=map.keySet();
+      for(String name:set){
+        System.out.println(name);
+        String[] values=map.get(name);
+        for(String str:values){
+          System.out.println(str);
         }
-        ```
-      * 中文乱码问题：
-        > tomcat8已经将get方式的中文乱码问题解决了
-        > post方式依旧会乱码 
-        > **解决：**在获取参数前，添加一句：req.setCharacterEncoding("utf-8")//此处的编码与网页编码一致
-        > 原理：post方式时，getParameter()内部依旧使用流的方式
-    * 请求转发
-      > 一种在服务器内部的资源跳转方式   
-      * 示意图：
-         ![](./image/servelt-5.jpg)
-      * 步骤：
-        1. 通过 ServeltRequest中的方法：RequestDispatcher getRequestDispatcher(String s) 获取请求转发器对象
-        2. 使用RequestDispatcher进行转发：使用该对象中的forward(ServeltRequest request,ServeltResponse response)方法进行转发
-      * 示例
-        ```java
-        @WebServlet("/demo6")
-        class ServletTest6 extends HttpServlet {
-          @Override
-          protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            this.doPost(req,resp);
-          }
+        System.out.println("----------------");
+      }
+      ```
 
-          @Override
-          protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            System.out.println("ServletTest6被访问了,要转到ServletTest7");
-            
-            RequestDispatcher rp=req.getRequestDispatcher("/demo7");
-            rp.forward(req,resp);
-          }
-        }
+#### 12.9.2.3. 中文乱码问题
 
-        @WebServlet("/demo7")
-        class ServletTest7 extends HttpServlet {
-          @Override
-          protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-            System.out.println("ServletTest7被访问了");
-          }
+- 中文乱码问题：
+  - tomcat8 已经将 get 方式的中文乱码问题解决了
+  - post 方式依旧会乱码
+  - **解决：**在获取参数前，添加一句：req.setCharacterEncoding("utf-8")//此处的编码与网页编码一致
+  - 原理：post 方式时，getParameter()内部依旧使用流的方式
 
-          @Override
-          protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-             this.doGet(req,resp);
-          }
-        }
-        ``` 
-      * 特点（面试）：
-        1. 浏览器地址栏路径一直是最初的路径，不会发生变化
-        2. 只能转发到当前服务器内部资源中。（比如转发到www.baidu.com就不行）
-        3.  多个资源间，使用的是同一个请求。（也就是访问最开始那个资源时的请求）
-    * 共享数据
-      > ![](./image/servlet-4.jpg)
-      > 红线圈住的是request域。
-      * 域对象：一个有作用范围的对象，可以在范围内共享数据
-      * request域：代表一次请求的范围，一般用于请求转发的多个资源中共享数据（比如ServeltA转发到ServletB，那么该次请求的request域为这两个Servlet）
-      * 方法：(ServletRequest中)
-        1. void setAttribute(String name,Object obj)存储数据
-        2. Object getAttribute(String name)根据键获取值
-        3. void removeAttribute(String name)根据键移除键值对
+#### 12.9.2.4. 请求转发
 
-    * 获取ServletContext
-      > 该对象后面会讲使用
-      * ServletContext getServletContext(); 
+- 请求转发
 
-> 当两个Servlet类的对应虚拟地址相同时，服务器开启时会报错。
+  > 一种在服务器内部的资源跳转方式
 
-### 12.9.3. Request案例
+  - 示意图：
+    ![](./image/servelt-5.jpg)
+  - 步骤：
+    1. 通过 ServeltRequest 中的方法：RequestDispatcher getRequestDispatcher(String s) 获取请求转发器对象
+    2. 使用 RequestDispatcher 进行转发：使用该对象中的 forward(ServeltRequest request,ServeltResponse response)方法进行转发
+  - 示例
+
+    ```java
+    @WebServlet("/demo6")
+    class ServletTest6 extends HttpServlet {
+      @Override
+      protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        this.doPost(req,resp);
+      }
+
+      @Override
+      protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("ServletTest6被访问了,要转到ServletTest7");
+
+        RequestDispatcher rp=req.getRequestDispatcher("/demo7");
+        rp.forward(req,resp);
+      }
+    }
+
+    @WebServlet("/demo7")
+    class ServletTest7 extends HttpServlet {
+      @Override
+      protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("ServletTest7被访问了");
+      }
+
+      @Override
+      protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+         this.doGet(req,resp);
+      }
+    }
+    ```
+
+  - 特点（面试）：
+    1. 浏览器地址栏路径一直是最初的路径，不会发生变化
+    2. 只能转发到当前服务器内部资源中。（比如转发到 www.baidu.com 就不行）
+    3. 多个资源间，使用的是同一个请求。（也就是访问最开始那个资源时的请求）
+
+#### 12.9.2.5. 共享数据
+
+- 共享数据
+  > ![](./image/servlet-4.jpg)
+  > 红线圈住的是 request 域。
+  - 域对象：一个有作用范围的对象，可以在范围内共享数据
+  - request 域：代表一次请求的范围，一般用于请求转发的多个资源中共享数据（比如 ServeltA 转发到 ServletB，那么该次请求的 request 域为这两个 Servlet）
+  - 方法：(ServletRequest 中)
+    1. void setAttribute(String name,Object obj)存储数据
+    2. Object getAttribute(String name)根据键获取值
+    3. void removeAttribute(String name)根据键移除键值对
+
+#### 12.9.2.6. 其他
+
+- 获取 ServletContext
+  > 该对象后面会讲使用
+  - ServletContext getServletContext();
+
+> 当两个 Servlet 类的对应虚拟地址相同时，服务器开启时会报错。
+
+### 12.9.3. Request 案例
 
 #### 12.9.3.1. 分析
 
-* 用户需求：
-  1. 编写login.html登陆界面
-    > username和password两个输入框
-  2. 使用Druid连接池技术，操作mysql，存放用户数据
-  3. 使用jdbcTemplate技术封装JDBC
-  4. 登陆成功跳转SuccessServlet展示：登陆成功！ 用户名，欢迎您
-  5. 登陆失败跳转FailServlet展示：登录失败，用户名或密码错误
+- 用户需求：
 
-* 案例分析：
-  ![](./image/Servlet-6.jpg) 
+  1. 编写 login.html 登陆界面
+     > username 和 password 两个输入框
+  2. 使用 Druid 连接池技术，操作 mysql，存放用户数据
+  3. 使用 jdbcTemplate 技术封装 JDBC
+  4. 登陆成功跳转 SuccessServlet 展示：登陆成功！ 用户名，欢迎您
+  5. 登陆失败跳转 FailServlet 展示：登录失败，用户名或密码错误
 
-* 步骤：
-  1. 创建项目，导入html页面，配置文件，jar包
-      > jar包要放在 web下的WEB-INF(没有就创建一个)
+- 案例分析：
+  ![](./image/Servlet-6.jpg)
+
+- 步骤：
+  1. 创建项目，导入 html 页面，配置文件，jar 包
+     > jar 包要放在 web 下的 WEB-INF(没有就创建一个)
   2. 创建数据库环境
   3. 创建用户实体类 cn.whitestarain.itcase.domain.user
-  4. 创建dao包，用来和数据库连接，提供login方法
-     > 和数据库链接使用的包都有 dao （database access object） 
-     - 在此之前，创建util包，用来存放数据库连接工具类，供dao包使用
-  5. 编写 Servlet 
-     > form中action里写：虚拟目录+Servlet路径。以后会重点讲，现在只做了解 
+  4. 创建 dao 包，用来和数据库连接，提供 login 方法
+     > 和数据库链接使用的包都有 dao （database access object）
+     - 在此之前，创建 util 包，用来存放数据库连接工具类，供 dao 包使用
+  5. 编写 Servlet
+     > form 中 action 里写：虚拟目录+Servlet 路径。以后会重点讲，现在只做了解
      1. LoginServlet：判断是否存在用户并进行转发到下面两个中的一个
      2. FailServlet
      3. SuccessServlet
 
-
 #### 12.9.3.2. 代码：从上到下（不想看折叠或跳过）
 
-* 目录结构：
-    ```
-    D:.
-    │  1.txt
-    │  loginDemo.iml
-    │  
-    ├─src
-    │  │  druid.properties
-    │  │  
-    │  ├─cn
-    │  │  └─whitestarrain
-    │  │      └─itcast
-    │  │          ├─dao
-    │  │          │      DaoUser.java
-    │  │          │      
-    │  │          ├─domain
-    │  │          │      User.java
-    │  │          │      
-    │  │          ├─util
-    │  │          │      JDBCUtils.java
-    │  │          │      
-    │  │          └─web
-    │  │              └─servlet
-    │  │                      FailServlet.java
-    │  │                      LoginServlet.java
-    │  │                      SuccessServlet.java
-    │  │                      
-    │  └─test
-    │          test.java
-    │          
-    └─web
-        │  index.jsp
-        │  login.html
-        │  
-        └─WEB-INF
-            └─lib
-                    commons-logging-1.2.jar
-                    druid-1.0.9.jar
-                    mchange-commons-java-0.2.12.jar
-                    mysql-connector-java-5.1.48-bin.jar
-                    spring-beans-5.1.10.RELEASE.jar
-                    spring-core-5.1.10.RELEASE.jar
-                    spring-jdbc-5.1.10.RELEASE.jar
-                    spring-tx-5.1.10.RELEASE.jar
-    ```
+- 目录结构：
+  ```
+  D:.
+  │  1.txt
+  │  loginDemo.iml
+  │
+  ├─src
+  │  │  druid.properties
+  │  │
+  │  ├─cn
+  │  │  └─whitestarrain
+  │  │      └─itcast
+  │  │          ├─dao
+  │  │          │      DaoUser.java
+  │  │          │
+  │  │          ├─domain
+  │  │          │      User.java
+  │  │          │
+  │  │          ├─util
+  │  │          │      JDBCUtils.java
+  │  │          │
+  │  │          └─web
+  │  │              └─servlet
+  │  │                      FailServlet.java
+  │  │                      LoginServlet.java
+  │  │                      SuccessServlet.java
+  │  │
+  │  └─test
+  │          test.java
+  │
+  └─web
+      │  index.jsp
+      │  login.html
+      │
+      └─WEB-INF
+          └─lib
+                  commons-logging-1.2.jar
+                  druid-1.0.9.jar
+                  mchange-commons-java-0.2.12.jar
+                  mysql-connector-java-5.1.48-bin.jar
+                  spring-beans-5.1.10.RELEASE.jar
+                  spring-core-5.1.10.RELEASE.jar
+                  spring-jdbc-5.1.10.RELEASE.jar
+                  spring-tx-5.1.10.RELEASE.jar
+  ```
 
 ```
 driverClassName=com.mysql.jdbc.Driver
@@ -2705,6 +2903,7 @@ public class DaoUser {
 }
 
 ```
+
 ```java
 package cn.whitestarrain.itcast.domain;
 
@@ -2751,6 +2950,7 @@ public class User {
 }
 
 ```
+
 ```java
 package cn.whitestarrain.itcast.util;
 
@@ -2807,6 +3007,7 @@ public class JDBCUtils {
     }
 }
 ```
+
 ```java
 package cn.whitestarrain.itcast.web.servlet;
 
@@ -2832,6 +3033,7 @@ public class FailServlet extends HttpServlet {
 }
 
 ```
+
 ```java
 package cn.whitestarrain.itcast.web.servlet;
 
@@ -2879,6 +3081,7 @@ public class LoginServlet extends HttpServlet {
     }
 }
 ```
+
 ```java
 package cn.whitestarrain.itcast.web.servlet;
 
@@ -2917,67 +3120,104 @@ public class SuccessServlet extends HttpServlet {
 ```html
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>login</title>
-</head>
-<body>
-<form action="/loginDemo/loginServlet"><!--虚拟目录+Servlet路径-->
-    用户名：
-    <label>
-        <input type="text" placeholder="请输入用户名" name="username">
-    </label><br>
-    密码：
-    <label>
-        <input type="text" placeholder="请输入密码" name="password">
-    </label><br/>
-    <input type="submit" value="登录">
-
-</form>
-</body>
+  </head>
+  <body>
+    <form action="/loginDemo/loginServlet">
+      <!--虚拟目录+Servlet路径-->
+      用户名：
+      <label>
+        <input type="text" placeholder="请输入用户名" name="username" /> </label
+      ><br />
+      密码：
+      <label>
+        <input type="text" placeholder="请输入密码" name="password" /> </label
+      ><br />
+      <input type="submit" value="登录" />
+    </form>
+  </body>
 </html>
 ```
 
-#### 12.9.3.3. BeanUtils基本使用
+#### 12.9.3.3. BeanUtils 基本使用
 
-> 主要用来简化数据封装，用来封装JavaBean
+> 主要用来简化数据封装，用来封装 JavaBean
 
-* JavaBean:标准的java类
-  > 这些类一般放到domain等命名的包里面 
-  * 格式要求
-    1. 类必须被public修饰
+- JavaBean:标准的 java 类
+
+  > 这些类一般放到 domain 等命名的包里面
+
+  - 格式要求
+    1. 类必须被 public 修饰
     2. 必须提供空参构造器
-    3. 成员变量必须被private修饰
-    4. 提供公共setter和getter方法
-  * 功能：封装数据
+    3. 成员变量必须被 private 修饰
+    4. 提供公共 setter 和 getter 方法
+  - 功能：封装数据
 
-* 概念：
-  * 成员变量：就是类中的成员变量
-  * 属性：getter和setter方法截取后的产物。虽说可以不一样，但是大多树情况下和成员变量相同。
-      >例如getUsername() --> Username --> username
-      ```java
-      class Person(){
-        String name=null;
-        String test=null;
-        public String getName(){
-          return this.name;
-        }
-        public String getHehe(){//这里只是演示，以后正常写成一样就行了
-          return this.test;
-        }
+- 概念：
+  - 成员变量：就是类中的成员变量
+  - 属性：getter 和 setter 方法截取后的产物。虽说可以不一样，但是大多树情况下和成员变量相同。
+    > 例如 getUsername() --> Username --> username
+    ```java
+    class Person(){
+      String name=null;
+      String test=null;
+      public String getName(){
+        return this.name;
       }
-      /*
-      这里的成员变量时name和test，对应属性为name和hehe
-      */
-      ```
-* 方法：
+      public String getHehe(){//这里只是演示，以后正常写成一样就行了
+        return this.test;
+      }
+    }
+    /*
+    这里的成员变量时name和test，对应属性为name和hehe
+    */
+    ```
+- 方法：
   1. setProperty(Object bean,key,value):给某个对象中的某个属性赋特定值（必须是属性名称）
   2. getProperty(Object bean,key,value):获取某个对象中某个属性的值（必须是属性值）
-  3. populate(Object bean,Map map):将map中键的值作为属性的名称，设置到传入的对象中
+  3. populate(Object bean,Map map):将 map 中键的值作为属性的名称，设置到传入的对象中
 
-## HTTP响应协议
+## 12.10. 路径
 
-### HTTP响应消息
+1. 绝对路径(以/开头)
+
+   > 可以确定唯一资源
+
+   1. 如http://localhost/Demo/login.html
+      1. 此时可以省略协议以及服务器 ip，只写虚拟路径+资源路径：/Demo/login.html
+   2. 规则：判断给谁用（判断资源访问请求从谁发出）
+      1. 给客户端浏览器使用：用加虚拟目录（项目的访问路径）。**建议虚拟目录动态获取**
+         1. 比如：网页中写的 a 标签跳转路径
+         2. 超链接，form 表单路径
+         3. 重定向
+      2. 给服务器用：不需要加虚拟目录
+         1. 比如：转发
+      3. 原理：在项目内部默认该项目
+   3. 动态访问虚拟路径：
+      > 针对加有虚拟路径的绝对路径，当虚拟目录发生改变时，会有很多资源无法使用，因此推荐使用动态访问虚拟目录
+      > 用在 jsp，重定向中。
+      ```java
+      String cont = resq.getContextPath();//动态获取虚拟目录
+      resp.setRedirect(cont+"/login.html");//虚拟路径+资源路径
+      ```
+
+2. 相对路径(不以/开头)
+   > 不可以确定唯一资源
+   1. 如：./index.html 其中./可以省略
+   2. 规则：确认当前的访问资源和目标资源的相对位置关系
+      1. ./代表当前目录；../代表上一级目录
+      2. 使用 jsp 推荐使用绝对路径
+      3. 例：
+         1. 现在：http://localhost/Demo/login.html
+         2. 目标：http://localhost/Demo1/demo.html
+         3. 相对路径：../Demo1/demo.html
+
+## 12.11. HTTP 响应协议
+
+### 12.11.1. HTTP 响应消息
 
 ```
 示例：
@@ -2997,28 +3237,493 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
   </body>
 </html>
 ```
-* 数据格式
-  * 响应行
-    * 格式：协议/版本 响应状态码 状态码描述
-    * 响应状态码：服务器告诉客户端浏览器本次请求和响应的一个状态。(**更详细的网上一查就能查到，此处是常用状态码**)
-      * 特征：状态码都是3位数字
-      * 分类：
-        * 1xx:服务器接收客户端消息但是没有接收完成，等待一段时间后发送1xx状态码，询问是否还有数据
-        * 2xx:响应成功
-        * 3xx:重定向。302（重定向）。304（访问缓存）
-           > ![](./image/respond-1.jpg) 
-           > 请求A资源，响应302状态码，告诉客户端去访问C。
-           > 重定向也是资源跳转的一种方式<br />
-           > ![](./image/respond-2.jpg)
-           > 访问缓存是指本地已经本次要访问的服务端的资源，去访问本地缓存即可，再次访问服务端过于浪费时间
-        * 4xx：客户端错误
+
+- 数据格式
+  - 响应行
+    - 格式：协议/版本 响应状态码 状态码描述
+    - 响应状态码：服务器告诉客户端浏览器本次请求和响应的一个状态。(**更详细的网上一查就能查到，此处是常用状态码**)
+      - 特征：状态码都是 3 位数字
+      - 分类：
+        - 1xx:服务器接收客户端消息但是没有接收完成，等待一段时间后发送 1xx 状态码，询问是否还有数据
+        - 2xx:响应成功
+        - 3xx:重定向。302（重定向）。304（访问缓存）
+          > ![](./image/respond-1.jpg)
+          > 请求 A 资源，响应 302 状态码，告诉客户端去访问 C。
+          > 重定向也是资源跳转的一种方式<br /> > ![](./image/respond-2.jpg)
+          > 访问缓存是指本地已经本次要访问的服务端的资源，去访问本地缓存即可，再次访问服务端过于浪费时间
+        - 4xx：客户端错误
           > 代表:
-          > 404：路径没有对应资源 
-          > 405：请求方式没有对应的doXxx方法。比如没有写doGet方法时，访问该Servlet会报405错误
-        * 5xx：服务端错误
-          > 代表 
+          > 404：路径没有对应资源
+          > 405：请求方式没有对应的 doXxx 方法。比如没有写 doGet 方法时，访问该 Servlet 会报 405 错误
+        - 5xx：服务端错误
+          > 代表
           > 500：服务器内部异常，会展示在页面上。此处是写了个除零的错误
           > ![](./image/respond-3.jpg)
-  * 响应头：键值对形式，保存各种信息。
-  * 响应空行：分隔空行
-  * 响应体：响应的内容，多为html页面
+  - 响应头：
+    - 格式：头名称：值 键值对相识
+    - 常见响应头:
+      - Content-Type:服务器告诉客户端本次**响应体**的数据格式以及编码格式
+      - Content-disposition:服务器告诉客户端以什么格式打开相应体数据
+        - 值：
+          - in-line:默认值，在当前页面里打开。也就是普通网页页面
+          - attachment;filename=xxx:以附件形式打开响应体。文件下载时使用
+      - Content-Length:响应体长度
+      - Date：日期
+  - 响应空行：分隔空行
+  - 响应体：真实地传输的数据。
+    > 有的是看得懂的 html 页面，也有些时看不懂的，比如图片的二进制数据
+
+## 12.12. Responds 对象
+
+### 12.12.1. 基本功能
+
+- 设置响应行
+  - 设置状态码：`void setStatus(int sc)`
+- 设置响应头
+  - 设置响应头中的一个键值对：`void setHeader(String name, String value)`
+- 设置响应体：与 Request 获取输出流相对应，这里是设置输入流
+  1. 获取输出流
+     1. 字符输出流 `PrintWriter getWriter()`
+     2. 字节输出流 `ServletOutputStream getOutputStream()`
+        1. 当作 OutputStream 就行
+  2. 使用输出流，将数据输出到客户端浏览器
+
+### 12.12.2. 重定向
+
+- 图解：
+  > ![](./image/servlet-10.jpg)
+- 原理：设置状态码和 location 路径
+- 将上面的原理封装：`resp.setRedirect("/Demo/ServletDemo")`
+- 例：
+
+  ```java
+  @webServlet("/response1")
+  public class LoginServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        this.doPost(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("response1");
+        //设置状态码为302
+        resp.setStatus(302);
+        //设置响应头location:
+        resp.setHeader(location,"/Demo1/response2")
+
+        //简单：
+        //resp.setRedirect("/Demo1/response2");
+    }
+  }
+  ```
+
+> **面试重要题目**
+
+- 重定向（redirect）特点：
+  - 地址栏发生变化
+  - 可以访问其他站点服务器资源。也就是可以：`resp.setRedirect("https://www.baidu.com")`
+  - 转发是两次请求。不能使用 request 域共享数据
+- 转发（forward）特点：
+  - 转发地址栏路径不变
+  - 转发之访问当前服务器下资源
+  - 转发是一次请求
+
+### 12.12.3. 案例解析
+
+#### 12.12.3.1. 完成重定向
+
+#### 12.12.3.2. 服务器输出字符数据到浏览器
+
+- 获取的 Print 输出流不需要刷新！！
+  - 原因：Print 流是通过 response 获取的，在响应完成之后 response 就会自动被销毁，流也会自动关闭并刷新，用 write 就行。
+- 输出中文数据
+  - 原因：编码解码所用字符集不同
+    > new 的 response 对象对应字符编码是本地默认字符编码
+    > tomcat 用 ISO-8859-1 编码编写，获取的 response 也是该编码
+    - 解决原理(在获取流之前)：
+      1.  设置编码：`resp.setCharacterEncoding("utf-8")`
+          > 但因为下面那一个操作中包含 1 操作，所以该行代码也可以不写
+      2.  设置响应消息头中的编码`resp.setHeader("content-type","text/html;charset=utf-8")`
+    - 简单形式解决：`resp.setContextType("text/html;charset=utf-8")`
+
+#### 12.12.3.3. 服务器数据字节数据到浏览器
+
+```java
+protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+      //获取字节输出流。
+      //因为是自己创建，因此这里是操作系统默认的GBK编码
+      ServletOutputStream print = response.getOutputStream();
+      //输出数据。一般用来输出图片等。而不是纯文本
+      print.write("你好".getBytes(StandardCharsets.UTF_8));
+  }
+```
+
+#### 12.12.3.4. 验证码
+
+> 这里只是简单地做个演示
+> 实际上以后验证码不需要自己实现，**从网上找找比较美观的就行**
+
+##### 12.12.3.4.1. 主要代码
+
+```java
+@WebServlet("/checkCode")
+public class CheckCodeServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        this.doPost(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        int height = 50;
+        int width = 100;
+        //1,创建一对象，在内存中画图片
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        //2.模糊图片
+        //2.1填充背景色
+        //获取画笔对象
+        Graphics gra = img.getGraphics();
+        gra.setColor(Color.PINK);
+        gra.fillRect(0, 0, width, height);
+        //2.2 画边框
+        gra.setColor(Color.BLUE);
+        //这个是画边框，默认1像素宽度
+        gra.drawRect(0, 0, width - 1, height - 1);
+        //2.3写验证码
+        String str = "ABCDEFGHIGKLMNOPQRSTUVWXYZ0123456789";
+        Random ran = new Random();
+        int index = 0;
+        for (int i = 0; i < 4; i++) {
+            index = ran.nextInt(str.length());
+            gra.drawString(str.charAt(index) + "", width/5*(i+1), height/2);
+        }
+        //2.4 画干扰线
+        gra.setColor(Color.GREEN);
+
+        for (int i=0;i<10;i++) {
+            gra.drawLine(ran.nextInt(width),ran.nextInt(height),ran.nextInt(width),ran.nextInt(height));
+        }
+
+        //3. 将图片输出到页面展示
+        ImageIO.write(img, "jpg", resp.getOutputStream());
+
+    }
+}
+
+```
+
+##### 12.12.3.4.2. 点击刷新的实现
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>checkCode</title>
+    <script>
+      window.onload = function () {
+        var img = document.getElementById("checkCode")
+        img.onclick = function () {
+          //加时间戳
+          var date = new Date().getTime()
+          img.src = "/Demo_war_exploded/checkCode?" + date //请求参数无意义，同时因为url不同了，可以重新访问服务器获取，而不是从本地缓存中拿
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <img id="checkCode" src="/Demo_war_exploded/checkCode" />
+  </body>
+</html>
+```
+
+## 12.13. ServletContext
+
+### 12.13.1. 基本
+
+- 概念：代表整个 web 应用，可以和 Servlet 程序的容器（tomcat）进行通信
+- 获取：
+  - 方式（获取到的对象是同一个，地址也相等）：
+    - 通过 request 对象获取：`requ.getServletContext()`
+    - 通过 HttpServlet 获取：`this.getServletContext()` //继承了 HttpServlet
+
+### 12.13.2. 功能
+
+#### 12.13.2.1. 获取 MIME 类型
+
+- MIME：
+
+  - 概念：在互联网通信过程中定义的一种文件数据类型，
+  - 格式：大类型/小类型 如：text/html image/jpg 响应中 content-type 的值
+  - 获取：String getMimeType(String file) 参数如//a.jpg
+    - 原理：通过扩展名对应 MIME 类型。具体映射关系在 tomcat 服务器下的 web.xml 文件中
+      > 项目配置文件中所有其他 web.xml 的爹
+
+- 演示：
+
+  ```java
+
+  ```
+
+#### 12.13.2.2. ServletContext 域对象
+
+- 方法：
+  - setAttribute(String name,Object value)
+  - getAttribute(String name)
+  - removeAttribute(String name)
+- 范围：
+  - 可以共享所有用户的数据。
+    - 比如不存在转发关系的 Servlet 之间也可以通过 Context 进行传递数据
+    - 作用域很大并且并且生命周期很长
+    - 因此使用很谨慎
+
+#### 12.13.2.3. 获取文件的真实（服务器）路径
+
+- 原因：
+  ![](./image/Servlet-11.jpg)
+  > 将来会将项目部署在远程服务器上，根本没有工作空间这一说
+
+> 重要
+
+- 方法：
+
+  - String getRealPath(String path)
+  - 注意：
+    - **如果是 WEB-INF 下的文件，要写"/WEB-INF/a.txt"** //（web 为默认根路径）
+    - **如果是 src 目录下的文件，要写"/WEB-INF/classes/b.txt"** //编译到了这里
+      > 路径写法要注意 ，具体的话看看工程目录里的 out 目录下的项目文件就行了
+      > 如果只是获取 src 下文件的话可以使用 ClassLoader
+
+- 例:getRealPath("a.txt")
+  > 在本地工作空间部署的某个项目，当前获取的目录为：D:\learn\IdeaProject\note\out\artifacts\Demo_war_exploded\a.txt
+  > ![](./image/servlet-12.jpg)
+
+## 12.14. 文件下载案例
+
+### 12.14.1. 需求：
+
+- 页面显示超链接
+- 点击超链接后弹出下载页面
+- 完成图片文件下载
+
+### 12.14.2. 分析
+
+- 超链接指向的资源如果能被浏览器解析，就会在浏览器中展示，比如图片，如果不能解析，则弹出下载提示框。
+- 需求：任何资源都必须弹出下载提示框
+- 使用响应头设置资源打开方式为附件
+  - content-disposition:attachment;filename=xxx
+
+### 12.14.3. 步骤：
+
+- 定义页面，编辑超链接 href 属性，指向 servlet，并传递资源名称作为参数
+- 定义 servlet
+  - 获取文件名称
+  - 使用字节输入流加载文件进内存
+    - 获取真实路径
+  - 指定 response 的响应头：content-disposition:attachment;filename=xxx
+  - 将数据写到 response 输出流
+
+### 12.14.4. 中文文件名展示问题
+
+- 描述：不同浏览器现实的中文名称都会乱码，并且乱码内容不同
+- 解决：
+  - 获取客户端使用的浏览器版本信息
+  - 根据不同版本信息，设置 filename 的不同编码方式
+
+> 因为新版 jdk 中没有 sun.misc.BASE64Encoder，所以 util 文件暂时无法使用，解决方式待定
+
+# 13. 会话技术
+
+## 13.1. 基本概念
+
+- 会话：一次会话中包含多次请求和响应
+  - 一次会话：浏览器第一次给服务器资源发送请求，会话建立，直到有一方断开为止
+- 目的：在一次会话的范围内的多次请求间共享数据
+  > http 协议是无状态的，每对请求与响应之间要通过会话技术进行交流
+- 分类：
+  - 客户端会话技术：cookie
+  - 服务器端会话技术：session
+
+## 13.2. cookie
+
+### 13.2.1. 概念：将数据保存在客户端的会话技术
+
+### 13.2.2. 快速入门：
+
+- 使用步骤
+  - 客户端创建 cookie 对象，绑定数据
+    - Cookie(String name, String value)
+      > 内部就是通过 map 的方式存储的
+  - 客户端发送 cookie 对象
+    > 添加了 cookie 后以后每次请求中都会带有 cookie
+    - resp.addCookie(Cookie cookie)
+  - 服务端获取 cookie。
+    - Cookie[] req.getCookies();
+
+### 13.2.3. 实现原理
+
+> ![](./image/cookie-1.jpg)
+> set-coolie 为响应头；coolie 为请求头
+> 本地浏览器会把 cookie 保存下来
+> 具体可以自己抓包试试
+
+### 13.2.4. cookie 细节
+
+- 一次可不可以发送多个 cookie
+  - 可以
+  - 创建多个 cookie 使用 resp.addCookie(String,String)添加
+- cookie 在浏览器中能保存多少时间
+  - 默认情况下，cookie 存在于浏览器内存中，浏览器关闭后，coolie 被销毁
+  - 设置 cookie 声明周期，可以持久化存储
+    - cookie.setMaxAge(int seconds)
+      - 参数为正：持久化存储，将 cookie 数据写入硬盘的文件中。数值代表 cookie 存储时间，到时间后会自动删除
+      - 参数为负：默认情况，cookie 仅存储在浏览器内存中
+      - 参数为 0：删除 cookie 信息
+- cookie 是否能存中文
+  - tomcat8 之前，cookie 中不能直接存储中文数据
+    - 需要将中文数据转码，一般采用 url 编码，然后再转回来
+  - tomcat8 之后，可以存储中文数据。但特殊字符还是不支持（比如空格），建议使用 url 编码存储，使用 url 解码解析
+- cookie 能否共享
+  - 假设在一个 tomcat 服务器中部署了多个 web 项目，那么这些 web 项目间 cookie 能否共享？
+    - 默认情况下，不能共享
+    - cookie.setPath(String path):设置 cookie 的获取范围。默认情况下会设置当前的虚拟目录 "/Demo"
+    - 设置成 "/" ，就是将范围设置为整个 tomcat 服务器，不同项目间可以共享
+  - 不同的 tomcat 服务器间 cookie 共享问题
+    - 可以调用 cookie.setDomain(String path)：如果设置一级域名相同，那么多个服务器间 cookie 可以共享
+      > www.tieba.baidu.com 一级域名：baidu.com 二级域名：tieba
+      > 如果设置 setDomain(".baidu.com") 那么 tieba.baidu.com 和 news.baidu.com 中 cookie 可以共享
+
+### 13.2.5. cookie 的特点
+
+1. cookie 存储数据在客户端和服务器
+   - 客户端 cookie 数据容易丢失和篡改
+2. 浏览器对于单个 cookie 的大小有限制（4kb 左右），对同一个域名下 cookie 的数量也有限制（20 个左右）
+   > 不同浏览器可能不同
+
+- 作用：
+  1. cookie 一般用于存储少量的不太敏感重要的数据
+  2. 在不登录的情况下完成服务器对客户端的身份识别
+     > 比如百度搜索页面关闭搜索提示框，就算不登录也可以记录设置选项
+
+## 13.3. cookie 案例
+
+- 记住上一次访问时间
+  - 访问一个 Servlet，如果是第一次访问，则提示：你好，欢迎访问
+  - 如果不是，则提示：欢迎回来，你上一次访问时间是：XXXXX
+- 图解：
+  ![](./image/cookie-2.jpg)
+- 分析：
+  - 使用 cookie 来完成
+  - 通过 Servlet 来判断是否有 lastname 的 cookie
+    - 有：不是第一次访问
+      - 响应数据
+      - 写回 cookie，更新(键相同会进行覆盖)
+        > 不用 addCookie()写回的话不会更新
+    - 没有：是第一次访问
+      - 响应数据
+      - 写回 cookie，添加
+
+## 13.4. session
+
+### 13.4.1. 概念：
+
+- 服务器端会话技术，在**一次会话**的多次请求间共享数据，不需要请求转发，将数据保存在服务端的对象 HttpSession 中
+
+### 13.4.2. ※原理※：
+
+- session 也是一个域对象（HttpServletRequest，ServletContext）。session 的实现是依赖于 cookie 的
+  > ![](./image/session-1.jpg)
+
+### 13.4.3. 快速入门
+
+- 获取 session：request.getSession();
+- 设置共享数据：session.setAttribute()
+- 在其他 servlet 中：request.getSeesion().getAttribute()
+
+### 13.4.4. session 细节
+
+1. 当客户端关闭后，服务器不关闭，两次获取session是否为同一个
+  * 默认情况下不是
+  * 如果想要相同：添加一个键为JSESSIONID的cookie保存seesion的id（也就是更新cookie）
+    > ![](./image/session-2.jpg)
+2. 客户端不关闭，服务器关闭后，两次获取的session是否为同一个
+  * 不是同一个，分配的id基本不可能相同。但很多情况下要确保数据不丢失（比如购物车，服务器重启后也不能变）
+  * session的钝化和活化：
+    > tomcat已经帮助完成了。tomcat在服务器正常关闭时会将session对象序列化到tomcat服务器的work目录下。再此开启后会读取该文件并自动删除
+    > 也就是说只要添加cookie保存session的id就可以使即使服务器和客户端哪方关也都可以保留数据以及映射
+    > **注意：只有部署在tomcat服务器中才可以，部署在idea中的话可以钝化但活化无法成功**
+    > 原因是idea会在服务器启动时，将配置文件夹里的work目录删掉，再重新创建一个work目录，其中的session文件已经被删除了
+    * 钝化：在服务器关闭之前，将session序列化到硬盘上
+    * 活化：在服务器关闭后，将session序列化文件转化到内存中
+3. seesion什么时候销毁
+  1. 服务器关闭
+  2. session对象调用invalidate();
+  3. session默认失效时间：30分
+    > tomcat服务器中web.xml中可以配置
+    > ![](./image/session-3.jpg)
+
+4. 特点：
+  1. session用于存储一次会话的多次请求的数据，存在于服务端
+  2. session可以存储任意类型，任意大小的数据
+  
+* session与cookie区别：
+  * session存储数据在服务器端，而cookie在客户端
+  * session没有大小限制，cookie有
+  * seesion较安全，cookie1相对不太安全
+
+
+## 13.5. session 案例
+
+# 14. jsp
+
+## 14.1. 基础
+
+- 概念：java server pages:java 服务器端页面
+
+  - 可以理解为一个特殊的页面，既可以定义 html 标签，也可以定义 java 代码
+  - 用于简化书写
+    > 比如之前 上次访问时间 那是动态生成的，将那句话插入 html 页面，就需要 jsp 技术来简化编写
+
+- 原理：
+
+  - 图例：
+    > ![](./image/jsp-1.jpg)
+  - 分析：
+    - jsp 本质上就是一个 servlet
+    - 在访问 jsp 时，项目配置文件夹下会产生一个 work 文件夹，用来存放临时生成文件，里面存放着 java 和 class 文件
+      > 自己手动找找去
+    - 其中 java 文件继承了 HttpJspBase 类（tomcat 服务器源码中），而 HttpJspBase 继承的 HttpServelt 类
+    - 同时该 java 文件会讲 html 标签通过输出流输出到客户端
+
+- jsp 脚本
+
+  - 概念：jsp 来定义 java 代码的方式
+  - 种类：
+    1. <% %>
+       > 里面的代码在 service 方法中，service 方法中可以定义什么，该脚本就可以定义什么
+    2. <%! %>
+       > 定义的代码在转换类中的成员位置，可以定义成员变量，方法，静态代码块等
+       > 用的非常少，Servlet，jsp 中尽量不要定义成员变量，这样可能会引发一些线程安全问题（共同访问，修改时访问等）
+    3. <%= %>
+       > 相当于输出语句，定义的 java 代码会输出到页面上，System.out.print()中可以定义什么该脚本就可以定义什么。
+       > 该脚本转换到 java 代码中的话位于 service 方法中，使用内置对象 out 进行输出
+       > <% int i=3 %> <%= i %>
+
+- jsp 内置对象
+  > 不需要获取和创建，可以直接使用的对象
+  > 一共有 9 个，这里写三个
+  - request
+  - response
+  - out:可以将数据输出到页面上，字符输出流，和 response.getWriter()类似
+    - 区别：out 定义在哪个位置就在哪个位置输出，而 response.getWriter()定义在哪个位置都会在 out 之前输出
+      > 原因：![](./image/jsp-2.jpg)
+      > 建议统一使用 out
+
+## 14.2. 改进 cookie 案例
+
+- 将 doPost 中的代码复制一下就行了
+
+  > 截断：在代码中添加%> <% 来截断的代码，中间插入 html 标签。就算把大括号分割开也没问题，一个小技巧
+
+- 但其实并不推荐，阅读性太差，展示和代码流程控制糅杂到一起了，这里只是试试
