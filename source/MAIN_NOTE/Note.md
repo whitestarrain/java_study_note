@@ -3643,37 +3643,50 @@ public class CheckCodeServlet extends HttpServlet {
 
 ### 13.4.4. session 细节
 
-1. 当客户端关闭后，服务器不关闭，两次获取session是否为同一个
-  * 默认情况下不是
-  * 如果想要相同：添加一个键为JSESSIONID的cookie保存seesion的id（也就是更新cookie）
-    > ![](./image/session-2.jpg)
-2. 客户端不关闭，服务器关闭后，两次获取的session是否为同一个
-  * 不是同一个，分配的id基本不可能相同。但很多情况下要确保数据不丢失（比如购物车，服务器重启后也不能变）
-  * session的钝化和活化：
-    > tomcat已经帮助完成了。tomcat在服务器正常关闭时会将session对象序列化到tomcat服务器的work目录下。再此开启后会读取该文件并自动删除
-    > 也就是说只要添加cookie保存session的id就可以使即使服务器和客户端哪方关也都可以保留数据以及映射
-    > **注意：只有部署在tomcat服务器中才可以，部署在idea中的话可以钝化但活化无法成功**
-    > 原因是idea会在服务器启动时，将配置文件夹里的work目录删掉，再重新创建一个work目录，其中的session文件已经被删除了
-    * 钝化：在服务器关闭之前，将session序列化到硬盘上
-    * 活化：在服务器关闭后，将session序列化文件转化到内存中
-3. seesion什么时候销毁
-  1. 服务器关闭
-  2. session对象调用invalidate();
-  3. session默认失效时间：30分
-    > tomcat服务器中web.xml中可以配置
-    > ![](./image/session-3.jpg)
+1. 当客户端关闭后，服务器不关闭，两次获取 session 是否为同一个
+   - 默认情况下不是
+   - 如果想要相同：添加一个键为 JSESSIONID 的 cookie 保存 seesion 的 id（也 是更新 cookie）
+     > ![](./image/session-2.jpg)
 
-4. 特点：
-  1. session用于存储一次会话的多次请求的数据，存在于服务端
-  2. session可以存储任意类型，任意大小的数据
-  
-* session与cookie区别：
-  * session存储数据在服务器端，而cookie在客户端
-  * session没有大小限制，cookie有
-  * seesion较安全，cookie1相对不太安全
+2) 客户端不关闭，服务器关闭后，两次获取的 session 是否为同一个
+   - 不是同一个，分配的 id 基本不可能相同。但很多情况下要确保数据不丢失（比如购物车，服务器重启后也不能变）
+   - session 的钝化和活化：
+     > tomcat 已经帮助完成了。tomcat 在服务器正常关闭时会将 session 对象序列化到 tomcat 服务器的 work 目录下。再此开启后会读取该文件并自动删除
+     > 也就是说只要添加 cookie 保存 session 的 id 就可以使即使服务器和客户端哪方关也都可以保留数据以及映射
+     > **注意：只有部署在 tomcat 服务器中才可以，部署在 idea 中的话可以钝化但活化无法成功**
+     > 原因是 idea 会在服务器启动时，将配置文件夹里的 work 目录删掉，再重新创建一个 work 目录，其中的 session 文件已经被删除了
+     - 钝化：在服务器关闭之前，将 session 序列化到硬盘上
+     - 活化：在服务器关闭后，将 session 序列化文件转化到内存中
+3) seesion 什么时候销毁
 
+   1. 服务器关闭
+   2. session 对象调用 invalidate();
+   3. session 默认失效时间：30 分
+      > tomcat 服务器中 web.xml 中可以配置
+      > ![](./image/session-3.jpg)
+
+4) 特点：
+
+   1. session 用于存储一次会话的多次请求的数据，存在于服务端
+   2. session 可以存储任意类型，任意大小的数据
+
+- session 与 cookie 区别：
+  - session 存储数据在服务器端，而 cookie 在客户端
+  - session 没有大小限制，cookie 有
+  - seesion 较安全，cookie 相对不太安全
 
 ## 13.5. session 案例
+
+- 需求分析：
+
+  - 访问带有验证码的登录页面 login.jsp
+  - 用户输入用户名，密码以及验证码。
+    - 如果用户名和密码输入有误，跳转登录页面，提示：用户名或密码错误
+    - 如果验证码输入有误，跳转登录页面，提示：验证码错误
+    - 如果全部输入正确，则跳转到主页 success.jsp,显示：用户名，欢迎您
+
+- 分析：
+  > ![](./image/session-4.jpg)
 
 # 14. jsp
 
@@ -3727,3 +3740,252 @@ public class CheckCodeServlet extends HttpServlet {
   > 截断：在代码中添加%> <% 来截断的代码，中间插入 html 标签。就算把大括号分割开也没问题，一个小技巧
 
 - 但其实并不推荐，阅读性太差，展示和代码流程控制糅杂到一起了，这里只是试试
+
+## 14.3. 剩余其他
+
+- jsp 指令
+  - 作用：用于配置 jsp 页面，导入资源文件
+  - 格式：<%@ 指令名称 属性名 1="属性值 1" 属性名 2="属性值 2" .....%>
+  - 分类：
+    - page:配置 jsp 页面
+      - 常见属性：
+        - contentType:等同于 secContentType()
+          - 设置响应体的 memi 类型以及字符集
+          - idea 等 IDE 中还可以自动设置当前本地 jsp 文件的编码
+        - pageEncoding:在低级工具（比如记事本）中，可以通过该属性设置当前页面字符集
+        - language:jsp 本来是打算兼容多种语言，但是现在只有 java。虽说如此，也要写上
+        - buffer:out 缓冲区大小，默认 8kb
+        - import:导入 java 的包，通常在 ide 里面自动完成即可。一个包一行
+          > `<%@ page import="java.util.ArrayList"%>`
+        - errorPage：错误页面，当前页面发生异常后（不管 isErrorPage 的值），会自动跳转到指定的错误页面
+        - isErrorPage:标识当前页面是否是错误页面。
+          - 默认是 false，不可以使用 exception
+          - 当标注为 true 时，可以使用 exception 对象，用来抓异常，从哪跳转来的抓哪的，通常会写入日志文件。检查 bug 时很有用
+    - include：导入页面资源文件，将其他页面导入到指定 jsp 中。
+      > 使用较少
+      > `<%@ incllue file="index.jsp" %>`
+    - taglib：导入资源
+      > 一般用来导入标签库（比如后面的 JSTL）
+      - `<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>`
+        - perfix:前缀，自定义。jstl 一般默认定义为 c
+        - uri:标签库具体位置
+  - 例：
+    > ![](./image/page-1.jpg)
+
+- jsp 注释
+  - html 注释：\<!-- 注释内容 -->
+    - 只能注释 html 代码片段。
+    - 客户端网页源代码中可以看见
+  - jsp 特有：<%-- 注释内容 --%> ，推荐使用
+    - 可以注释所有
+    - 客户端网页源代码中没有注释部分内容
+- jsp 全部内置对象
+  > 变量名---类型---作用
+  > 必须背下来
+  - 四个域对象
+    - pageContext ····PageContext····当前页面共享数据。以及它的一些方法可以获取其他 8 个内置对象
+    - request ····HttpServletRequest····一次请求访问的多个资源（通过转发来共享）
+    - session ····HttpSession····一个会话的多个请求间
+    - application ····ServletContext ····所有用户间共享数据
+      > 唯一对戏那个，服务器开启被创建，服务器关闭被销毁
+  - 其他
+    - response ····HttpServletResponse····响应对象
+    - page ····Object····当前页面（Servlet）对象。源代码中就是将 this 赋值给 page
+    - out ····JspWriter····输出对象，可以把数据输出到页面上
+    - config ····ServletConfig····Servlet 配置对象
+      > 暂时不讲
+    - exception ····Throwable····一场对象
+
+## 14.4. MVC 开发模式
+
+- jsp 演变历史
+
+  - 早期只有 servlet，只能使用 response 输出标签，非常麻烦
+  - 后来就有了 jsp，简化了 servlet 的开发。
+  - 但过度使用 jsp，java 中出现大量 java 代码，会导致难以分工，难于维护
+  - 然后 javaweb 开发借鉴了 mvc 开发模式使得程序的设计更加合理
+
+- MVC
+
+  - model 模型--JavaBean
+    - 完成具体的业务操作，如查询数据库，封装对象
+  - view 视图--JSP
+    - 展示数据
+  - controller 控制器--Servlet
+    - 获取用户输入/参数
+    - 调用模型
+    - 将模型返回数据交给视图展示
+
+- 图解：
+
+  > ![](./image/mvc-1.jpg)
+
+- 优缺点
+  > 更多的查百科
+  - 优点
+    - 耦合性低，利于分工协作
+    - 重用性高
+  - 缺点
+    - 使得项目架构变得复杂，对开发人员要求较高
+
+> 因此，为了替换 jsp 中的 java 代码，可以使用 EL 表达式以及 JSTL 标签
+
+## 14.5. EL 表达式
+
+- 概念：Experssion Language:表达式语言
+- 作用：替换和简化 jsp 页面中 java 页面的编写
+- 语法：`${表达式}`
+- 注意：
+  - jsp 默认支持 el 表达式
+  - 忽略 el 表达式方法：
+    - 忽略所有：jsp 的 page 指令下 isELIgnored 可以设置是否忽略 EL 表达式
+    - 忽略单个：加一个反斜线`\${}`。（转义字符）
+- 作用：
+
+  - 运算
+    - 运算符：
+      - 算术运算符：+ - \* /(div) %(mod)
+      - 比较运算符：> < == >= <= !=
+      - 逻辑运算符：&&(and) ||(or) !(not)
+      - **空运算符**：empty
+        - 用于判断字符串，集合，数组对象是否为 null，以及长度是否为 0
+        - `${empty list}`
+        - `${not empty str}` 当不为 null 和空时才返回 true
+  - 获取值
+
+    > el 表达式只能从域对象中获取值
+
+    - 语法:
+      - 通用：
+        - \${域名称.键名}：从指定域中获取指定键的值
+          - 域名称
+            - pageScope-->pageContext
+            - requestScope-->request
+            - sessionScope-->session
+            - applicationScope-->application(ServletContext)
+          - 例：
+            > <%= request.getAttribute("checkcodeError") == null ? "" : request.getAttribute("checkcodeError") %>
+            > 等价于：
+            > \${requestScope.checkcodeError}
+        - \${键名}：表示一次从最小的域中查找是否有该键对应的值，直到找到为止
+      - 获取对象，list，map 集合的值
+        - 对象：通过对象的属性来获取
+          > 属性(property)：getter,setter 去掉 get，set 再将首字母变小写（同 javaBean）
+          > 本质上会调用 getter，setter 方法
+          - 例：`requestScope.user.name`
+          - 假如想要获得特定格式的 Date，可以在 user 类中，添加 getDateStr()方法，用来返回特定格式的日期格式。再通过 dateStr 属性来调用
+            > 这种 get 方法并没有对应成员变量，而是单纯为了格式化日期数据
+            > 这叫做**逻辑视图**。以后会经常用
+        - List：\${域名称.键名称[索引]}
+          > 不加中括号和索引的话就会把 list 中的所有值打印出来。如[aaa,bbb]
+          - 如果角标越界会返回空字符串，而不会抛出异常
+          - 当然，如果 list 中装对象，也可以类似这样：`requestScope.list[0].name`
+        - Map：
+          - \${域名称.键名.key 名称}
+          - \${map["键名称"]}
+            > 要用引号引起来，单双都行
+          - 例：`requestScope.map.gender`
+    - 如果获得不到值，返回空字符串而不是 null
+
+  - 隐式对象
+
+    > 类似 jsp 的内置对象
+    > el 表达式中有 11 个内置对象
+
+    - pageContext:
+
+      1. 获取 jsp 其他 8 个内置对象
+         > jsp 页面中动态获取虚拟目录`${pageContext.request.contextPath}`
+         > 比如表单中的 action 属性的值，需要虚拟目录
+         > 可以写成：
+
+      ```html
+      <form action="${pageContext.request.contextPath}/login.jsp"></form>
+      ```
+
+## 14.6. JSTL 标签
+
+- 概念：JavaServer Pages Tag Library：jsp 标准标签库
+
+  - 是由 Apache 组织提供的免费开源的 jsp 标签
+  - 用于简化和替换 jsp 页面的 java 代码
+
+- 步骤
+
+  - 导入相关 jar 包
+    - javax.servlet.jsp.jstl
+    - jstl-impl
+  - jsp 中导入标签库：使用 targlib 指令
+    - http://java.sun.com/jsp/jstl/core 为高版本的核心标签库，推荐使用
+  - 使用标签
+
+- 标签
+
+  - if--if
+
+    - test 属性为必须属性，接收 boolean 类型表达式，如果为 true，就显示 if 标签体内容
+    - 一般 test 属性会结合 el 表达式一起使用
+    - 该标签没有 else，只能再定义一个 if 标签
+
+    ```jsp
+    <c:if test="true">
+      内容
+    </c:if>
+
+    <c:if test="${not empty list}">
+      遍历集合
+    </c:if>
+    ```
+
+  - choose--switch
+    ~~~jsp
+    <c:choose>                                  <% -- 相当于switch -- %>
+      <c:when test="${number==1}">1</c:when>    <% -- 相当于case -- %>
+      <c:when test="${number==2}">2</c:when>
+      <c:when test="${number==3}">3</c:when>
+      <c:when test="${number==4}">4</c:when>
+      <c:when test="${number==5}">5</c:when>
+      <c:otherwise>0</c:otherwise>              <% -- 相当于default -- %>
+    </c:choose>
+    ~~~
+
+  - foreach--for 循环
+    - 属性：
+      - 重复操作：
+        - begin：开始值
+        - end：结束值
+        - var：临时变量
+        - step：步长，每次循环加多少
+        - varStatus：循环状态（非必要）
+          - count：循环次数
+          - index：容器中元素索引，从0开始
+      - 遍历容器:
+        - item：容器对象
+        - var：容器中的临时变量
+        - varStatus：循环状态（非必要）
+          - count：循环次数
+          - index：容器中元素索引，从0开始
+
+    ~~~jsp
+    <!-- 重复性操作 -->
+    <c:forEach begin="1" end="10" var="i" step="1">
+      ${i}<br>
+    </c:forEach>
+
+    <!-- 循环容器 -->
+    <%
+      List list=new ArrayList<String>();
+      list.add("aaa");
+      list.add("bbb");
+      list.add("ccc");
+      request.setAttribute("list",list);
+    %>
+    <c:foreach item="${list}" var="str" varStatus="s">
+      ${s.count} ${s.index} ${str}<br>
+    </c:foreach>
+    ~~~
+
+
+* 练习
+
+## 14.7. 三层架构
