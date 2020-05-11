@@ -1,8 +1,8 @@
-(function() {
-    /// <reference path="../../随机方块/js/base.js"/>
-
+/// <reference path="../../随机方块/js/base.js"/>
+//这个导入要放在最开始一行
+(function () {
     var that; //记录游戏对象
-
+    
     var map = document.getElementById('map');
 
     /**
@@ -22,13 +22,13 @@
         this.init();
     }
 
-    Snake.prototype.init = function() {
+    Snake.prototype.init = function () {
         this.snakeNodes = [
             new box(this.parent, {
                 backgroundColor: 'red',
                 x: Math.floor(this.parent.offsetWidth / 2 / 20) * 20,
-                y: Math.floor(this.parent.offsetHeight / 2 / 20) * 20
-            })
+                y: Math.floor(this.parent.offsetHeight / 2 / 20) * 20,
+            }),
         ];
         this.snakeNodes.push(
             this.getNeighbor(this.snakeNodes[this.snakeNodes.length - 1], -1, 0)
@@ -42,14 +42,14 @@
      * 以front为基准，向右移动number个格子，向下移动number_y个格子
      * 获得新box
      */
-    Snake.prototype.getNeighbor = function(front, number_x, number_y) {
+    Snake.prototype.getNeighbor = function (front, number_x, number_y) {
         return new box(this.parent, {
             backgroundColor: 'blue',
             x: front.x + number_x * 20,
-            y: front.y + number_y * 20
+            y: front.y + number_y * 20,
         });
     };
-    Snake.prototype.moveNode = function(number_x, number_y) {
+    Snake.prototype.moveNode = function (number_x, number_y) {
         number_x = number_x || 0;
         number_y = number_y || 0;
 
@@ -66,7 +66,7 @@
         /* 样式重新渲染 */
         this.render();
     };
-    Snake.prototype.render = function() {
+    Snake.prototype.render = function () {
         for (var m = this.snakeNodes.length - 1; m >= 0; m--) {
             this.snakeNodes[m].init();
         }
@@ -82,17 +82,17 @@
         this.initEvent();
         this.start();
     }
-    Game.prototype.initEvent = function() {
+    Game.prototype.initEvent = function () {
         var game = this; //添加事件函数中this为addEventListener调用者
         document.addEventListener(
             'keydown',
-            function(e) {
+            function (e) {
                 game.direction = e.keyCode;
             },
             false
         );
     };
-    Game.prototype.start = function() {
+    Game.prototype.start = function () {
         this.timerId = setInterval(() => {
             /* 在移动前记录last */
             var last = this.snake.snakeNodes[this.snake.snakeNodes.length - 1];
@@ -126,7 +126,7 @@
                     new box(this.parent, {
                         backgroundColor: 'blue',
                         x: last.x,
-                        y: last.y
+                        y: last.y,
                     })
                 );
                 this.snake.render();

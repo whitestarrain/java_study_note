@@ -199,65 +199,63 @@
 - @Documented：描述注解是否被抽取到 doc 文档中，如果在注解的定义中有标注@Documented，那么就会被加到 doc 文档中<br>![此处的@Anno](image/annotation-1.jpg)
 - @Inherited：描述注解是否被子类继承。@myAnnotation 被@Inherited 描述，那么如果@myAnnotation 描述一个类，那么这个类的子类也会从父类继承这个注解。
 - @Repeatable：表示注解中属性值可以取多个，其中要了解容器注解。
+
   ```java
   //什么是容器注解呢？就是用来存放其它注解的地方。它本身也是一个注解。
   @interface Persons {//容器注解
       Person[]  value();
   }
+
+  @Repeatable(Persons.class)//括号中填入容器注解
+  @interface Person{
+      String role() default "";
+  }
+
+  @Person(role="artist")
+  @Person(role="coder")
+  @Person(role="PM")
+  public class SuperMan{
+
+  }
+
   ```
-
-
-    @Repeatable(Persons.class)//括号中填入容器注解
-    @interface Person{
-        String role() default "";
-    }
-
-
-    @Person(role="artist")
-    @Person(role="coder")
-    @Person(role="PM")
-    public class SuperMan{
-
-    }
-    ```
 
 ## 2.6. 使用（解析）注解
 
 - 本质：获取注解中定义的属性值，把配置文件的工作交给注解来完成，简化配置操作。后期注解大多数用来替换配置文件。
 - 步骤：
 
-  1. 获取注解定义位置的对象（Class,Method,Field 等）
-  2. 获取指定的注解（getAnnotation）
-  3. 调用注解中的抽象方法获取配置属性值
+1. 获取注解定义位置的对象（Class,Method,Field 等）
+2. 获取指定的注解（getAnnotation）
+3. 调用注解中的抽象方法获取配置属性值
 
-  ```java
-   //摘抄部分代码，详情可以去看代码文件
+```java
+ //摘抄部分代码，详情可以去看代码文件
 
-   // 1 解析注解
-      // 获取该类的字节码文件对象
-      Class<AnnotationTest> annotationTestClsss = AnnotationTest.class;
+ // 1 解析注解
+    // 获取该类的字节码文件对象
+    Class<AnnotationTest> annotationTestClsss = AnnotationTest.class;
 
-      // 2获取上边的注解对象
-      ProAnnotation pro = annotationTestClsss.getAnnotation(ProAnnotation.class);// 其实就是在内存中区生成了一个该注解接口的子类实现对相关
-      /*
-      相当于：
-      public class proImp1 implements ProAnnotation{
-          public String className(){
-              return "_1_java_base.base_strengthen.annotation.case_test.Person";
-          }
-          public String methodName(){
-              return "eat";
-          }
-      }
-      也就是说在调用getAnnotation时，就会把上面的那个类创建一个对象病返回给你，在通过接口接收
-       */
-  ```
+    // 2获取上边的注解对象
+    ProAnnotation pro = annotationTestClsss.getAnnotation(ProAnnotation.class);// 其实就是在内存中区生成了一个该注解接口的子类实现对相关
+    /*
+    相当于：
+    public class proImp1 implements ProAnnotation{
+        public String className(){
+            return "_1_java_base.base_strengthen.annotation.case_test.Person";
+        }
+        public String methodName(){
+            return "eat";
+        }
+    }
+    也就是说在调用getAnnotation时，就会把上面的那个类创建一个对象病返回给你，在通过接口接收
+     */
 
 
-        // 3调用注解对象中定义的抽象方法（也就是属性）获取返回值
-        String className = pro.className();
-        String methodName = pro.methodName();
-    ```
+      // 3调用注解对象中定义的抽象方法（也就是属性）获取返回值
+      String className = pro.className();
+      String methodName = pro.methodName();
+```
 
 ## 2.7. 小结
 
@@ -1327,7 +1325,7 @@
       - 也就是一个循环遍历
 - PreparedStatement：Statement 的子类，执行（动态/预编译）sql 的对象，功能更强大
 
-  - SQL 注入问题：在拼接 sql 时，有一些 sql 的特殊关键字参与字符串的拼接。会造成安全问题（JDBCDemo6）
+  - SQL **注入问题**：在拼接 sql 时，有一些 sql 的特殊关键字参与字符串的拼接。会造成安全问题（JDBCDemo6）
     > sql="select _ from account where username='"+ username +"' and where password='"+password+"'";
     > 用户名随便输入，然后密码输入：a' or 'a'='a 这里首尾无引号
     > sql:select _ from account where username='adfjiohae' and password='a' or 'a'='a'
@@ -1393,10 +1391,90 @@
 ### 7.5.2. 登陆练习
 
 - 目的：了解并通过 PreparedStatement 来解决 JDBC 注入问题
+  ```java
+  class JDBC_6_Demo2 {
+      public static boolean ishasAccount(String username, String password) {
+          Connection conn = null;
+          PreparedStatement pstsm = null;
+          ResultSet rs = null;
+          String sql = "select * from account where username=? and password=?";
+          //通过？作为通配符来解决JDBC注入问题
+          try {
+              conn = JDBCDemo5_Utils.gConnection();
+              pstsm = conn.prepareStatement(sql);
+              pstsm.setString(1, username);
+              pstsm.setString(2, password);
+              rs = pstsm.executeQuery();
+              return rs.next();
+          } catch (SQLException e) {
+              e.printStackTrace();
+              throw new RuntimeException();
+          } finally {
+              JDBCDemo5_Utils.close(pstsm, conn);
+          }
+      }
+
+      public static void main(String[] args) {
+          Scanner scan = new Scanner(System.in);
+          System.out.println("请输入用户名");
+          String username = scan.nextLine();
+          System.out.println("请输入密码");
+          String password = scan.nextLine();
+          if (ishasAccount(username, password)) {
+              System.out.println("登陆成功");
+          } else {
+              System.out.println("登录失败");
+          }
+      }
+  }
+  ```
 
 ### 7.5.3. JDBC 控制事务
 
 - 了解在哪里开启，在哪里提交，在哪里回滚。[](#74-jdbc控制事务)
+  ```java
+  class JDBC_7_Demo1 {
+      public static void main(String[] args) {
+          Connection conn = null;
+          PreparedStatement pstsm = null, pstsm2 = null;
+          try {
+              // 连接数据库
+              conn = JDBCDemo5_Utils.gConnection();
+              // sql语句定义
+              String sql1 = "update student set score=1 where id =1";
+              String sql2 = "update student set score=2 where id =2";
+              // 开启事件
+              conn.setAutoCommit(false);
+              // 获得执行SQL对象
+              pstsm = conn.prepareStatement(sql1);
+              pstsm2 = conn.prepareStatement(sql2);
+
+              // 执行第一条
+              pstsm.executeUpdate();
+
+              // 此处为错误中断
+              int x = 1 / 0;
+
+              // 执行第二条
+              pstsm2.executeUpdate();
+
+              // 提交
+              conn.commit();
+          } catch (Exception e) {
+              e.printStackTrace();
+              // 回滚
+              try {
+                  if (conn != null)//避免为null
+                      conn.rollback();
+              } catch (SQLException e1) {
+                  e1.printStackTrace();
+              }
+          } finally {
+              JDBCDemo5_Utils.close(pstsm, conn);
+          }
+      }
+  }
+  ```
 
 ## 7.6. 数据库连接池
 
@@ -1443,6 +1521,37 @@
 
      > 会不断获取下一个连接
 
+- 代码示例
+  ```java
+  class JDBC_8_Demo1 {
+      public static void main(String[] args) throws Exception {
+          // 注册驱动，加载到内存自动进行，这里没有多写
+
+          // 1 创建数据库连接池对象
+          DataSource ds = new ComboPooledDataSource();
+          //此处什么也不传，默认使用c3p0-config.xml配置文件中的default-config
+          //也可以传入String类型参数来指定设置的名字，比如"accountc3p0""
+          //但将来也基本只会用默认设置
+
+          // 2 获取连接对象
+          Connection conn = ds.getConnection();
+
+          // 3 打印
+          // System.out.println(conn);
+          // 会打印日志信息
+
+          //将10个连接逐个打印
+          for (int i = 0; i < 10; i++) {
+              System.out.println(i + ":" + conn);
+              if(i==5){
+                  conn.close();//归还道数据连接池中
+              }
+              conn = ds.getConnection();
+          }
+      }
+  }
+  ```
+
 - 复习笔记需要查阅文件：
   - JDBCDemo8_C3P0.java
   - c3p0-config.xml
@@ -1464,6 +1573,27 @@
 
   5. 通过 getConnection 获取连接
 
+- 代码示例
+  ```java
+  class JDBC_9_Demo1 {
+      public static void main(String[] args) throws Exception {
+          // 注册驱动，加载到内存
+
+          // 导入jar包
+          // 定义配置文件
+
+          // 加载配置文件
+          Properties pro = new Properties();
+          pro.load(JDBC_9_Demo1.class.getClassLoader().getResourceAsStream("druid.properties"));
+
+          // 通过数据工厂类来获得数据连接池对象,传入Properties对象
+          DataSource ds = DruidDataSourceFactory.createDataSource(pro);
+
+          System.out.println(ds.getConnection());
+      }
+  }
+  ```
+
 ### 7.6.4. 练习：工具类
 
 1. 定义一个类 JDBCUtils
@@ -1473,7 +1603,89 @@
 5. 释放资源
 6. 获取连接池方法
 
-   > 某些框架仅需要连接池即可
+> 某些框架仅需要连接池即可
+
+- 代码
+  > 不想翻文件了，直接粘过来了
+  ```java
+  public class JDBCDemo9_2_Utils {
+      /**
+      * 加载配置文件
+      */
+      private static Properties pro = null;
+      private static DataSource ds = null;
+      static {
+          pro = new Properties();
+          try {
+              pro.load(JDBC_9_Demo1.class.getClassLoader().getResourceAsStream("druid.properties"));
+              ds = DruidDataSourceFactory.createDataSource(pro);
+          } catch (IOException e) {
+              e.printStackTrace();
+          } catch (Exception e) {
+              e.printStackTrace();
+          }
+          
+      }
+
+      /*
+      复习：
+      静态代码块：用staitc声明，jvm加载类时执行，仅执行一次
+      构造代码块：类中直接用{}定义，每一次创建对象时执行。
+      执行顺序优先级：静态块,main(),构造块,构造方法。 
+       */
+
+      /**
+      * 获取连接
+      * 
+      * @throws Exception
+      */
+      public static Connection getConnection() throws Exception {
+          return ds.getConnection();
+      }
+
+      /**
+      * 关闭资源
+      */
+      public static void closeSource(ResultSet rs, Statement stsm, Connection conn) {
+          if (rs != null) {
+              try {
+                  rs.close();
+              } catch (SQLException e) {
+                  e.printStackTrace();
+              }
+          }
+          if (stsm != null) {
+              try {
+                  stsm.close();
+              } catch (SQLException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+              }
+          }
+          if (conn != null) {
+              try {
+                  conn.close();//归还连接
+              } catch (SQLException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+              }
+          }
+
+      }
+
+      public static void closeSource(Statement stsm, Connection conn) {
+          closeSource(null, stsm, conn);
+      }
+
+      /**
+      * 获取连接池
+      */
+
+      public static DataSource getDataSource() {
+          return ds;
+      }
+  }
+  ```
 
 ## 7.7. Spring JDBC
 
@@ -1509,7 +1721,7 @@
    - queryForObject():查寻结果，将结果封装为对象
 
      - 一般用于聚合函数的查寻
-
+- 代码：看文件
 ### 7.7.3. 练习
 
 - 注意：要使用 Junit 的话，必须要在 public class 中。一般不会看输出，而看颜色判断是否能成功运行
@@ -1524,6 +1736,8 @@
    - 将每一条记录封装为 map 集合，再将 map 集合封装到 list 中
 6. 查询所有记录，将其封装为 JDBC_11_Student 对象的 List 集合（较常见）
 7. 查询总记录数
+
+- 代码：看文件
 
 # 8. 代码生成(Emmet)
 
@@ -2202,7 +2416,7 @@
       →
     </span></p></div> </main>
 
-# 12. Servlet
+# 12. Servlet 基础
 
 ## 12.1. 概念
 
@@ -2230,9 +2444,34 @@
 4. tomcat 会将字节码文件加载进内存，并创建其对象
 5. 调用其方法
 6. 图示：
+
    > ![](./image/servlet2.jpg)
 
 ## 12.4. Servlet 中的生命周期
+
+> servlet 类的对象并不需要我们自己创建，我们只需要声明 servlet 的类，
+> 对象的创建和方法调用是由 web 服务器(容器)自动完成，response 和 request 对象也是服务器自动创建的
+> ![](./image/servlet--1.jpg) > ![](./image/servlet--2.jpg)
+>
+> 面试题目：
+> 意义/作用：更清楚得掌握内部运行原理，并且能够通过生命周期进行更加细致的程序设计
+
+- 阶段：
+  - 实例化阶段 调用构造方法实现
+  - 初始化阶段 调用 init 方法
+  - 请求处理阶段调用 service 方法，根据用户请求的方式调用 doGet 或 doPost 方法
+  - 销毁阶段 调用 destroy 方法
+- 过程：
+
+  - 访问：
+    - 第一次
+      1. 实例化阶段
+      2. 初始化阶段
+      3. 请求处理
+    - 再次访问：
+      - 重用对象，只进行请求处理阶段
+  - 销毁：
+    - 服务器正常关闭时，销毁阶段
 
 - init()方法：初始化方法，再 Servlet 创建时被执行，只执行一次
 
@@ -2242,16 +2481,16 @@
     - web.xml 中修改可以改变设置
       ```xml
       <servlet>
-      <servlet-name>demo1</servlet-name>
-      <servlet-class>ServletTest</servlet-class><!--全类名-->
-      <!--
-      指定被创建时间，
-      1. 第一次被访问时
-          * load-on-startup为负数（默认-1）
-      2. 在服务器启动时
-          * load-on-startup为非负数即可
-      		-->
-      <load-on-startup>1</load-on-startup>
+        <servlet-name>demo1</servlet-name>
+        <servlet-class>ServletTest</servlet-class><!--全类名-->
+        <!--
+        指定被创建时间，
+        1. 第一次被访问时
+            * load-on-startup为负数（默认-1）
+        2. 在服务器启动时
+            * load-on-startup为非负数即可
+            -->
+        <load-on-startup>1</load-on-startup>
       </servlet>
       ```
 
@@ -2267,7 +2506,53 @@
   - servletConfig()：获取 ServletConfig 对象，也就是 ServletConfig 配置对象
   - getServletInfo()：获取 servlet 的一些信息，比如版本，作者（一般不会实现）
 
-## 12.5. Servlet3.0
+## 12.5. 多线程访问与两种参数
+
+![](./image/servlet--3.jpg)
+
+- servlet 是单实例多线程的，必须谨慎得为 Servlet 设置属性
+- 但可以可以通过 ServletConfig 来获取初始化参数
+
+- 初始化参数
+
+  - 位置：web.xml 的 servlet 节点中
+    ```xml
+    <servlet>
+      <servlet-name>ParamDemo1</servlet-name>
+      <servlet-class>ServletParamTest</servlet-class><!--全类名-->
+      <init-param>
+        <param-name> name1 </param-name>
+        <param-value> value1 </param-value>
+      </init-param>
+    </servlet>
+    ```
+  - 获取方法:this.getInitParameter(String name);
+    > this 指的是 Servlet 类，可以在 doGet 等方法中调用
+    > 如果没有对应 name 就会返回 null
+  - 范围：
+
+  - 当前 Servlet 内部
+
+- 上下文参数
+
+  - 位置：web.xml 根节点内部，与 Servlet 并列
+    ```xml
+    <context-param>
+        <param-name> name1 </param-name>
+        <param-value> value1 </param-value>
+    </context-param>
+    ```
+  - 获取方法
+
+    - 获取上下文对象：ServletContext
+
+      > 该对象详细请看下面 12.14
+
+    - 获取上下文参数：servletcontext.getInitParameter(String name)
+
+  - 应用范围：所有 Servlet，整个项目中
+
+## 12.6. Servlet3.0
 
 > 背景：
 > 当有多个 Servlet 的时候需要重复配置很多次
@@ -2291,7 +2576,7 @@
 
      > @WebServlet("资源路径") 。例：@WebServlet("/demo")
 
-## 12.6. IDEA 与 tomcat 配置
+## 12.7. IDEA 与 tomcat 配置
 
 - IDEA 会为每一个 tomcat 部署的项目单独建立一根配置
 
@@ -2369,7 +2654,7 @@
             └─WEB-INF
   ```
 
-## 12.7. Servlet 体系结构及路径配置
+## 12.8. Servlet 体系结构及路径配置
 
 > 背景：每次都要把所有 5 个方法都重载
 
@@ -2409,6 +2694,10 @@
             <input type="submit" value="提交" />
           </form>
           ```
+  - **其他**：
+    - HttpServlet 也可以重写 构造，init()和 destory()方法
+    - 但是不要重写 service 方法
+      - 因为 service 方法要根据不同请求方式不同处理方法。HttpServlet 中已经从写了 Service 方法，其中调用 doGet 和 doPost 方法
 
 * Servlet 相关配置
   1. urlpatten:Servlet 访问路径
@@ -2422,9 +2711,9 @@
         2. 但当有`/*`以及`/demo`时，/demo 优先要更高
      3. \*.xxx：看似是文件，后缀名自定
 
-## 12.8. HTTP 请求协议：
+## 12.9. HTTP 请求协议：
 
-### 12.8.1. 基础概念
+### 12.9.1. 基础概念
 
 > 在 old 中有笔记，可以看看那里的，这里是复习+补充
 
@@ -2446,7 +2735,7 @@
   - 1.0（每次请求响应后都会断开，在新建连接）
   - 1.1（复用连接，不会立马断掉，如果一段时间没有数据传输才会断开）
 
-### 12.8.2. http 请求消息
+### 12.9.2. http 请求消息
 
 - 请求消息数据格式
 
@@ -2468,25 +2757,35 @@
     > username="1111"
 
   1. 请求行
+
      1. 格式： 请求方式 请求 url 请求协议/版本
+
         > 例:GET /login.html HTTP/1.1
+
      2. 请求方式：（http 有 7 种，常用的有两种）
         1. GET：
+           > 浏览器直接访问 超链接 表单提交
            1. 请求参数在请求行中（也就是 url 后），后面会加上 ?键=值
            2. 请求的 url 长度有限制
            3. 不太安全
         2. POST：
+           > 表单提交
            1. 请求参数在请求体中
            2. 请求 ur 长度没有限制。（因此文件上传用 post 方式）
            3. 相对安全（但拦截了请求消息头也能提取信息）
+
   2. 请求头
+
      1. 格式：
         > 请求头名称 1 : 请求头值 1
         > 请求头名称 2 : 请求头值 2-1,请求头值 2-2 (有多个值用逗号隔开)
         > 请求头名称 3 : 请求头值 3
      2. 常见请求头：
+
         1. User-Agent:浏览器告诉服务器自己的浏览器版本信息。
+
            1. 可以在服务器端获取该信息来解决浏览器的兼容性问题。
+
         2. Accept:告诉服务器该浏览器可以响应的什么样的文件格式
         3. Accept-Language：支持语言环境
         4. Referer:客户端浏览器告诉服务器，我（当前请求）从哪里来。
@@ -2508,8 +2807,11 @@
                  }
                  ```
         5. Connectiong:keep-alive 就是连接不会断，可以复用
+
   3. 请求空行
+
      1. 就是一个空行，用来分隔请求头和请求体。但是绝对必要
+
   4. 请求体 （正文）
      1. 格式：参数名=参数值
      2. 用处：用来封装 POST 请求消息的一些请求参数。
@@ -2524,28 +2826,32 @@
         ```
         ![](./image/http-3.jpg)
 
-### 12.8.3. http 响应消息
+### 12.9.3. http 响应消息
 
 - 响应消息数据格式
 
-## 12.9. Request 对象
+## 12.10. Request 对象
 
-### 12.9.1. 原理：
+### 12.10.1. 原理：
 
 ![](./image/http-4.jpg)
 
 1. request 和 response 对象是由服务器创建的，我们来使用它们
 2. request 对象是用来获取请求消息的，response 对象是用来设置响应消息
 
-### 12.9.2. Request
+### 12.10.2. Request
 
 - 继承体系结构：
+
   - ServeltRequest 接口
+
     - HttpServletRequest 子接口
+
       - org.apache.catalina.connector.RequestFacade 类
+
         > //通过 System.out.println(rep);得到。tomcat 中实现 HttpServletRequest 接口的类。tomcat 是 apache 公司的
 
-#### 12.9.2.1. Request 基本方法
+#### 12.10.2.1. Request 基本方法
 
 - Request 功能：
 
@@ -2658,7 +2964,7 @@
       //和get方式中的格式相同
       ```
 
-#### 12.9.2.2. 获取参数通用方法
+#### 12.10.2.2. 获取参数通用方法
 
 - 其他功能（都很常用）
   - 获取请求参数（通用，get，post 都适用）：
@@ -2697,7 +3003,7 @@
       }
       ```
 
-#### 12.9.2.3. 中文乱码问题
+#### 12.10.2.3. 中文乱码问题
 
 - 中文乱码问题：
   - tomcat8 已经将 get 方式的中文乱码问题解决了
@@ -2705,7 +3011,7 @@
   - **解决：**在获取参数前，添加一句：req.setCharacterEncoding("utf-8")//此处的编码与网页编码一致
   - 原理：post 方式时，getParameter()内部依旧使用流的方式
 
-#### 12.9.2.4. 请求转发
+#### 12.10.2.4. 请求转发
 
 - 请求转发
 
@@ -2754,7 +3060,7 @@
     2. 只能转发到当前服务器内部资源中。（比如转发到 www.baidu.com 就不行）
     3. 多个资源间，使用的是同一个请求。（也就是访问最开始那个资源时的请求）
 
-#### 12.9.2.5. 共享数据
+#### 12.10.2.5. 共享数据
 
 - 共享数据
   > ![](./image/servlet-4.jpg)
@@ -2766,17 +3072,19 @@
     2. Object getAttribute(String name)根据键获取值
     3. void removeAttribute(String name)根据键移除键值对
 
-#### 12.9.2.6. 其他
+#### 12.10.2.6. 其他
 
 - 获取 ServletContext
+
   > 该对象后面会讲使用
+
   - ServletContext getServletContext();
 
 > 当两个 Servlet 类的对应虚拟地址相同时，服务器开启时会报错。
 
-### 12.9.3. Request 案例
+### 12.10.3. Request 案例
 
-#### 12.9.3.1. 分析
+#### 12.10.3.1. 分析
 
 - 用户需求：
 
@@ -2791,20 +3099,26 @@
   ![](./image/Servlet-6.jpg)
 
 - 步骤：
+
   1. 创建项目，导入 html 页面，配置文件，jar 包
+
      > jar 包要放在 web 下的 WEB-INF(没有就创建一个)
+
   2. 创建数据库环境
   3. 创建用户实体类 cn.whitestarain.itcase.domain.user
   4. 创建 dao 包，用来和数据库连接，提供 login 方法
+
      > 和数据库链接使用的包都有 dao （database access object）
+
      - 在此之前，创建 util 包，用来存放数据库连接工具类，供 dao 包使用
+
   5. 编写 Servlet
      > form 中 action 里写：虚拟目录+Servlet 路径。以后会重点讲，现在只做了解
      1. LoginServlet：判断是否存在用户并进行转发到下面两个中的一个
      2. FailServlet
      3. SuccessServlet
 
-#### 12.9.3.2. 代码：从上到下（不想看折叠或跳过）
+#### 12.10.3.2. 代码：从上到下（不想看折叠或跳过）
 
 - 目录结构：
   ```
@@ -3141,7 +3455,7 @@ public class SuccessServlet extends HttpServlet {
 </html>
 ```
 
-#### 12.9.3.3. BeanUtils 基本使用
+#### 12.10.3.3. BeanUtils 基本使用
 
 > 主要用来简化数据封装，用来封装 JavaBean
 
@@ -3180,14 +3494,16 @@ public class SuccessServlet extends HttpServlet {
   2. getProperty(Object bean,key,value):获取某个对象中某个属性的值（必须是属性值）
   3. populate(Object bean,Map map):将 map 中键的值作为属性的名称，设置到传入的对象中
 
-## 12.10. 路径
+## 12.11. 路径
 
 1. 绝对路径(以/开头)
 
    > 可以确定唯一资源
 
    1. 如http://localhost/Demo/login.html
+
       1. 此时可以省略协议以及服务器 ip，只写虚拟路径+资源路径：/Demo/login.html
+
    2. 规则：判断给谁用（判断资源访问请求从谁发出）
       1. 给客户端浏览器使用：用加虚拟目录（项目的访问路径）。**建议虚拟目录动态获取**
          1. 比如：网页中写的 a 标签跳转路径
@@ -3215,9 +3531,9 @@ public class SuccessServlet extends HttpServlet {
          2. 目标：http://localhost/Demo1/demo.html
          3. 相对路径：../Demo1/demo.html
 
-## 12.11. HTTP 响应协议
+## 12.12. HTTP 响应协议
 
-### 12.11.1. HTTP 响应消息
+### 12.12.1. HTTP 响应消息
 
 ```
 示例：
@@ -3239,6 +3555,7 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
 ```
 
 - 数据格式
+
   - 响应行
     - 格式：协议/版本 响应状态码 状态码描述
     - 响应状态码：服务器告诉客户端浏览器本次请求和响应的一个状态。(**更详细的网上一查就能查到，此处是常用状态码**)
@@ -3271,11 +3588,12 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
       - Date：日期
   - 响应空行：分隔空行
   - 响应体：真实地传输的数据。
+
     > 有的是看得懂的 html 页面，也有些时看不懂的，比如图片的二进制数据
 
-## 12.12. Responds 对象
+## 12.13. Responds 对象
 
-### 12.12.1. 基本功能
+### 12.13.1. 基本功能
 
 - 设置响应行
   - 设置状态码：`void setStatus(int sc)`
@@ -3288,10 +3606,12 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
         1. 当作 OutputStream 就行
   2. 使用输出流，将数据输出到客户端浏览器
 
-### 12.12.2. 重定向
+### 12.13.2. 重定向
 
 - 图解：
+
   > ![](./image/servlet-10.jpg)
+
 - 原理：设置状态码和 location 路径
 - 将上面的原理封装：`resp.setRedirect("/Demo/ServletDemo")`
 - 例：
@@ -3329,25 +3649,37 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
   - 转发之访问当前服务器下资源
   - 转发是一次请求
 
-### 12.12.3. 案例解析
+> 当需要传递数据时可以使用转发，不需要时使用重定向。
+> 之后还会有很多域对象
 
-#### 12.12.3.1. 完成重定向
+### 12.13.3. 案例解析
 
-#### 12.12.3.2. 服务器输出字符数据到浏览器
+#### 12.13.3.1. 完成重定向
+
+#### 12.13.3.2. 服务器输出字符数据到浏览器
 
 - 获取的 Print 输出流不需要刷新！！
+
   - 原因：Print 流是通过 response 获取的，在响应完成之后 response 就会自动被销毁，流也会自动关闭并刷新，用 write 就行。
+
 - 输出中文数据
+
   - 原因：编码解码所用字符集不同
+
     > new 的 response 对象对应字符编码是本地默认字符编码
     > tomcat 用 ISO-8859-1 编码编写，获取的 response 也是该编码
+
     - 解决原理(在获取流之前)：
+
       1.  设置编码：`resp.setCharacterEncoding("utf-8")`
+
           > 但因为下面那一个操作中包含 1 操作，所以该行代码也可以不写
+
       2.  设置响应消息头中的编码`resp.setHeader("content-type","text/html;charset=utf-8")`
+
     - 简单形式解决：`resp.setContextType("text/html;charset=utf-8")`
 
-#### 12.12.3.3. 服务器数据字节数据到浏览器
+#### 12.13.3.3. 服务器数据字节数据到浏览器
 
 ```java
 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -3359,12 +3691,12 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
   }
 ```
 
-#### 12.12.3.4. 验证码
+#### 12.13.3.4. 验证码
 
 > 这里只是简单地做个演示
 > 实际上以后验证码不需要自己实现，**从网上找找比较美观的就行**
 
-##### 12.12.3.4.1. 主要代码
+##### 12.13.3.4.1. 主要代码
 
 ```java
 @WebServlet("/checkCode")
@@ -3413,7 +3745,7 @@ public class CheckCodeServlet extends HttpServlet {
 
 ```
 
-##### 12.12.3.4.2. 点击刷新的实现
+##### 12.13.3.4.2. 点击刷新的实现
 
 ```html
 <!DOCTYPE html>
@@ -3438,9 +3770,9 @@ public class CheckCodeServlet extends HttpServlet {
 </html>
 ```
 
-## 12.13. ServletContext
+## 12.14. ServletContext
 
-### 12.13.1. 基本
+### 12.14.1. 基本
 
 - 概念：代表整个 web 应用，可以和 Servlet 程序的容器（tomcat）进行通信
 - 获取：
@@ -3448,16 +3780,18 @@ public class CheckCodeServlet extends HttpServlet {
     - 通过 request 对象获取：`requ.getServletContext()`
     - 通过 HttpServlet 获取：`this.getServletContext()` //继承了 HttpServlet
 
-### 12.13.2. 功能
+### 12.14.2. 功能
 
-#### 12.13.2.1. 获取 MIME 类型
+#### 12.14.2.1. 获取 MIME 类型
 
 - MIME：
 
   - 概念：在互联网通信过程中定义的一种文件数据类型，
   - 格式：大类型/小类型 如：text/html image/jpg 响应中 content-type 的值
   - 获取：String getMimeType(String file) 参数如//a.jpg
+
     - 原理：通过扩展名对应 MIME 类型。具体映射关系在 tomcat 服务器下的 web.xml 文件中
+
       > 项目配置文件中所有其他 web.xml 的爹
 
 - 演示：
@@ -3466,7 +3800,7 @@ public class CheckCodeServlet extends HttpServlet {
 
   ```
 
-#### 12.13.2.2. ServletContext 域对象
+#### 12.14.2.2. ServletContext 域对象
 
 - 方法：
   - setAttribute(String name,Object value)
@@ -3478,10 +3812,11 @@ public class CheckCodeServlet extends HttpServlet {
     - 作用域很大并且并且生命周期很长
     - 因此使用很谨慎
 
-#### 12.13.2.3. 获取文件的真实（服务器）路径
+#### 12.14.2.3. 获取文件的真实（服务器）路径
 
 - 原因：
   ![](./image/Servlet-11.jpg)
+
   > 将来会将项目部署在远程服务器上，根本没有工作空间这一说
 
 > 重要
@@ -3499,22 +3834,22 @@ public class CheckCodeServlet extends HttpServlet {
   > 在本地工作空间部署的某个项目，当前获取的目录为：D:\learn\IdeaProject\note\out\artifacts\Demo_war_exploded\a.txt
   > ![](./image/servlet-12.jpg)
 
-## 12.14. 文件下载案例
+## 12.15. 文件下载案例
 
-### 12.14.1. 需求：
+### 12.15.1. 需求：
 
 - 页面显示超链接
 - 点击超链接后弹出下载页面
 - 完成图片文件下载
 
-### 12.14.2. 分析
+### 12.15.2. 分析
 
 - 超链接指向的资源如果能被浏览器解析，就会在浏览器中展示，比如图片，如果不能解析，则弹出下载提示框。
 - 需求：任何资源都必须弹出下载提示框
 - 使用响应头设置资源打开方式为附件
   - content-disposition:attachment;filename=xxx
 
-### 12.14.3. 步骤：
+### 12.15.3. 步骤：
 
 - 定义页面，编辑超链接 href 属性，指向 servlet，并传递资源名称作为参数
 - 定义 servlet
@@ -3524,7 +3859,7 @@ public class CheckCodeServlet extends HttpServlet {
   - 指定 response 的响应头：content-disposition:attachment;filename=xxx
   - 将数据写到 response 输出流
 
-### 12.14.4. 中文文件名展示问题
+### 12.15.4. 中文文件名展示问题
 
 - 描述：不同浏览器现实的中文名称都会乱码，并且乱码内容不同
 - 解决：
@@ -3538,9 +3873,13 @@ public class CheckCodeServlet extends HttpServlet {
 ## 13.1. 基本概念
 
 - 会话：一次会话中包含多次请求和响应
+
   - 一次会话：浏览器第一次给服务器资源发送请求，会话建立，直到有一方断开为止
+
 - 目的：在一次会话的范围内的多次请求间共享数据
+
   > http 协议是无状态的，每对请求与响应之间要通过会话技术进行交流
+
 - 分类：
   - 客户端会话技术：cookie
   - 服务器端会话技术：session
@@ -3552,13 +3891,21 @@ public class CheckCodeServlet extends HttpServlet {
 ### 13.2.2. 快速入门：
 
 - 使用步骤
+
   - 客户端创建 cookie 对象，绑定数据
+
     - Cookie(String name, String value)
+
       > 内部就是通过 map 的方式存储的
+
   - 客户端发送 cookie 对象
+
     > 添加了 cookie 后以后每次请求中都会带有 cookie
+
     - resp.addCookie(Cookie cookie)
+
   - 服务端获取 cookie。
+
     - Cookie[] req.getCookies();
 
 ### 13.2.3. 实现原理
@@ -3597,13 +3944,18 @@ public class CheckCodeServlet extends HttpServlet {
 ### 13.2.5. cookie 的特点
 
 1. cookie 存储数据在客户端和服务器
+
    - 客户端 cookie 数据容易丢失和篡改
+
 2. 浏览器对于单个 cookie 的大小有限制（4kb 左右），对同一个域名下 cookie 的数量也有限制（20 个左右）
+
    > 不同浏览器可能不同
 
 - 作用：
+
   1. cookie 一般用于存储少量的不太敏感重要的数据
   2. 在不登录的情况下完成服务器对客户端的身份识别
+
      > 比如百度搜索页面关闭搜索提示框，就算不登录也可以记录设置选项
 
 ## 13.3. cookie 案例
@@ -3614,12 +3966,17 @@ public class CheckCodeServlet extends HttpServlet {
 - 图解：
   ![](./image/cookie-2.jpg)
 - 分析：
+
   - 使用 cookie 来完成
   - 通过 Servlet 来判断是否有 lastname 的 cookie
+
     - 有：不是第一次访问
+
       - 响应数据
       - 写回 cookie，更新(键相同会进行覆盖)
+
         > 不用 addCookie()写回的话不会更新
+
     - 没有：是第一次访问
       - 响应数据
       - 写回 cookie，添加
@@ -3633,6 +3990,7 @@ public class CheckCodeServlet extends HttpServlet {
 ### 13.4.2. ※原理※：
 
 - session 也是一个域对象（HttpServletRequest，ServletContext）。session 的实现是依赖于 cookie 的
+
   > ![](./image/session-1.jpg)
 
 ### 13.4.3. 快速入门
@@ -3644,8 +4002,10 @@ public class CheckCodeServlet extends HttpServlet {
 ### 13.4.4. session 细节
 
 1. 当客户端关闭后，服务器不关闭，两次获取 session 是否为同一个
+
    - 默认情况下不是
    - 如果想要相同：添加一个键为 JSESSIONID 的 cookie 保存 seesion 的 id（也 是更新 cookie）
+
      > ![](./image/session-2.jpg)
 
 2) 客户端不关闭，服务器关闭后，两次获取的 session 是否为同一个
@@ -3686,6 +4046,7 @@ public class CheckCodeServlet extends HttpServlet {
     - 如果全部输入正确，则跳转到主页 success.jsp,显示：用户名，欢迎您
 
 - 分析：
+
   > ![](./image/session-4.jpg)
 
 # 14. jsp
@@ -3696,16 +4057,22 @@ public class CheckCodeServlet extends HttpServlet {
 
   - 可以理解为一个特殊的页面，既可以定义 html 标签，也可以定义 java 代码
   - 用于简化书写
+
     > 比如之前 上次访问时间 那是动态生成的，将那句话插入 html 页面，就需要 jsp 技术来简化编写
 
 - 原理：
 
   - 图例：
+
     > ![](./image/jsp-1.jpg)
+
   - 分析：
+
     - jsp 本质上就是一个 servlet
     - 在访问 jsp 时，项目配置文件夹下会产生一个 work 文件夹，用来存放临时生成文件，里面存放着 java 和 class 文件
+
       > 自己手动找找去
+
     - 其中 java 文件继承了 HttpJspBase 类（tomcat 服务器源码中），而 HttpJspBase 继承的 HttpServelt 类
     - 同时该 java 文件会讲 html 标签通过输出流输出到客户端
 
@@ -3713,8 +4080,11 @@ public class CheckCodeServlet extends HttpServlet {
 
   - 概念：jsp 来定义 java 代码的方式
   - 种类：
+
     1. <% %>
+
        > 里面的代码在 service 方法中，service 方法中可以定义什么，该脚本就可以定义什么
+
     2. <%! %>
        > 定义的代码在转换类中的成员位置，可以定义成员变量，方法，静态代码块等
        > 用的非常少，Servlet，jsp 中尽量不要定义成员变量，这样可能会引发一些线程安全问题（共同访问，修改时访问等）
@@ -3741,14 +4111,18 @@ public class CheckCodeServlet extends HttpServlet {
 
 - 但其实并不推荐，阅读性太差，展示和代码流程控制糅杂到一起了，这里只是试试
 
-## 14.3. 剩余其他
+## 14.3. 指令，注释，内置对象
 
 - jsp 指令
+
   - 作用：用于配置 jsp 页面，导入资源文件
   - 格式：<%@ 指令名称 属性名 1="属性值 1" 属性名 2="属性值 2" .....%>
   - 分类：
+
     - page:配置 jsp 页面
+
       - 常见属性：
+
         - contentType:等同于 secContentType()
           - 设置响应体的 memi 类型以及字符集
           - idea 等 IDE 中还可以自动设置当前本地 jsp 文件的编码
@@ -3756,11 +4130,14 @@ public class CheckCodeServlet extends HttpServlet {
         - language:jsp 本来是打算兼容多种语言，但是现在只有 java。虽说如此，也要写上
         - buffer:out 缓冲区大小，默认 8kb
         - import:导入 java 的包，通常在 ide 里面自动完成即可。一个包一行
+
           > `<%@ page import="java.util.ArrayList"%>`
+
         - errorPage：错误页面，当前页面发生异常后（不管 isErrorPage 的值），会自动跳转到指定的错误页面
         - isErrorPage:标识当前页面是否是错误页面。
           - 默认是 false，不可以使用 exception
           - 当标注为 true 时，可以使用 exception 对象，用来抓异常，从哪跳转来的抓哪的，通常会写入日志文件。检查 bug 时很有用
+
     - include：导入页面资源文件，将其他页面导入到指定 jsp 中。
       > 使用较少
       > `<%@ incllue file="index.jsp" %>`
@@ -3769,7 +4146,9 @@ public class CheckCodeServlet extends HttpServlet {
       - `<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>`
         - perfix:前缀，自定义。jstl 一般默认定义为 c
         - uri:标签库具体位置
+
   - 例：
+
     > ![](./image/page-1.jpg)
 
 - jsp 注释
@@ -3780,21 +4159,30 @@ public class CheckCodeServlet extends HttpServlet {
     - 可以注释所有
     - 客户端网页源代码中没有注释部分内容
 - jsp 全部内置对象
+
   > 变量名---类型---作用
   > 必须背下来
+  > 一共有 9 个
+
   - 四个域对象
+
     - pageContext ····PageContext····当前页面共享数据。以及它的一些方法可以获取其他 8 个内置对象
     - request ····HttpServletRequest····一次请求访问的多个资源（通过转发来共享）
     - session ····HttpSession····一个会话的多个请求间
     - application ····ServletContext ····所有用户间共享数据
-      > 唯一对戏那个，服务器开启被创建，服务器关闭被销毁
+
+      > 域最大，唯一对象，服务器开启被创建，服务器关闭被销毁。可以再看看 12.14.ServletContext
+
   - 其他
+
     - response ····HttpServletResponse····响应对象
     - page ····Object····当前页面（Servlet）对象。源代码中就是将 this 赋值给 page
     - out ····JspWriter····输出对象，可以把数据输出到页面上
     - config ····ServletConfig····Servlet 配置对象
+
       > 暂时不讲
-    - exception ····Throwable····一场对象
+
+    - exception ····Throwable····异常对象。声明 isErrorPage 为 true 时才会有这个对象
 
 ## 14.4. MVC 开发模式
 
@@ -3833,7 +4221,7 @@ public class CheckCodeServlet extends HttpServlet {
 ## 14.5. EL 表达式
 
 - 概念：Experssion Language:表达式语言
-- 作用：替换和简化 jsp 页面中 java 页面的编写
+- 作用：替换和简化 jsp 页面中 java 页面的编写。**在标签的引号内部以及 javascript 中仍然可以使用**
 - 语法：`${表达式}`
 - 注意：
   - jsp 默认支持 el 表达式
@@ -3856,9 +4244,12 @@ public class CheckCodeServlet extends HttpServlet {
     > el 表达式只能从域对象中获取值
 
     - 语法:
+
       - 通用：
+
         - \${域名称.键名}：从指定域中获取指定键的值
           - 域名称
+            > el 中域名称及对应 jsp 内置对象
             - pageScope-->pageContext
             - requestScope-->request
             - sessionScope-->session
@@ -3868,7 +4259,11 @@ public class CheckCodeServlet extends HttpServlet {
             > 等价于：
             > \${requestScope.checkcodeError}
         - \${键名}：表示一次从最小的域中查找是否有该键对应的值，直到找到为止
+
+          > 会依序从 Page、Request、Session、Application 范围查找。
+
       - 获取对象，list，map 集合的值
+
         - 对象：通过对象的属性来获取
           > 属性(property)：getter,setter 去掉 get，set 再将首字母变小写（同 javaBean）
           > 本质上会调用 getter，setter 方法
@@ -3881,16 +4276,21 @@ public class CheckCodeServlet extends HttpServlet {
           - 如果角标越界会返回空字符串，而不会抛出异常
           - 当然，如果 list 中装对象，也可以类似这样：`requestScope.list[0].name`
         - Map：
+
           - \${域名称.键名.key 名称}
           - \${map["键名称"]}
+
             > 要用引号引起来，单双都行
-          - 例：`requestScope.map.gender`
+
+        - 例：`requestScope.map.gender`
+
     - 如果获得不到值，返回空字符串而不是 null
 
   - 隐式对象
 
     > 类似 jsp 的内置对象
-    > el 表达式中有 11 个内置对象
+    > el 表达式中有 11 个内置对象，包括域对象
+    > ![](./image/el-1.jpg)
 
     - pageContext:
 
@@ -3902,6 +4302,99 @@ public class CheckCodeServlet extends HttpServlet {
       ```html
       <form action="${pageContext.request.contextPath}/login.jsp"></form>
       ```
+
+- 其他要点：
+
+  - **.和[]**
+
+    ```
+    []与.运算符
+    EL 提供.和[]两种运算符来存取数据。
+    当要存取的属性名称中包含一些特殊字符，如.或?等并非字母或数字的符号，就一定要使用 []。
+    例如：
+    ${user.My-Name}应当改为${user["My-Name"] }
+    如果要动态取值时，就可以用[]来做，而.无法做到动态取值。例如：
+    ${sessionScope.user[data]}中data 是一个变量
+    ```
+
+  - 禁用 el
+
+    > <%@ page isELIgnored="true"%> 表示是否禁用 EL 语言,TRUE 表示禁止.FALSE 表示不禁止。JSP2.0 中默认的启用 EL 语言.
+
+  - 关于四个域对象
+
+    ```
+    它们基本上就和JSP的pageContext、request、session和application一样；
+    在EL中，这四个隐含对象只能用来取得范围属性值，即getAttribute(String name)，却不能取得
+    其他相关信息。
+    ```
+
+  - param 和 paramValues
+
+    ```
+    输入有关的隐含对象
+    与输入有关的隐含对象有两个：param和paramValues，它们是EL中比较特别的隐含对象。
+    例如我们要取得用户的请求参数时，可以利用下列方法：
+    request.getParameter(String name)
+    request.getParameterValues(String name)
+    在EL中则可以使用param和paramValues两者来取得数据。
+    ${param.name}
+    ${paramValues.name}
+
+    注意：
+    	param和paramValues--request.getParameter();
+    	requestScope.key-- request.getAttribute("key");
+    两者不同，一个是域中的共享数据，一个是请求参数
+    ```
+
+    ```jsp
+    param和paramValues:
+
+    <%--    请求为：http://localhost:8080/Demo/temp.jsp?name=neu20182825&name=zhangsan--%>
+    ${param.name}<br><%--这样只会获得第一个name的值--%>
+    <%--    ${param.name[0]}<br> 这样会报错，多值时必须按照下面的写--%>
+    ${paramValues.name[0]}<br>
+    ${paramValues.name[1]}
+
+    ```
+
+  - cookie
+
+    ```
+    JSTL并没有提供设定cookie的动作，
+    例：要取得cookie中有一个设定名称为userCountry的值，可以使用${cookie.userCountry}来取得它。
+    ```
+
+  - header 和 headerValues
+    ```
+    header 储存用户浏览器和服务端用来沟通的数据
+    例：要取得用户浏览器的版本，可以使用${header["User-Agent"]}。
+    另外在鲜少机会下，有可能同一标头名称拥有不同的值，此时必须改为使用headerValues 来取得这些值。
+    ```
+  - initParam
+    ```
+    initParam取得设定web站点的环境参数(Context)
+    例：一般的方法String userid = (String)application.getInitParameter("userid");     （application为jsp中内置对象，类型为ServletContext）
+    就相当于上下文参数：servletcontext.getInitParameter(String name)
+    可以使用 ${initParam.userid}来取得名称为userid
+    ```
+  - pageContext 全部作用
+
+    ```
+    pageContext
+
+    pageContext取得其他有关用户要求或页面的详细信息。
+    ${pageContext.request.queryString}         取得请求的参数字符串
+    ${pageContext.request.requestURL}         取得请求的URL，但不包括请求之参数字符串
+    ${pageContext.request.contextPath}         服务的web application 的名称(虚拟路径，常用)
+    ${pageContext.request.method}           取得HTTP 的方法(GET、POST)
+    ${pageContext.request.protocol}         取得使用的协议(HTTP/1.1、HTTP/1.0)
+    ${pageContext.request.remoteUser}         取得用户名称
+    ${pageContext.request.remoteAddr }         取得用户的IP 地址
+    ${pageContext.session.new}             判断session 是否为新的
+    ${pageContext.session.id}               取得session 的ID
+    ${pageContext.servletContext.serverInfo}   取得主机端的服务信息
+    ```
 
 ## 14.6. JSTL 标签
 
@@ -3938,7 +4431,8 @@ public class CheckCodeServlet extends HttpServlet {
     ```
 
   - choose--switch
-    ~~~jsp
+
+    ```jsp
     <c:choose>                                  <% -- 相当于switch -- %>
       <c:when test="${number==1}">1</c:when>    <% -- 相当于case -- %>
       <c:when test="${number==2}">2</c:when>
@@ -3947,9 +4441,10 @@ public class CheckCodeServlet extends HttpServlet {
       <c:when test="${number==5}">5</c:when>
       <c:otherwise>0</c:otherwise>              <% -- 相当于default -- %>
     </c:choose>
-    ~~~
+    ```
 
   - foreach--for 循环
+
     - 属性：
       - 重复操作：
         - begin：开始值
@@ -3958,15 +4453,15 @@ public class CheckCodeServlet extends HttpServlet {
         - step：步长，每次循环加多少
         - varStatus：循环状态（非必要）
           - count：循环次数
-          - index：容器中元素索引，从0开始
+          - index：容器中元素索引，从 0 开始
       - 遍历容器:
         - item：容器对象
         - var：容器中的临时变量
         - varStatus：循环状态（非必要）
           - count：循环次数
-          - index：容器中元素索引，从0开始
+          - index：容器中元素索引，从 0 开始
 
-    ~~~jsp
+    ```jsp
     <!-- 重复性操作 -->
     <c:forEach begin="1" end="10" var="i" step="1">
       ${i}<br>
@@ -3983,9 +4478,22 @@ public class CheckCodeServlet extends HttpServlet {
     <c:foreach item="${list}" var="str" varStatus="s">
       ${s.count} ${s.index} ${str}<br>
     </c:foreach>
-    ~~~
+    ```
 
+## 综合案例（用户信息管理）
 
-* 练习
+- 简单功能
+  - 登录
+  - 列表查询
+  - 添加
+    > ![](./image/anli-1.jpg)
+  - 删除
+    > ![](./image/anli-2.jpg)
+  - 修改
+    > ![](./image/anli-3.jpg)
+- 复杂功能
+  - 删除选中
+  - 列表分页
+  - 条件（组合）查询
 
 ## 14.7. 三层架构
