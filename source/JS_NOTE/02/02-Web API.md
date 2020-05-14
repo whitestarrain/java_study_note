@@ -535,6 +535,41 @@ box.className = "show"
   > <!-- Demo13 -->
   > ```
 
+
+### 1.5.9. ※.与get,set※
+
+- .
+  - set
+    - 对于原本属性
+      > 原本属性在对象中全都有声明，只是值都是默认的，所以在对象中只能修改值
+      - 修改：对应对象以及html中都会修改
+      - 添加：对应对象中数值会修改，对应html中会添加该属性
+    - 对于自定义属性
+      > 自定义属性只能添加，在添加后才能修改
+      - 添加与修改：只会在对象中添加与修改对应键值对，不会在html中体现
+  - get：只能获取到对应对象中有的属性
+- get,setAttribute
+  - set
+    - 对于原本属性
+      - 修改：在html和对象中都会修改
+      - 添加：对应对象中的数值会修改，html中添加该属性
+    - 对于自定义属性
+      - 添加与修改：只在html中添加对应属性，而在对象中不会添加
+  - get:只能获取到对应html标签中有的属性
+
+- removeAttribute()
+  - 原本属性： html中会删除属性键值对，对象中只能移除原本属性的值，而不会移除属性本身
+  - 自定义属性：删除html中的属性键值对，无法对对象中的值进行操作
+
+```html
+总结：
+对于修改
+  对于原本属性，两者进行的修改与添加效果相同
+  对于自定义属性，.只能往对象中加，setAttribute只能往html对应标签中加
+对于查询，.只能查询对象中有的属性，getAttribute只能查询html标签中有的
+对于移除：看上面
+```
+
 ## 1.6. 节点
 
 ### 1.6.1. 节点操作
@@ -1436,6 +1471,19 @@ console.log(box.offsetHeight)
 
 ![1498743216279](media/1498743216279.png)
 
+
+- offset和style.left区别※
+  -  offsetLeft总的来说是获取当前元素距父元素左侧的值 ，具体分两种情况：
+    - 如果当前元素仍在普通流中（即position值为static或者relative），offsetLeft获取的是当前元素距流中父元素左侧的值，包括父元素的padding-left、margin-left、border-left，注：IE下有误差；
+    - 如果当前元素已从普通流中删除，使用了绝对定位absolute或固定定位fixed，offsetLeft获取的是当前元素距已定位的父元素左侧的值，即left+当前元素的margin-left。
+  - style.left获取或设置当前元素相对于已定位的父元素左侧的距离，仅仅是内联样式中的left值；但当元素的position为relative时，style.left指的是相对于该元素在流中原有位置左上角的左边距离。
+  - offsetLeft和style.left的区别
+    - style.left返回值为字符串，如"21px"，offsetLeft返回值为数值，如28；
+    - style.left可获取也可设置，offsetLeft只可读；
+    - style.left需事先在内联样式中定义，否则在js中获取到的值为空。
+
+
+
 ### 1.10.2. 客户区大小
 
 - clientLeft
@@ -1486,7 +1534,7 @@ box.onScroll = function() {
 
 ### 1.10.4. 案例
 
-#### onmousever onmouseenter
+#### 1.10.4.1. onmousever onmouseenter
 
 - onmouseenter onmouseleave 不会触发事件冒泡
 - onmouseover onmouseout 会触发事件冒泡
