@@ -1391,6 +1391,7 @@
 ### 7.5.2. 登陆练习
 
 - 目的：了解并通过 PreparedStatement 来解决 JDBC 注入问题
+
   ```java
   class JDBC_6_Demo2 {
       public static boolean ishasAccount(String username, String password) {
@@ -1432,6 +1433,7 @@
 ### 7.5.3. JDBC 控制事务
 
 - 了解在哪里开启，在哪里提交，在哪里回滚。[](#74-jdbc控制事务)
+
   ```java
   class JDBC_7_Demo1 {
       public static void main(String[] args) {
@@ -1522,6 +1524,7 @@
      > 会不断获取下一个连接
 
 - 代码示例
+
   ```java
   class JDBC_8_Demo1 {
       public static void main(String[] args) throws Exception {
@@ -1574,6 +1577,7 @@
   5. 通过 getConnection 获取连接
 
 - 代码示例
+
   ```java
   class JDBC_9_Demo1 {
       public static void main(String[] args) throws Exception {
@@ -1606,7 +1610,9 @@
 > 某些框架仅需要连接池即可
 
 - 代码
+
   > 不想翻文件了，直接粘过来了
+
   ```java
   public class JDBCDemo9_2_Utils {
       /**
@@ -1624,19 +1630,19 @@
           } catch (Exception e) {
               e.printStackTrace();
           }
-          
+
       }
 
       /*
       复习：
       静态代码块：用staitc声明，jvm加载类时执行，仅执行一次
       构造代码块：类中直接用{}定义，每一次创建对象时执行。
-      执行顺序优先级：静态块,main(),构造块,构造方法。 
+      执行顺序优先级：静态块,main(),构造块,构造方法。
        */
 
       /**
       * 获取连接
-      * 
+      *
       * @throws Exception
       */
       public static Connection getConnection() throws Exception {
@@ -1721,7 +1727,9 @@
    - queryForObject():查寻结果，将结果封装为对象
 
      - 一般用于聚合函数的查寻
+
 - 代码：看文件
+
 ### 7.7.3. 练习
 
 - 注意：要使用 Junit 的话，必须要在 public class 中。一般不会看输出，而看颜色判断是否能成功运行
@@ -2511,6 +2519,7 @@
 ![](./image/servlet--3.jpg)
 
 - servlet 是单实例多线程的，必须谨慎得为 Servlet 设置属性
+  > 每一个访问都会开启一个线程
 - 但可以可以通过 ServletConfig 来获取初始化参数
 
 - 初始化参数
@@ -2976,7 +2985,8 @@
     ```
     - String getParameter（String name）:根据参数名称获取参数值 username=111&password=222
     - String[] getParameterValues(String name)：根据参数名称返回获取参数值的数组(有多个值时使用。复选框时也可以用) hobby=game&hobby=boll
-      > 此时使用 getParameter 也不会报错，但是只会返回一个值
+      > 此时使用 getParameter 也不会报错，但是只会返回一个值.
+      > 通常搭配 checkbox 使用
       ```html
       <form>
         <input type="checkbox" name="hobby" value="game" />游戏
@@ -3506,22 +3516,29 @@ public class SuccessServlet extends HttpServlet {
 
    2. 规则：判断给谁用（判断资源访问请求从谁发出）
       1. 给客户端浏览器使用：用加虚拟目录（项目的访问路径）。**建议虚拟目录动态获取**
+         > 动态获取的虚拟目录前面有/
+         > 可以认为：重定向等的 / 表示：http://服务器ip:端口/
          1. 比如：网页中写的 a 标签跳转路径
          2. 超链接，form 表单路径
          3. 重定向
       2. 给服务器用：不需要加虚拟目录
+         > 可以认为：请求转发的 / 表示：http://服务器ip:端口/项目名
          1. 比如：转发
-      3. 原理：在项目内部默认该项目
    3. 动态访问虚拟路径：
+
       > 针对加有虚拟路径的绝对路径，当虚拟目录发生改变时，会有很多资源无法使用，因此推荐使用动态访问虚拟目录
       > 用在 jsp，重定向中。
+
       ```java
       String cont = resq.getContextPath();//动态获取虚拟目录
       resp.setRedirect(cont+"/login.html");//虚拟路径+资源路径
+
+      //请求转发不需要使用获取虚拟路径
       ```
 
 2. 相对路径(不以/开头)
    > 不可以确定唯一资源
+   > 不管给哪方使用路径写法都相同，都是相对于当前路径跳转
    1. 如：./index.html 其中./可以省略
    2. 规则：确认当前的访问资源和目标资源的相对位置关系
       1. ./代表当前目录；../代表上一级目录
@@ -3546,7 +3563,8 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
 
 <html>
   <head>
-     test
+     <meta charset="utf-8"/>
+     <title>首页</title>
   </head>
   <body>
      hello
@@ -3606,6 +3624,47 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
         1. 当作 OutputStream 就行
   2. 使用输出流，将数据输出到客户端浏览器
 
+> **额外补充**：
+
+```java
+设置响应消息头
+对于一些常用的消息头， HttpServletResponse提供了一些特定的方法
+来进行设置：
+– setContentType(String mime)，设定Content-Type消息头；
+– setContentLength(int length)，设定Content-Length消息头；
+– addHeader(String name,String value)，新增String类型的值到名为name的
+http头部；
+– addIntHeader(String name,int value)，新增int类型的值到名为name的http头
+部；
+– addDateHeader(String name,long date)，新增long类型的值到名为name的
+http头部；
+– addCookie(Cookie c)，为Set-Cookie消息头增加一个值；
+//----------------------------
+创建响应正文
+• 在Servlet中，向客户端输出的响应数据是通过输出流对象来完成的，HttpServletResponse接口提供了两个获取不同类型输出流对象的方法：
+– getOutputStream()，返回字节输出流对象ServletOutputStream；
+• ServletOutputStream对象主要用于输出二进制字节数据。例如，配合setContentType()方法响应输出一个图像、视频
+等。
+– getWriter()，返回字符输出流对象PrintWriter；
+• PrintWriter对象主要用于输出字符文本内容，但其内部实现仍是将字符串转换成某种字符集编码的字节数组后再进行输
+出。
+• 当向ServletOutputStream或PrintWriter对象中写入数据后，Servlet容器会将这些数据作为响应消息的正文，然后再与响应状态行和各响应头组合成完整的响应报文输出到客户端，同时，
+在Serlvet的service()方法结束后，容器还将检查getWriter()或getOutputStream()方法返回的输出流对象是否已经调用过close()方法，如果没有，容器将调用close()方法关闭该输出流对象。
+//----------------------------
+响应输出中文乱码问题
+• 由于Java程序中的字符文本在内存中以Unicode编码的形式存在，因此PrintWriter对象在输出字符文本时，需要先将它们转换成其他某种字符集编码的字节数组后输出。
+• PrintWriter对象默认使用ISO-8859-1字符集进行Unicode字符串到字节数组的转换，由于ISO-8859-1字符集中没有中文字符，因此Unicode编码的中文字符将被转换成无效的字符编码后输出给客户端，这就是Servlet中文输出乱
+码问题的原因。
+• ServletResponse接口中定义了三种方等方法来指定getWriter()方法返回的PrintWriter对象所使用的字符集编码。
+– response.setCharacterEncoding("UTF-8");
+• 只能用来设置PrintWriter输出流中字符的编码方式，它的优先权最高。
+– response.setContentType("text/html;charset=UTF-8");
+• 既可以设置PrintWriter输出流中字符的编码方式，也可以设置浏览器接收到这些字符后以什么编码方式来解码，它的优先权低于第一种方法。
+– response.setLocale(new java.util.Locale("zh","CN"));
+• 只能用来设置PrintWriter输出流中字符的编码方式，它的优先权最低，在已经使用前两种方法中的一个设置了编码方式以后，它将被覆盖而不再
+起作用。
+```
+
 ### 12.13.2. 重定向
 
 - 图解：
@@ -3638,6 +3697,8 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
   }
   ```
 
+### 12.13.3. 重定向和转发对比
+
 > **面试重要题目**
 
 - 重定向（redirect）特点：
@@ -3652,11 +3713,11 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
 > 当需要传递数据时可以使用转发，不需要时使用重定向。
 > 之后还会有很多域对象
 
-### 12.13.3. 案例解析
+### 12.13.4. 案例解析
 
-#### 12.13.3.1. 完成重定向
+#### 12.13.4.1. 完成重定向
 
-#### 12.13.3.2. 服务器输出字符数据到浏览器
+#### 12.13.4.2. 服务器输出字符数据到浏览器
 
 - 获取的 Print 输出流不需要刷新！！
 
@@ -3671,7 +3732,7 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
 
     - 解决原理(在获取流之前)：
 
-      1.  设置编码：`resp.setCharacterEncoding("utf-8")`
+      1.  设置响应编码：`resp.setCharacterEncoding("utf-8")`
 
           > 但因为下面那一个操作中包含 1 操作，所以该行代码也可以不写
 
@@ -3679,7 +3740,7 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
 
     - 简单形式解决：`resp.setContextType("text/html;charset=utf-8")`
 
-#### 12.13.3.3. 服务器数据字节数据到浏览器
+#### 12.13.4.3. 服务器数据字节数据到浏览器
 
 ```java
 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -3691,12 +3752,12 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
   }
 ```
 
-#### 12.13.3.4. 验证码
+#### 12.13.4.4. 验证码
 
 > 这里只是简单地做个演示
 > 实际上以后验证码不需要自己实现，**从网上找找比较美观的就行**
 
-##### 12.13.3.4.1. 主要代码
+##### 12.13.4.4.1. 主要代码
 
 ```java
 @WebServlet("/checkCode")
@@ -3745,7 +3806,7 @@ public class CheckCodeServlet extends HttpServlet {
 
 ```
 
-##### 12.13.3.4.2. 点击刷新的实现
+##### 12.13.4.4.2. 点击刷新的实现
 
 ```html
 <!DOCTYPE html>
@@ -3834,7 +3895,7 @@ public class CheckCodeServlet extends HttpServlet {
   > 在本地工作空间部署的某个项目，当前获取的目录为：D:\learn\IdeaProject\note\out\artifacts\Demo_war_exploded\a.txt
   > ![](./image/servlet-12.jpg)
 
-## 12.15. 文件下载案例
+## 12.15. 客户端下载文件案例
 
 ### 12.15.1. 需求：
 
@@ -3875,6 +3936,7 @@ public class CheckCodeServlet extends HttpServlet {
 - 会话：一次会话中包含多次请求和响应
 
   - 一次会话：浏览器第一次给服务器资源发送请求，会话建立，直到有一方断开为止
+    > 时间限制与 session 失效时间有关
 
 - 目的：在一次会话的范围内的多次请求间共享数据
 
@@ -3890,28 +3952,34 @@ public class CheckCodeServlet extends HttpServlet {
 
 ### 13.2.2. 快速入门：
 
-- 使用步骤
+- 流程示例
 
-  - 客户端创建 cookie 对象，绑定数据
+  - 客户端请求服务端创建 cookie 对象，绑定数据
 
     - Cookie(String name, String value)
 
-      > 内部就是通过 map 的方式存储的
+      > cookie 内部就是通过 map 的方式存储的
 
-  - 客户端发送 cookie 对象
+  - 服务端发送给客户端创建的 cookie 对象
 
     > 添加了 cookie 后以后每次请求中都会带有 cookie
 
     - resp.addCookie(Cookie cookie)
+      > 注意，因为要将 cookie 写到客户端
+      > 所以要使用重定向或其他（比如 getWriter().write,但要注意存储转发时的 cookie 更新时机），返回客户端存储一下 cookie
 
-  - 服务端获取 cookie。
+  - 服务端获取客户端发送的 cookie。
 
     - Cookie[] req.getCookies();
 
+> 流程示例图示：
+> ![](./image/cookie-1.jpg)
+
 ### 13.2.3. 实现原理
 
-> ![](./image/cookie-1.jpg)
-> set-coolie 为响应头；coolie 为请求头
+> **每次请求响应的具体过程** > ![](./image/cookie-base.jpg)
+>
+> set-cookie 为响应头；cookie 为请求头
 > 本地浏览器会把 cookie 保存下来
 > 具体可以自己抓包试试
 
@@ -3920,11 +3988,13 @@ public class CheckCodeServlet extends HttpServlet {
 - 一次可不可以发送多个 cookie
   - 可以
   - 创建多个 cookie 使用 resp.addCookie(String,String)添加
-- cookie 在浏览器中能保存多少时间
-  - 默认情况下，cookie 存在于浏览器内存中，浏览器关闭后，coolie 被销毁
+  - 注意：若 name 和路径都相同的话，值会覆盖。不同路径（比如一个服务器不同项目）的话，name 相同也没问题
+    > ![](./image/session-5.jpg)
+- cookie 在浏览器中能保存多少时间(生命周期)
+  - 默认情况下，cookie 存在于浏览器内存中，浏览器关闭后，coolie 被销毁。浏览器开启时，会一直保存
   - 设置 cookie 声明周期，可以持久化存储
-    - cookie.setMaxAge(int seconds)
-      - 参数为正：持久化存储，将 cookie 数据写入硬盘的文件中。数值代表 cookie 存储时间，到时间后会自动删除
+    - `cookie.setMaxAge(int seconds)`
+      - 参数为正：持久化存储，将 cookie 数据写入硬盘的文件中。数值代表 cookie 存储时间（单位为秒），到时间后会自动删除
       - 参数为负：默认情况，cookie 仅存储在浏览器内存中
       - 参数为 0：删除 cookie 信息
 - cookie 是否能存中文
@@ -3932,31 +4002,126 @@ public class CheckCodeServlet extends HttpServlet {
     - 需要将中文数据转码，一般采用 url 编码，然后再转回来
   - tomcat8 之后，可以存储中文数据。但特殊字符还是不支持（比如空格），建议使用 url 编码存储，使用 url 解码解析
 - cookie 能否共享
+
   - 假设在一个 tomcat 服务器中部署了多个 web 项目，那么这些 web 项目间 cookie 能否共享？
     - 默认情况下，不能共享
-    - cookie.setPath(String path):设置 cookie 的获取范围。默认情况下会设置当前的虚拟目录 "/Demo"
+    - `cookie.setPath(String path)`:设置 cookie 的获取范围。默认情况下会设置当前的虚拟目录 "/Demo"
     - 设置成 "/" ，就是将范围设置为整个 tomcat 服务器，不同项目间可以共享
+    - 也可以将范围设小
   - 不同的 tomcat 服务器间 cookie 共享问题
     - 可以调用 cookie.setDomain(String path)：如果设置一级域名相同，那么多个服务器间 cookie 可以共享
       > www.tieba.baidu.com 一级域名：baidu.com 二级域名：tieba
       > 如果设置 setDomain(".baidu.com") 那么 tieba.baidu.com 和 news.baidu.com 中 cookie 可以共享
 
-### 13.2.5. cookie 的特点
+- 注意：cookie.setValue()后，尽管 cookie 已经添加，依旧需要 response.addcookie(cookie)来放到响应头中，更新客户端的 cookie。
+  - 因为如果不放的话 cookie 就发送不到客户端
+  - request 只是将 cookie 从客户端带到服务端
+  - 想要更新客户端的话需要将数据从服务端通过 response 带到客户端
 
-1. cookie 存储数据在客户端和服务器
+### 13.2.5. uri 解码编码
+
+- 使用：URLEncoder 对象中的静态方法
+
+- 例：
+
+```java
+
+/**
+ * @author liyu
+ */
+@WebServlet("/CookieServletDemo")
+public class CookieServletDemo extends HttpServlet {
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Cookie[] cookies = request.getCookies();
+        response.setContentType("text/html;charset=utf-8");
+        //记录是否有登录时间的cookie
+        boolean flag=false;
+
+        if (cookies!=null&&cookies.length>0) {
+            for (Cookie cookie : cookies) {
+                if("lastTime".equals(cookie.getName())){
+                    flag=true;
+                    //获取上次登录时间（编码后的数据）
+                    String strDate = cookie.getValue();
+                    //url解码
+                    strDate= URLDecoder.decode(strDate, StandardCharsets.UTF_8);
+                    //页面展示
+                    response.getWriter().write("<h1>您好，您上次访问时间为："+strDate+"</h1>");
+
+                    //更新cookie
+
+                    Date date = new Date();
+                    SimpleDateFormat sdf = new SimpleDateFormat();
+                    sdf.applyPattern("yyyy年MM月dd日 HH:mm:ss");
+                    //获取日期字符串
+                    String fdate = sdf.format(date);
+                    //对字符串进行编码
+                    fdate = URLEncoder.encode(fdate, StandardCharsets.UTF_8);
+                    //更新cookie值
+                    cookie.setValue(fdate);
+                    //注意：设置值后必须重新添加来更新
+                    response.addCookie(cookie);
+                    break;
+                }
+            }
+        }
+        if(!flag){
+            //添加cookie
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat();
+            sdf.applyPattern("yyyy年MM月dd日 HH:mm:ss");
+            String fdate = sdf.format(date);
+            //进行编码
+            fdate = URLEncoder.encode(fdate, StandardCharsets.UTF_8);
+            Cookie cookie = new Cookie("lastTime",fdate);
+            cookie.setMaxAge(60*60*24*30);
+            response.addCookie(cookie);
+
+            //展示页面。同时也会将新的cookie值给客户端进行更新
+            response.getWriter().write("<h1>您好，欢迎您首次访问</h1>");
+
+        }
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        this.doPost(request, response);
+    }
+}
+
+```
+
+### 13.2.6. cookie 的特点
+
+1. cookie 存储数据在客户端
 
    - 客户端 cookie 数据容易丢失和篡改
 
-2. 浏览器对于单个 cookie 的大小有限制（4kb 左右），对同一个域名下 cookie 的数量也有限制（20 个左右）
+2. 大小有限制：
+
+   - 浏览器对于单个 cookie 的大小有限制（4kb 左右）
+   - 对同一个域名下 cookie 的数量也有限制（20 个左右）
+   - 一个浏览器存放 cookie 数量也有限制（300 个左右）
 
    > 不同浏览器可能不同
 
+3. cookie 只能存储字符串
+
 - 作用：
 
-  1. cookie 一般用于存储少量的不太敏感重要的数据
-  2. 在不登录的情况下完成服务器对客户端的身份识别
+  - cookie 一般用于存储少量的不太敏感重要的数据
+  - 在不登录的情况下完成服务器对客户端的身份识别
 
-     > 比如百度搜索页面关闭搜索提示框，就算不登录也可以记录设置选项
+  > 比如百度搜索页面关闭搜索提示框，就算不登录也可以记录设置选项
+
+- 局限性：
+  > Cookie 的缺点主要集中在其安全性和隐私保护上，主要包括以下几种：
+  - Cookie 可能被禁用，当用户非常注重个人隐私保护时，很可能会禁用浏览器的 Cookie 功能；
+  - Cookie 可能被删除，因为每个 Cookie 都是硬盘上的一个文件，因此很有可能被用户删除；
+  - Cookie 的大小和个数受限，不同浏览器有所区别，基本上单个 Cookie 保存的数据不能超过 4095 个字节，50 个/每个域名；
+  - Cookie 安全性不够高，所有的 Cookie 都是以纯文本的形式记录于文件中，因此如果要保存用户名密码等信息时，最好事先经过加密处理。
 
 ## 13.3. cookie 案例
 
@@ -3986,16 +4151,26 @@ public class CheckCodeServlet extends HttpServlet {
 ### 13.4.1. 概念：
 
 - 服务器端会话技术，在**一次会话**的多次请求间共享数据，不需要请求转发，将数据保存在服务端的对象 HttpSession 中
+  > 在当 session 失效之前，所有的请求和响应属于一次会话
 
 ### 13.4.2. ※原理※：
 
 - session 也是一个域对象（HttpServletRequest，ServletContext）。session 的实现是依赖于 cookie 的
 
+  > 单个客户端流程：
   > ![](./image/session-1.jpg)
+  > 多个客户端流程：
+  > ![](./image/session-6.jpg)
+
+
 
 ### 13.4.3. 快速入门
 
 - 获取 session：request.getSession();
+  - 重载：getSession(boolean)
+    > 获取与客户端请求关联的当前的有效的Session，若没有Session关联，当参数为真时，Session被新建，为假时，返回空值
+    - true:即默认
+    - false:没有对应session，不会自动创建，返回null
 - 设置共享数据：session.setAttribute()
 - 在其他 servlet 中：request.getSeesion().getAttribute()
 
@@ -4004,11 +4179,11 @@ public class CheckCodeServlet extends HttpServlet {
 1. 当客户端关闭后，服务器不关闭，两次获取 session 是否为同一个
 
    - 默认情况下不是
-   - 如果想要相同：添加一个键为 JSESSIONID 的 cookie 保存 seesion 的 id（也 是更新 cookie）
+   - 如果想要相同：添加一个键为 JSESSIONID 的 cookie 保存 seesion 的 id（也就是覆盖 cookie）,然后设置存货时间。
 
      > ![](./image/session-2.jpg)
 
-2) 客户端不关闭，服务器关闭后，两次获取的 session 是否为同一个
+2. 客户端不关闭，服务器关闭后，两次获取的 session 是否为同一个
    - 不是同一个，分配的 id 基本不可能相同。但很多情况下要确保数据不丢失（比如购物车，服务器重启后也不能变）
    - session 的钝化和活化：
      > tomcat 已经帮助完成了。tomcat 在服务器正常关闭时会将 session 对象序列化到 tomcat 服务器的 work 目录下。再此开启后会读取该文件并自动删除
@@ -4017,7 +4192,7 @@ public class CheckCodeServlet extends HttpServlet {
      > 原因是 idea 会在服务器启动时，将配置文件夹里的 work 目录删掉，再重新创建一个 work 目录，其中的 session 文件已经被删除了
      - 钝化：在服务器关闭之前，将 session 序列化到硬盘上
      - 活化：在服务器关闭后，将 session 序列化文件转化到内存中
-3) seesion 什么时候销毁
+3. seesion 什么时候销毁
 
    1. 服务器关闭
    2. session 对象调用 invalidate();
@@ -4025,7 +4200,7 @@ public class CheckCodeServlet extends HttpServlet {
       > tomcat 服务器中 web.xml 中可以配置
       > ![](./image/session-3.jpg)
 
-4) 特点：
+4. 特点：
 
    1. session 用于存储一次会话的多次请求的数据，存在于服务端
    2. session 可以存储任意类型，任意大小的数据
@@ -4480,7 +4655,7 @@ public class CheckCodeServlet extends HttpServlet {
     </c:foreach>
     ```
 
-## 综合案例（用户信息管理）
+## 14.7. 综合案例（用户信息管理）
 
 - 简单功能
   - 登录
@@ -4493,7 +4668,18 @@ public class CheckCodeServlet extends HttpServlet {
     > ![](./image/anli-3.jpg)
 - 复杂功能
   - 删除选中
+    > ![](./image/anli-4.jpg)
   - 列表分页
+    - 好处：
+      - 减轻服务器内存开销
+      - 提升用户体验
+    - 原理：
+      > ![](./image/anli-5.jpg) > ![](./image/anli-6.jpg)
   - 条件（组合）查询
+    > ![](./image/anli-7.jpg)
 
-## 14.7. 三层架构
+* 学到的小技巧：
+
+  - hidden 的 input 存储数据
+
+## 14.8. 三层架构
