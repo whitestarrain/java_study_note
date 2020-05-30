@@ -1811,7 +1811,7 @@
          1. 取值：
             1. yes：不依赖其他文件（但尽管 yes 也能以来其他文件）
             2. no：依赖其他文件（约束）
-   1. 指令（了解）
+   1. 指令 ������ 了解）
       1. 相当于 css，现在基本不用
    1. 标签
       1. 命名规则
@@ -2064,7 +2064,7 @@
   - logs\：存放日志文件
   - temp\：存放临时数据
   - webapps\：存放 web 项目
-  - work\：存放运行时数据。之后学 jsp 后再看
+  - work\：存放运行时数据。之后学 jsp 后再看，存放翻译和编译文件
 - 启动：双击 bin 下的 startup.bat
 
   > 其实以后不常用这种方式，因为有 ide
@@ -2466,6 +2466,8 @@
 
 - 阶段：
   - 实例化阶段 调用构造方法实现
+    - Servlet实现类本身就是一个java类，编译器会自动生成一个默认的空构造函数。所以也可以自己写一个空参的构造函数，完成一些操作
+    - 但是千万不要只写带参的构造函数，这样服务器就没办法自动创建Servlet实现类，服务器也会报错
   - 初始化阶段 调用 init 方法
   - 请求处理阶段调用 service 方法，根据用户请求的方式调用 doGet 或 doPost 方法
   - 销毁阶段 调用 destroy 方法
@@ -2944,9 +2946,6 @@
 
       //获取字节输入流,可以操作所有类型的数据。返回值当作InputStream使用就行，因为它继承了InputStream （在文件上传中再进行讲解）
       ServletInputStream getInputStream();
-      ```
-
-
       //----------------------------------------------------------------------
       @WebServlet("/demo5")
       public class ServletTest3 extends HttpServlet {
@@ -2968,7 +2967,6 @@
           }
 
       }
-
       //结果为：username=131&passowrd=231312
       //和get方式中的格式相同
       ```
@@ -3708,7 +3706,7 @@ http头部；
 - 转发（forward）特点：
   - 转发地址栏路径不变
   - 转发之访问当前服务器下资源
-  - 转发是一次请求
+  - 转发是一次请求，可以使用request域共享数据
 
 > 当需要传递数据时可以使用转发，不需要时使用重定向。
 > 之后还会有很多域对象
@@ -3831,19 +3829,58 @@ public class CheckCodeServlet extends HttpServlet {
 </html>
 ```
 
-## 12.14. ServletContext
+## 12.14. 跳转与转发代码执行时机
 
-### 12.14.1. 基本
+> 例：
+
+```java
+//重定向前循环sleep五秒
+for (int i = 0; i < 5; i++) {
+    System.out.println("before redirect:" + i);
+    try {
+        Thread.sleep(1000);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+}
+
+//重定向
+response.sendRedirect("result.jsp");
+
+//重定向后循环sleep五秒
+for (int i = 0; i < 5; i++) {
+    System.out.println("after redirect:" + i);
+    try {
+        Thread.sleep(1000);
+    } catch (InterruptedException e) {
+        e.printStackTrace();
+    }
+}
+```
+
+- Servlet 中,重定向之后的代码是否会继续执行? 重定向是在所有代码执行完毕后跳转,还是执行到重定向代码时立即跳转?
+  - 重定向之后的代码会继续执行
+  - 当前程序所有代码执行完毕后,才会执行重定向跳转
+  - 但重定向之后,加上 return,可让之后的代码不再执行
+- 与重定向一样,转发之后的代码也会执行,所有代码执行完毕才跳转
+- jsp 的本质就是 Servlet,所以 jsp 页面执行转发或者重定向,以上结论同样适用
+
+
+
+## 12.15. ServletContext
+
+### 12.15.1. 基本
 
 - 概念：代表整个 web 应用，可以和 Servlet 程序的容器（tomcat）进行通信
+- 创建时间:服务器启动时被创建
 - 获取：
   - 方式（获取到的对象是同一个，地址也相等）：
     - 通过 request 对象获取：`requ.getServletContext()`
     - 通过 HttpServlet 获取：`this.getServletContext()` //继承了 HttpServlet
 
-### 12.14.2. 功能
+### 12.15.2. 功能
 
-#### 12.14.2.1. 获取 MIME 类型
+#### 12.15.2.1. 获取 MIME 类型
 
 - MIME：
 
@@ -3861,7 +3898,7 @@ public class CheckCodeServlet extends HttpServlet {
 
   ```
 
-#### 12.14.2.2. ServletContext 域对象
+#### 12.15.2.2. ServletContext 域对象
 
 - 方法：
   - setAttribute(String name,Object value)
@@ -3873,7 +3910,7 @@ public class CheckCodeServlet extends HttpServlet {
     - 作用域很大并且并且生命周期很长
     - 因此使用很谨慎
 
-#### 12.14.2.3. 获取文件的真实（服务器）路径
+#### 12.15.2.3. 获取文件的真实（服务器）路径
 
 - 原因：
   ![](./image/Servlet-11.jpg)
@@ -3895,22 +3932,22 @@ public class CheckCodeServlet extends HttpServlet {
   > 在本地工作空间部署的某个项目，当前获取的目录为：D:\learn\IdeaProject\note\out\artifacts\Demo_war_exploded\a.txt
   > ![](./image/servlet-12.jpg)
 
-## 12.15. 客户端下载文件案例
+## 12.16. 客户端下载文件案例
 
-### 12.15.1. 需求：
+### 12.16.1. 需求：
 
 - 页面显示超链接
 - 点击超链接后弹出下载页面
 - 完成图片文件下载
 
-### 12.15.2. 分析
+### 12.16.2. 分析
 
 - 超链接指向的资源如果能被浏览器解析，就会在浏览器中展示，比如图片，如果不能解析，则弹出下载提示框。
 - 需求：任何资源都必须弹出下载提示框
 - 使用响应头设置资源打开方式为附件
   - content-disposition:attachment;filename=xxx
 
-### 12.15.3. 步骤：
+### 12.16.3. 步骤：
 
 - 定义页面，编辑超链接 href 属性，指向 servlet，并传递资源名称作为参数
 - 定义 servlet
@@ -3920,7 +3957,7 @@ public class CheckCodeServlet extends HttpServlet {
   - 指定 response 的响应头：content-disposition:attachment;filename=xxx
   - 将数据写到 response 输出流
 
-### 12.15.4. 中文文件名展示问题
+### 12.16.4. 中文文件名展示问题
 
 - 描述：不同浏览器现实的中文名称都会乱码，并且乱码内容不同
 - 解决：
@@ -3929,22 +3966,28 @@ public class CheckCodeServlet extends HttpServlet {
 
 > 因为新版 jdk 中没有 sun.misc.BASE64Encoder，所以 util 文件暂时无法使用，解决方式待定
 
-# 13. 会话技术
+# 13. Servlet 会话技术
 
 ## 13.1. 基本概念
 
 - 会话：一次会话中包含多次请求和响应
 
   - 一次会话：浏览器第一次给服务器资源发送请求，会话建立，直到有一方断开为止
-    > 时间限制与 session 失效时间有关
+    > cookie 和会话关系不太大。
+    > 一次会话的时间段，就是浏览器和 session 一一对应没有失效的时间段。
+    >
+    > 具体看后面
 
 - 目的：在一次会话的范围内的多次请求间共享数据
 
   > http 协议是无状态的，每对请求与响应之间要通过会话技术进行交流
 
 - 分类：
+
   - 客户端会话技术：cookie
   - 服务器端会话技术：session
+
+- 设计这方面编程时，要一个请求一个响应得想
 
 ## 13.2. cookie
 
@@ -3996,7 +4039,7 @@ public class CheckCodeServlet extends HttpServlet {
     - `cookie.setMaxAge(int seconds)`
       - 参数为正：持久化存储，将 cookie 数据写入硬盘的文件中。数值代表 cookie 存储时间（单位为秒），到时间后会自动删除
       - 参数为负：默认情况，cookie 仅存储在浏览器内存中
-      - 参数为 0：删除 cookie 信息
+      - 参数为 0：**删除** cookie 信息
 - cookie 是否能存中文
   - tomcat8 之前，cookie 中不能直接存储中文数据
     - 需要将中文数据转码，一般采用 url 编码，然后再转回来
@@ -4123,6 +4166,17 @@ public class CookieServletDemo extends HttpServlet {
   - Cookie 的大小和个数受限，不同浏览器有所区别，基本上单个 Cookie 保存的数据不能超过 4095 个字节，50 个/每个域名；
   - Cookie 安全性不够高，所有的 Cookie 都是以纯文本的形式记录于文件中，因此如果要保存用户名密码等信息时，最好事先经过加密处理。
 
+### 13.2.7. url重写
+
+> 在禁用cookie时使用该方式传递session的id信息。不过现在基本上不会禁用cookie，用的也很少了
+
+- ` response.sendRedirect(response.encodeURL("GetSessionServlet")) `
+  > 在url上拼接response中设置的cookie信息，重定向到GetSessionServlet时会携带cookie信息
+- sendRedirect实现原理，为何时get方式，能否通过Filter改为post方式
+
+- `	encodeRedirectURL(String url)`非通用，记住上面那个就行了
+
+
 ## 13.3. cookie 案例
 
 - 记住上一次访问时间
@@ -4151,7 +4205,7 @@ public class CookieServletDemo extends HttpServlet {
 ### 13.4.1. 概念：
 
 - 服务器端会话技术，在**一次会话**的多次请求间共享数据，不需要请求转发，将数据保存在服务端的对象 HttpSession 中
-  > 在当 session 失效之前，所有的请求和响应属于一次会话
+  > 在浏览器不关闭（JSESSIONID 不失效）以及 session 失效之前，所有的请求和响应属于一次会话
 
 ### 13.4.2. ※原理※：
 
@@ -4162,24 +4216,30 @@ public class CookieServletDemo extends HttpServlet {
   > 多个客户端流程：
   > ![](./image/session-6.jpg)
 
-
-
 ### 13.4.3. 快速入门
 
 - 获取 session：request.getSession();
   - 重载：getSession(boolean)
-    > 获取与客户端请求关联的当前的有效的Session，若没有Session关联，当参数为真时，Session被新建，为假时，返回空值
+    > 获取与客户端请求关联的当前的有效的 Session，若没有 Session 关联，当参数为真时，Session 被新建，为假时，返回空值
     - true:即默认
-    - false:没有对应session，不会自动创建，返回null
+    - false:没有对应 session，不会自动创建，返回 null
+      > **常用来判断是否过期**
 - 设置共享数据：session.setAttribute()
 - 在其他 servlet 中：request.getSeesion().getAttribute()
+- 其他方法：
+  - 设置 HttpSession 对象失效，同时也会解绑：void invalidate()
+  - 设置非活动失效时间（单位为秒）：void setMaxInactiveInterval(int interval)
+  - 获取非活动失效时间：int getMaxInactiveInterval()
+  - 获取 HttpSession 对象标识 sessionid：String getId()
+  - 获取 HttpSession 对象产生的时间，单位是毫秒：long getCreationTime()
+  - 获取用户最后通过这个 HttpSession 对象送出请求的时间：long getLastAccessedTime()
 
 ### 13.4.4. session 细节
 
 1. 当客户端关闭后，服务器不关闭，两次获取 session 是否为同一个
 
    - 默认情况下不是
-   - 如果想要相同：添加一个键为 JSESSIONID 的 cookie 保存 seesion 的 id（也就是覆盖 cookie）,然后设置存货时间。
+   - 如果想要相同：添加一个键为 JSESSIONID 的 cookie 保存 seesion 的 id（也就是覆盖客户端 cookie）,然后设置存活时间。
 
      > ![](./image/session-2.jpg)
 
@@ -4196,14 +4256,18 @@ public class CookieServletDemo extends HttpServlet {
 
    1. 服务器关闭
    2. session 对象调用 invalidate();
-   3. session 默认失效时间：30 分
-      > tomcat 服务器中 web.xml 中可以配置
-      > ![](./image/session-3.jpg)
+   3. session 默认非活动时间后失效：30 分
+    > 范围越小优先级越高
+    - tomcat 服务器中 web.xml 中可以配置（分为单位）
+      - ![](./image/session-3.jpg)
+    - 项目中如果有web.xml也可以配置（分为单位）
+    - setMaxInactiveInterval(int interval)（秒为单位）
 
 4. 特点：
 
    1. session 用于存储一次会话的多次请求的数据，存在于服务端
    2. session 可以存储任意类型，任意大小的数据
+   3. session 可以存中文。
 
 - session 与 cookie 区别：
   - session 存储数据在服务器端，而 cookie 在客户端
@@ -4234,6 +4298,17 @@ public class CookieServletDemo extends HttpServlet {
   - 用于简化书写
 
     > 比如之前 上次访问时间 那是动态生成的，将那句话插入 html 页面，就需要 jsp 技术来简化编写
+- 组成元素：
+  - 种类：
+    - jsp脚本
+    - jsp指令
+    - jsp动作（基本不再使用，使用el表达式替代）
+    - jsp注释
+    - 内置对象
+    - 静态内容（html标签）
+  - 图解：
+    > ![](./image/jsp-4.jpg)
+
 
 - 原理：
 
@@ -4245,11 +4320,12 @@ public class CookieServletDemo extends HttpServlet {
 
     - jsp 本质上就是一个 servlet
     - 在访问 jsp 时，项目配置文件夹下会产生一个 work 文件夹，用来存放临时生成文件，里面存放着 java 和 class 文件
-
       > 自己手动找找去
+      - 其中 java 文件继承了 HttpJspBase 类（tomcat 服务器源码中），而 HttpJspBase 继承的 HttpServelt 类
+      - 同时该 java 文件会将 html 标签通过输出流输出到客户端
+    - 第一次访问时会翻译为java文件，然后再编译为class文件。
+    - 之后访问时会直接使用class文件
 
-    - 其中 java 文件继承了 HttpJspBase 类（tomcat 服务器源码中），而 HttpJspBase 继承的 HttpServelt 类
-    - 同时该 java 文件会讲 html 标签通过输出流输出到客户端
 
 - jsp 脚本
 
@@ -4258,8 +4334,34 @@ public class CookieServletDemo extends HttpServlet {
 
     1. <% %>
 
-       > 里面的代码在 service 方法中，service 方法中可以定义什么，该脚本就可以定义什么
+       > 里面的代码在 **service 方法**中，service 方法中可以定义什么，该脚本就可以定义什么。
+       > **注意**：java代码可以在不同<% %>中定义，就算一个大括号被分开，也没关系。所有<% %>为一个整体
+      - 代码截断示例：
+        ```jsp
+        <%
+            if ("abc".equals(user.getName())) {
+        %>
+        <%="您好" + user.getName()%>
 
+        <%
+        } else {
+        %>
+        <%="错误"%>
+        <%
+            }
+        %>
+        <!-- 翻译为： -->
+        ```
+        ```java
+         if ("abc".equals(user.getName())) {
+            out.write("/n")
+            out.write("您好"+user.getName)
+            out.write("/n")
+         }else{
+            out.write("/n")
+            out.write("错误")
+         }
+        ```
     2. <%! %>
        > 定义的代码在转换类中的成员位置，可以定义成员变量，方法，静态代码块等
        > 用的非常少，Servlet，jsp 中尽量不要定义成员变量，这样可能会引发一些线程安全问题（共同访问，修改时访问等）
@@ -4314,8 +4416,9 @@ public class CookieServletDemo extends HttpServlet {
           - 当标注为 true 时，可以使用 exception 对象，用来抓异常，从哪跳转来的抓哪的，通常会写入日志文件。检查 bug 时很有用
 
     - include：导入页面资源文件，将其他页面导入到指定 jsp 中。
-      > 使用较少
-      > `<%@ incllue file="index.jsp" %>`
+      > 比如用来重用动态的页眉，顶部菜单等。
+      > 使用较少。
+      > `<%@ incllue file="foot.jsp" %>`
     - taglib：导入资源
       > 一般用来导入标签库（比如后面的 JSTL）
       - `<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>`
@@ -4326,7 +4429,8 @@ public class CookieServletDemo extends HttpServlet {
 
     > ![](./image/page-1.jpg)
 
-- jsp 注释
+- jsp 注释：
+  > 脚本中就是java代码，用java注释。而且生成的页面中注释不会被看见
   - html 注释：\<!-- 注释内容 -->
     - 只能注释 html 代码片段。
     - 客户端网页源代码中可以看见
@@ -4342,6 +4446,7 @@ public class CookieServletDemo extends HttpServlet {
   - 四个域对象
 
     - pageContext ····PageContext····当前页面共享数据。以及它的一些方法可以获取其他 8 个内置对象
+      > 使用jsp动作元素时可能会用
     - request ····HttpServletRequest····一次请求访问的多个资源（通过转发来共享）
     - session ····HttpSession····一个会话的多个请求间
     - application ····ServletContext ····所有用户间共享数据
@@ -4424,7 +4529,7 @@ public class CookieServletDemo extends HttpServlet {
 
         - \${域名称.键名}：从指定域中获取指定键的值
           - 域名称
-            > el 中域名称及对应 jsp 内置对象
+            > el 中域名称及对应 jsp 内置对象。**注意：**el中的域对象只能使用getAttribute方法，而jsp内置对象就是普通对象
             - pageScope-->pageContext
             - requestScope-->request
             - sessionScope-->session
@@ -4538,6 +4643,7 @@ public class CookieServletDemo extends HttpServlet {
     ```
     JSTL并没有提供设定cookie的动作，
     例：要取得cookie中有一个设定名称为userCountry的值，可以使用${cookie.userCountry}来取得它。
+    相当于遍历request.getCookies()找到指定cookie的值
     ```
 
   - header 和 headerValues
@@ -4570,6 +4676,16 @@ public class CookieServletDemo extends HttpServlet {
     ${pageContext.session.id}               取得session 的ID
     ${pageContext.servletContext.serverInfo}   取得主机端的服务信息
     ```
+
+- jsp标准动作:
+  ```
+  JSP标准动作、EL表达式和JSTL（JSP Standard Tag Library）都是为了实现JSP页面无脚本而提供的技术，使View层和Controller层真正分开。
+  Java提供了JSP标准动作来实现在JSP页面中调用JavaBean。
+  但是JSP标准动作不是万能的。JSP页面只依靠JSP标准动作是做不到页面无脚本的
+  从JSP2.0之后，可以使用EL表达式来处理这样的问题
+  jsp标准动作已经很少用了。
+  ```
+
 
 ## 14.6. JSTL 标签
 
@@ -4683,3 +4799,691 @@ public class CookieServletDemo extends HttpServlet {
   - hidden 的 input 存储数据
 
 ## 14.8. 三层架构
+
+# 15. Filter
+
+## 15.1. 基本
+
+- web 过滤器：当访问服务器资源时，过滤器可以把请求拦截下来，完成一些特殊的功能：
+  - 一般用于完成通用操作
+    - 登录验证
+    - 统一 uri 编码处理
+    - 敏感字符过滤
+- 快速入门
+  1. 定义一个类实现 Filter 接口（javax.Servlet.Filter）
+  2. 复写方法
+  3. 配置拦截路径
+     > @WebFilter()
+  4. 放行：`filterChain.doFilter(servletRequest,servletResponse)`
+
+## 15.2. 细节
+
+### 15.2.1. web.xml 配置
+
+> 和 servlet 配置基本相同
+
+```xml
+<!-- 例： -->
+<filter>
+    <filter-name>demo1</filter-name>
+    <filter-class>cn.itcast.web.filter.FilterDemo1</filter-class>
+</filter>
+<filter-mapping>
+    <filter-name>demo1<filter-name>
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+### 15.2.2. 执行流程
+
+> 图解：
+> ![](./image/filter-1.jpg)
+
+```java
+@WebFilter("/*")
+public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException{
+    //对request对象请求消息增强
+    System.out.println("filterDemo2执行了....");
+
+    //放行
+    chain.doFilter(req,resp);
+
+    //资源访问完毕，从这里开始继续执行
+    //对response对象的响应消息增强
+    System.out.println("filterDemo2回来了...");
+}
+```
+
+1. 执行过滤器
+2. 放行，获取后指向的资源
+3. 回来执行过滤器放行代码下的代码
+
+> **注意：在一次请求中， Filter 和 Servlet 的 Request 对象是同一个**
+
+### 15.2.3. 生命周期
+
+- init()
+  - 在服务器启动时会创建 Filter 对象，然后调用 init 方法。
+  - 一般用于加载资源
+- doFilter()
+  - 每一次请求被拦截资源时会执行。因此会多次执行
+  - 进行逻辑性操作
+- destory()
+  - 服务器关闭后，Filter 对象被销毁，如果服务器正常关闭，则会正常执行 destory 方法
+  - 一般用来释放资源
+
+### 15.2.4. 配置详解
+
+- 拦截路径配置
+  - 具体资源路径：/index.jsp
+    > 只拦截指定资源，用的比较少
+  - 目录拦截：/user/\*
+    > 拦截/user/下的所有资源
+  - 后缀名拦截：\*.jsp
+    > 访问所有指定后缀名资源时。**注意没有/**
+  - 拦截所有资源：/\*
+    > 拦截项目下所有资源
+- 拦截方式配置：资源被访问的方式
+
+  - 种类
+    - 请求
+    - 转发
+  - 配置方式：
+
+    - xml：设置`<dispacher></dispacher>`标签即可
+    - 注解：设置 dispacherTypes 属性
+
+      > 可以配置多个值 @WebFilter(value="/\*",dispatcherTypes={DispacherType.FORWOARD,DispacherType.REQUEST})
+
+      - REQUEST：默认值。浏览器直接请求资源
+      - FORWOARD：转发访问资源
+      - INCLUDE：包含访问资源
+      - ERROR：错误跳转资源
+      - ASYIC：异步访问资源
+
+### 15.2.5. 过滤器链
+
+- 如果有两个过滤器，执行顺序：
+  - 过滤器 1 前部分
+  - 过滤器 2 前部分
+  - 资源
+  - 过滤器 2 后部分
+  - 过滤器 1 后部分
+- 过滤器先后问题：
+  - 注解配置：按照类名的字符串比较规则，较小的先执行
+  - web.xml 配置：filter-pattern 谁配置在上面，谁先执行
+
+## 15.3. 案例
+
+### 15.3.1. 案例需求
+
+- 登录验证：
+  - 访问资源，验证是否登录
+  - 登录了就放行
+  - 没有登录就跳转到登陆界面，提示您未登录，请先登录
+  - 图解：
+    > ![](./image/filter-2.jpg)
+  - 注意：
+    - request 对象一般会做个强转，强转成 HttpServlet 类型
+    - 注意 css 和 js，图片，验证码等资源的过滤
+- 敏感词汇过滤（看完下面代理模式再过来）
+  > 通过动态代理
+  - 需求：将指定词汇替换为\*\*
+  - 步骤：
+    - Filter 的 init()中读取敏感词汇文件存入数组
+      - 注意：本地创建的字符输入流默认编码为系统默认编码，注意文件编码
+    - 增强 getParameter 方法，对比数组，对返回值进行修改（也就是通过`if(method.getName().equals("getParameter"))`判断函数名来指定函数。）
+      > 这样任何地方调用该方法都会对该方法的返回值进行处理
+      > 注意还有 getParameterMap 和 getParameterValues 方法
+    - 获得对应代理对象
+    - 将代理对象对象放行
+
+### 15.3.2. 代理模式
+
+> 推荐阅读：https://blog.csdn.net/briblue/article/details/73928350
+
+- 静态代理：有类文件来对应代理类。只能产生固定接口的代理
+  > 用的比较少
+  > 图解
+  > ![](./image/proxy-1.jpg)
+- 动态代理：在内存中生成代理类。Proxy 能够动态产生不同接口类型的代理
+
+  > **重要**。用的比较多。很多框架也是用动态代理
+
+  - 图解：
+    > ![](./image/proxy-3.jpg)
+  - 实现步骤：
+
+    - 使用 Proxy.newProxyInstance()获取代理对象
+      - 三个参数：
+        - 类加载器：real.getClass()
+        - 接口数组：real.getClass().getInterfaces()
+          > 这样返回的代理对象和真实对象实现同一接口
+        - 处理器(InvocationHandler 实现类或者匿名类)
+          - 接口方法：invoke(){代理逻辑编写}：代理对象调用的所有方法都会触发该方法执行。同时拦截方法的执行，在内部可以通过 method.invode(object,args)的方式执行
+            - 三个参数：
+              - proxy:前面获取的代理对象
+              - method：调用接口方法时，那个方法就会被封装传到这里。也就是代理对象调用方法的封装对象
+              - args：代理对象调用方法时传入的参数
+    - 在 invoke 函数中进行增强方法
+      - 增强参数列表：对参数进行处理，比如倍率处理等等
+      - 增强返回值类型：对返回结果进行处理
+      - 增强方法体执行逻辑：在方法执行前进行其他逻辑操作
+    - 使用代理对象调用方法
+
+  - 代码示例；
+
+    ```java
+    @WebFilter(value={"/PageListServlet", "/SearchServlet"},dispatcherTypes={DispatcherType.FORWARD,DispatcherType.REQUEST})
+    public class ParameterFilter implements Filter {
+        @Override
+        public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws ServletException,
+                IOException {
+
+            ServletRequest proxy = (ServletRequest) Proxy.newProxyInstance(req.getClass().getClassLoader(), new Class[]{HttpServletRequest.class},
+                    new InvocationHandler() {
+                  // 不知道为啥req.getClass().getInterfaces()无法获得接口，所以凑活直接写上去接口的class了
+                @Override
+                public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
+                    // 因为是小项目就没有把这些数值存入文件，为了可扩展性最好把信息存入配置文件
+                    Object result = method.invoke(req, objects);
+                    if ("getParameter".equals(method.getName())) {
+                        System.out.println(objects[0]);
+                        if ("row".equals(objects[0].toString())) {
+                            return result != null ? result : "5";
+                        }
+                        if ("currentPage".equals(objects[0].toString())) {
+                            if (result == null) {
+                                return "1";
+                            } else if (Integer.parseInt(result.toString()) <= 0) {
+                                return "1";
+                            }
+                        }
+                    }
+                    return result;
+                }
+            });
+            chain.doFilter(proxy, resp);
+        }
+
+        @Override
+        public void init(FilterConfig config) throws ServletException {
+
+        }
+
+        @Override
+        public void destroy() {
+
+        }
+    }
+
+    ```
+
+# 16. Listener
+
+> 用的很少。这里只说一个监听接口，其他自己查查文档
+
+- 概念：web 三大组件之一
+
+  > servlet Filter Listener
+
+  - 事件监听机制
+    - 事件：一个动作
+    - 事件源：事件发生地方
+    - 监听器：一个对象
+    - 注册监听：将事件源和监听器绑定在一起。当事件源上发生某个事件后执行监听器代码
+
+- ServletContextListener 接口
+
+  > 监听 ServletContext 对象的创建和销毁
+
+  - void contextInitialized(ServletContextEvent sce)
+    > ServletContext 创建时执行。也就是服务器启动时执行。
+    > 一般用来加载文件。
+    > 通过 ServletContextEvent 对象可以获得 ServletContext 对象。然后指定固定路径或者配置上下文参数来资源指定路径。
+    > 然后通过 ServletContext 获取真实（全部）路径
+  - void contextDestroyed(ServletContextEvent sce)
+    > ServletDestoryed 销毁时执行。也就是服务器正常关闭时执行。
+
+- 使用流程
+  > 以后用框架开发的话，不需要这么麻烦
+  - 定义一个类，实现 ServletContextServlet 接口
+  - 实现方法
+  - 配置
+    - web.xml
+      ```xml
+      <listener>
+        <listener-class>web.listener.TestListener</listener-class>
+      </listener>
+      ```
+    - 注解:直接在类上写一个：`@WebListener`即可
+
+# 17. JQuery
+
+> 最好查文档去
+
+## 17.1. 基础概念
+
+> 注：$ 和 jquery 作用相同
+
+- 概念：
+
+  - jQuery 就是 JavaScript 语法写的一些函数，内部仍然是调用 JavaScript 实现的，所以并不是代替 JavaScript 的。使用 jQuery 的代码、编写 jQuery 的扩展插件等仍然需要 JavaScript 的技术，jQuery 本身就是一堆 JavaScript 函数。
+  - 为的是简化开发，增强代码兼容性
+
+- 版本说明：
+
+  - 三大版本
+    - 1.x:兼容 ie678,使用最为广泛的，官方只做 BUG 维护，功能不再新增。因此一般项目来说，使用 1.x 版本就可以了，最终版本：1.12.4(2016 年 5 月 20 日）
+    - 2.x:不兼容 ie678,很少有人使用，官方只做 BUG 维护，功能不再新增。如果不考虑兼容低版本的浏览器可以使用 2.x,最终版本：2.2.4(2016 年 5 月 20 日）
+    - 3.x:不兼容 ie678,只支持最新的浏览器。除非特殊要求，一般不会使用 3.x 版本的，很多老的 jQuery 插件不支持这个版本。目前该版本是官方主要更新维护的版本。最新版本：3.2.1(2017 年 3 月 20 日）
+  - 格式：
+    - jquery-xxx.js:开发版本，有良好的缩进和注释，可读性好。体积大，开发时可以看看
+    - jquery-xxx.min.js:生产版本。没有缩进，程序使用，体积小，加载块
+
+- JQuery 对象和 js 对象
+
+  - 区别：
+    - JQuery 对象在操作时更加方便。
+    - 但要注意 JQuery 对象和 js 对象的方法是不通用的
+  - 转换：
+    - JQuery 转 js:jq[索引] 或 jq.get[索引]
+    - js 转 JQuery:\$(js 对象)
+      > 注意：this使用时要转换为JQuery对象：$(this)
+
+- 基本语法学习
+  - 事件绑定
+    - `$("#test").click(function(){alter("绑定单击事件")})`
+  - 入口函数
+    - window.onclick=function(){} js 原生写法。
+      > 也可以写成$(window).load(function(){})
+      - 在包括图片等所有页面资源加载完成后执行。
+      - 只能定义一次，否则会覆盖
+    - \$(function(){}) JQuery 写法
+      > $(document).ready()的简写。
+      - 在 html 标签加载完成后执行，在上面的执行之前执行
+      - 可以写多次，不会覆盖
+  - 样式控制
+    > 一个键为获取值 ，键值对为设置一个值，{"a":"valuea".....}为设置多个值
+    - `$('#div1').css("background-Color","red")`
+    - `$('#div1').css("backgroundColor","red")` 推荐。鼠标放上去有提示
+
+## 17.2. 选择器
+
+1. 基本选择器
+   1. 标签选择器（元素选择器）
+      > 语法： \$("html 标签名") 获得所有匹配标签名称的元素
+   2. id 选择器
+      > 语法： \$("#id 的属性值") 获得与指定 id 属性值匹配的元素
+   3. 类选择器
+      > 语法： \$(".class 的属性值") 获得与指定的 class 属性值匹配的元素
+   4. 并集选择器：
+      > 语法： \$("选择器 1,选择器 2....") 获取多个选择器选中的所有元素
+2. 层级选择器
+   1. 后代选择器
+      > 语法： \$("A B ") 选择 A 元素内部的所有 B 元素
+   2. 子选择器
+      > 语法： \$("A > B") 选择 A 元素内部的所有 B 子元素
+3. 属性选择器
+   > 还有其他的，查文档去
+   1. 属性名称选择器
+      > 语法： \$("A[属性名]") 包含指定属性的选择器
+   2. 属性选择器
+      > 语法： \$("A[属性名='值']") 包含指定属性等于指定值的选择器
+   3. 复合属性选择器
+      > 语法： \$("A[属性名='值'][]...") 包含多个属性条件的选择器
+4. 过滤选择器
+   1. 首元素选择器
+      > 语法： :first 获得选择的元素中的第一个元素
+   2. 尾元素选择器
+      > 语法： :last 获得选择的元素中的最后一个元素
+   3. 非元素选择器
+      > 语法： :not(selector) 不包括指定内容的元素
+   4. 偶数选择器
+      > 语法： :even 偶数，从 0 开始计数
+   5. 奇数选择器
+      > 语法： :odd 奇数，从 0 开始计数
+   6. 等于索引选择器
+      > 语法： :eq(index) 指定索引元素
+   7. 大于索引选择器
+      > 语法： :gt(index) 大于指定索引元素
+   8. 小于索引选择器
+      > 语法： :lt(index) 小于指定索引元素
+   9. 标题选择器
+      > 语法： :header 获得标题（h1~h6）元素，固定写法
+5. 表单过滤选择器
+   1. 可用元素选择器
+      > 语法： :enabled 获得可用元素
+   2. 不可用元素选择器
+      > 语法： :disabled 获得不可用元素
+   3. 选中选择器
+      > 语法： :checked 获得单选/复选框选中的元素
+   4. 选中选择器
+      > 语法： :selected 获得下拉框选中的元素
+
+## 17.3. DOM操作
+
+- 内容
+  - html()：设置或获取标签体内容，也可以设置标签
+  - text()：设置或获取标签体内文本内容
+  - val()：设置或者获取标签体的value值
+    - 同时也可以对checkbox和select（下拉框）的值进行设置
+- 属性
+  - 通用属性操作
+    > 参数为一个键是获取，一个键值对是设置
+    - 方法
+      - attr()：获取或设置元素属性值
+      - removeAttr()：删除属性
+      - prop()：获取或设置元素属性值
+      - removeProp()：删除属性
+    - attr和prop区别：
+      > 相当于之前在webapi笔记中总结的.和getAtrribute，setAttribute的区别
+      - 固有属性：使用prop
+      - 自定义属性：attr
+  - class属性操作
+    > 参数为一个键是获取，一个键值对是设置
+    - addClass()：添加class属性值
+    - removeClass()：删除class属性值
+    - toggleClass():切换class属性值。如果存在（不存在）就删除（添加）一个类名。
+- 样式控制：
+  > 数值类的，只写数值，默认px为单位。键值对中的键写不写引号都行
+  - css()
+    - height等值写成 300,"300","300px"都行
+  - offset()
+    - 值可以写成"300",300
+    >定位方式会被设置成relative，top和left属性不会按照你设置的值。但最终会使offset称为设定的值
+
+- 增删改查
+  1. append()：父元素将子元素添加到内部末尾
+    - 对象1.append(对象2)：对象2添加到对象2内部末尾。注意：如果对象2在原文档中存在的话，就相当于移动
+  2. prepend()：父元素将子元素添加到内部开头
+  3. appendTo()：
+    - 对象1.appendTo(对象2):将对象1添加到对象2内部
+  4. prependTo()
+  5. after()：添加元素到对应元素后面
+    - 对象1.after(对象2)：将对象2添加到对象1后面，兄弟关系
+  6. before():添加元素到对应元素前面
+  7. insertAfter:
+    - 对象1.insertAfter(对象2)：将对象1添加到对象2后面，兄弟关系
+  8. inserrtBefore
+  9. remove():移除元素
+    - 对象1.remove():移除对象1
+  10. empty():清空元素
+    - 对象1.empty()：将对象所有后代元素全部清空，保留当前对象以及其属性节点
+  11. $(html标签)：创建html标签
+    - 如：`$("<div>")` `<tr><td></td><td></td></tr>`
+
+## 17.4. 动画
+
+> 查文档吧，这一节笔记基本没啥用，就是一个总览
+
+1. 默认显示和隐藏方式
+  1. show([speed,[easing],[fn]])
+    1. 参数：
+      1. speed：动画的速度。三个预定义的值("slow","normal", "fast")或表示动画时长的毫秒数值(如：1000)
+      2. easing：用来指定切换效果，默认是"swing"，可用参数"linear"
+        - swing：动画执行时效果是 先慢，中间快，最后又慢
+        - linear：动画执行时速度是匀速的
+      3. fn：在动画完成时执行的函数，每个元素执行一次。
+  2. hide([speed,[easing],[fn]])
+  3. toggle([speed],[easing],[fn])
+
+2. 滑动显示和隐藏方式
+  1. slideDown([speed],[easing],[fn])
+  2. slideUp([speed,[easing],[fn]])
+  3. slideToggle([speed],[easing],[fn])
+
+3. 淡入淡出显示和隐藏方式
+  1. fadeIn([speed],[easing],[fn])
+  2. fadeOut([speed],[easing],[fn])
+  3. fadeToggle([speed,[easing],[fn]])
+
+4. 动画：animate(键值对，时间，[回调方法])
+
+5. 停止动画：stop()
+
+- 特点：动画效果完了之后才会开始执行回调方法。这个个性在做动画时十分有用
+
+## 17.5. 遍历
+
+- js遍历：
+  - for
+  - foreach
+- jquery遍历
+  - 默认的隐式遍历
+  - for
+  - jq对象.each(function(index,element....))
+    - 获取遍历对象：
+      - this，但不能获取索引，为**js对象**
+      - 在回调函数中定义参数：function(index,element)，一个保存索引，一个保存遍历的 **js**对象
+    - 退出循环：
+      - 返回true:相当于continue
+      - 返回false：相当于break
+      - 其它返回值将被忽略。
+  - $.each(object, function(index,element....))
+    - object可以是js也可以是jq对象
+    - 回调函数each
+    - 退出循环同each
+  - for..of:（jquery3.0后才提供）
+    - for(i of arr){}
+
+
+## 17.6. 事件绑定
+
+> 这只是入门，更多请查文档
+
+- jquery标准绑定方式：
+  - jq对象.事件方法(回调函数)
+- on绑定事件 ， off解除绑定。都可以为本元素或者子元素绑定/解绑事件
+  - jq对象.on("事件名称",回调函数)
+  - jq对象.off("事件名称",回调函数)
+    > 如果元素不是用delegete绑定的，那么只会解绑本元素事件，子元素事件不会解绑。反之，都会解绑
+    - 不传入参数，就会解绑子父元素所有事件
+- 事件切换
+  - jq对象.toggle(fn,fn2,[fn3,fn4,...])
+    > 1.9版本 .toggle() 方法删除,jQuery Migrate（迁移）插件可以恢复此功能。
+    > 根据鼠标点的次数往后执行，执行完后循环执行
+    > 根据参数不同会有不同作用
+- delegete：为子元素或者未来的子元素绑定事件.undelegete:为子元素解绑事件
+  > 不推荐 ，建议用on替换
+- bind,unbind一次性绑定多个事件
+- 其他
+  - jb对象.focus(collback)：
+    - 如果不传入回调函数，就会触发默认行为，让对象获得焦点
+  - 表单对象.submit()
+    - 提交表单
+- return false：可以取消冒泡以及浏览器默认行为
+
+
+## 17.7. 链式编程
+
+> 但不建议写太长
+
+- 概念：返回jq对象的函数可以继续调用其他函数，java中本来就有
+
+## 17.8. 插件
+
+- 机制原理：
+  > 之后会将js和css封装到文件中
+  - 种类
+    - $.fn.extend(object)
+      - 增强jq对象的功能
+    - $.extend(object)
+      - 增强$的原生方法
+- 例：
+  ```js
+  //object中装方法
+  $.fn.extend({
+    check:function(){
+      // this指向调用该方法的对象
+      this.prop("check",true);
+    }
+    uncheck:function(){
+      this.prop("check",false);
+    }
+  })
+
+
+  //因为上面添加了check方法，所以可以使用check
+  $("#btn-check").click(function(){
+    $("#input[type="checkbox]").check();
+  });
+  //注意，这只是演示，实际业务中要难得多
+
+  //---------------------------
+
+  $.extend({
+    max:function(a,b){
+      return a>b?a:b
+    }
+  })
+  $.(4,5)
+  ```
+
+- 使用：
+  > http://www.htmleaf.com/jQuery/ 看着说明导入文件，用用就行了
+
+## 17.9. jqueryUI
+
+> 基本ui
+
+- 使用
+  > 这些要去源码中自己找来复制
+  1. 引入jQueryUI的样式文件
+  2. 引入jQuery
+  3. 引入jQueryUI的js文件
+  4. 使用jQueryUI功能
+
+# AJAX
+
+## 基本
+
+- 概念：ASynchronous Javascript And XML，异步的javascript和xml
+  - 目的：通过在后台与服务器进行少量数据交换，Ajax 可以使网页实现异步更新。这意味着可以在不重新加载整个网页的情况下，对网页的某部分进行更新。
+  - 异步和同步：客户端和服务端通信的基础上。
+    > ![](./image/ajax-1.jpg)
+## 原生js实现方式
+
+> 用的不多。了解即可。参考下w3school文档就行了
+
+## JQuery方式
+
+> 用的很多
+- 种类：
+  - $.ajax();
+    - 语法：$.ajax(url,[settings])
+      > 一般不会这样写，基本都是一个大括号，里面写键值对，具体查文档
+      ```js
+      $.ajax({
+        url:"ajaxServlet",
+        type:"POST",
+        //data:"username=jack&age=20"//请求参数，或者按照下面的json格式写
+        data:{"username"="jack","age"="23"},    //推荐
+        success:function(data, textStatus, jqXHR){//响应成功后的回调函数
+
+        },
+        error:function(){//响应出错后（根据状态码判断）调用的回调函数
+
+        },
+        dataType:html//预期服务器返回的数据类型。如果不指定，jQuery 将自动根据 HTTP 包 MIME 信息来智能判断
+
+        //其他属性自己查文档
+      })
+      ```
+  - $.get(url, [data], [callback], [type])：发送get请求
+    > 上面ajax的简化。这里的type是返回内容格式。data也可以使用两种格式
+    ```js
+    $.get("ajaxServlet",{
+      "username":"jack",
+      "age"="23"
+    },function(data){
+      alter(data);
+    },"text")
+    ```
+  - $.post(url, [data], [callback], [type])：发送post请求
+    > 上面ajax的简化。这里的type是返回内容格式。使用同$.get
+
+
+## JSON
+
+
+- 概念：JavaScript Object Notation
+  > javascript对象表示法
+  - 目的：多用于存储和交换数据，类似于xml，比xml更小，更快，更易于解析
+
+- 语法
+  - 基本规则
+    - 数据在键/值对中 
+      - 键要用引号（单双都行）引起来，也可以不用引起来
+      - 取值类型
+        - 数字（整数或浮点数） 
+        - 字符串（在双引号中） 
+        - 逻辑值（true 或 false） 
+        - 数组（在方括号中） 
+        - 对象（在花括号中） 
+          > 数组和对象可以相互嵌套，数组里存对象，对象里存数组都行
+        - null 
+    - 数据由逗号分隔 
+      - 多个键值对用逗号隔开，最后一个不用
+    - 花括号保存对象 
+    - 方括号保存数组
+  - 例：
+    ```json
+    {
+      "employees": [
+      { "firstName":"John" , "lastName":"Doe" },
+      { "firstName":"Anna" , "lastName":"Smith" },
+      { "firstName":"Peter" , "lastName":"Jones" }
+      ]
+    }
+
+    ```
+  - json对象与js对象区别
+    > ![]("./image/json-1.jpg")
+  - 获取值
+    - 对象.键
+    - 对象["键"]
+    - 数组[索引]
+  - 遍历：使用 for(var key in object) 循环
+
+  - java对象和json对象相互转换
+    - json解析器：Jsonlib,gson,fastjson,jackson(SpringMVC内置解析器)
+    - java 转 json对象
+      - 步骤：
+        - 导入jackson相关jar包
+          - jackson-annotation
+          - jackson-core
+          - jackson-databind
+        - 创建jackson核心对象ObjectMapper
+        - 调用ObjectMapper进行转换
+          - writeValue(参数1,obj):有很多重载
+            - 将obj数据转换为参数1，可以是**流**，也可以是文件
+          - writeValueAsString(obj):将对象转为JSON字符串
+      - 注解：
+        - @JsonIgnore:排除属性。生成的Json字符串中会排除
+        - @JsonFormat:属性值格式化。比如Data类型的
+          - 有pattern属性，传入的字符串和SimpleDateFormate相同
+      - 复杂对象转换：
+        - List转Json：一个数组中放多个对象`[{},{},{}]`
+        - map转Json：就是一个json对象`{"":"","":""}`
+    - json 转 java对象
+      > 很少用
+      - 步骤：
+        - 导包
+        - 创建jackson核心对象ObjectMapper
+        - 调用方法
+          - readValue(json字符串，class)
+
+## 案例
+
+![](./image/ajax-2.jpg)
+
+- 注意点：
+  - java转json传回来的是一个字符串
+    - 在ajax的get或post方法中指明传回来的数据类型type指定为json
+    - 不指定方法中的话，可以指定response.setContentType()中的memi类型。设为"application/json;charset=utf-8"
+  - 因为要使用response.getWriter()，因此要注意中文乱码问题，设置response.setContentType()
+
+
+# Redis
+

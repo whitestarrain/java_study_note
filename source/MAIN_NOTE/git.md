@@ -9,9 +9,13 @@
 - git commit --amend --no-edit（或者新字符串） 覆盖上次提交 但 id 会变
 - git commit -am "sign" ：直接添加并 commit 上去但必须是已经追踪的文件，这条命令无法添加追踪 **所以不太推荐**
 - git rm --cached 文件名 取消跟踪
+  > git中*好要加转义字符，因为 因为 Git 有它自己的文件模式扩展匹配方式，所以我们不用 shell 来帮忙展开。
+  > 比如：`git rm log/\*.log`.
+  > 此命令删除 log/ 目录下扩展名为 .log 的所有文件
 - git rm -r --cached . 清楚所有文件跟踪
 - git rm 文件名 删除文件并取消跟踪
 - git gc 垃圾回收命令
+- git mv file_from file_to 重命名文件。git仓库中和当前文件都会修改。
 
 - 用户信息：
   - git config -l 查看 git 配置可以使用 -l 参数(l 就是 list 的首字母,L 的小写):
@@ -68,6 +72,8 @@ git checkout remote_repo/branch_name 切换到远程仓库分支，会显示 HEA
 - git checkout -b branch_name 建立的同时并切换到分支
 - git branch -d branch_name 删除本地分支（只是指针，数据删除要在 gc 时）
 - git branch -D branch_name 强制删除本地未 merge 的分支
+- git branch -f branch_name HEAD~3或id 强制让某分支退回3个版本。在想查看以前代码版本或者无法通过回退到达的之前版本的时候很有用    **推荐**
+
 
 ## 4.2. 远程分支
 
@@ -152,7 +158,7 @@ git checkout remote_repo/branch_name 切换到远程仓库分支，会显示 HEA
   - git reset --soft 版本 id 或 HARD~版本数
   - git reset [--mixed] 版本 id 或 HARD~版本数
   - git reset --hard 版本 id 或 HARD~版本数 **慎用**
-
+  > Git会将原先的Head保存为一个叫做 **ORIG_HEAD** 的标记不想查id可以用该标记返回
 - git reset filename ：取消指定文件暂存
 - git reset [--mixed] 版本 id filename ：将某文件回退到某一个版本
 - git checkout 版本 id filename ：效果与上面的差不多，区别看下图
@@ -164,6 +170,8 @@ git checkout remote_repo/branch_name 切换到远程仓库分支，会显示 HEA
 
 > 注意：如果提交存在于你的仓库之外，而别人可能基于这些提交进行开发，那么不要执行变基。
 
+> 无论是通过变基，还是通过三方合并，整合的最终结果所指向的快照始终是一样的，只不过提交历史不同罢了。 变基是将一系列提交按照原有次序依次应用到另一分支上，而合并是把最终结果合在一起。
+
 - 分支变基
   - git rebase basebranch 将当前所在分支 rebase 到指定分支
   - git rebase basebranch topicbranch 不需要切换分支，将 topicbranch 变基到 basebranch
@@ -174,6 +182,8 @@ git checkout remote_repo/branch_name 切换到远程仓库分支，会显示 HEA
       - git rebase --continue
       - 完成后可以使用 git gc 回收垃圾
   - git rebase --abor ：任何时候都行，终止 rebase 操作，回到 rebase 开始前状态
+  - git rebase --onto master server client：选中在 client 分支里但不在 server 分支里的修改，将它们在 master 分支上重放
+    > 看官方文档吧
 - commit 合并变基
   - git rebase -i 版本 Id 合并从此处到指定 id 的所有 commit
   - git rebase -i HARD~2 合并前两个 commit

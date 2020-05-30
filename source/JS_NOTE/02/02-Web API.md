@@ -568,6 +568,14 @@ box.className = "show"
   对于自定义属性，.只能往对象中加，setAttribute只能往html对应标签中加
 对于查询，.只能查询对象中有的属性，getAttribute只能查询html标签中有的
 对于移除：看上面
+
+
+因此按照上面的原理
+checked和selected属性只有在选中时才可以通过getAttribute获取到，值为：checked。如果没有选中（标签里就没有这个睡醒），值为undefined
+而通过 . ，选中时获取到的为：true，没选中时获取到为false
+
+因此推荐原生属性使用 .
+自定义属性使用 get,setAttribute
 ```
 
 ## 1.6. 节点
@@ -1198,7 +1206,7 @@ function(){
 
   > 比如点击 a 标签时不转向连接
 
-  1. 最简单：事件处理函数最后写上：return false()
+  1. 最简单：事件处理函数最后写上：return false
   2. 标准方法：e.preventDefault()
   3. ie 老版本：e.returnValue=false;。非标准方式。chrome 也支持
 

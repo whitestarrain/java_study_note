@@ -1410,21 +1410,36 @@ var fn=new function('arg1','arg2','console.log(arg1)')
 
 ```javascript
 if (true) {
+  console.log(3);
   function f () {
     console.log(1)
   }
+  
 } else {
   function f () {
     console.log(2)
   }
 }
+
+//------chrome中：
+var f;
+if(true){
+  f=function(){console.log(1)}
+  console.log(3)
+}else{
+  f=function(){
+    console.log(2)
+  }
+}
+
 ```
 
 * 问题：以上代码执行结果在不同浏览器中结果不一致。
-  * 现代浏览器中不会提升if语句中的函数
-  *  而老版本浏览器中if语句中的函数声明也会提升
+  * 现代浏览器中不会提升if语句中的函数。只会提升if中函数的变量定义为全局变量,并将if中的赋值提升到最上面。
+  * 而老版本浏览器中if语句中的函数声明也会提升，将函数的变量声明和定义都提升为全局变量
 
 不过我们可以使用函数表达式（不会预解析）解决上面的问题：
+> 总而言之就是不要使用上面的形式写，否则容易搞不清
 
 ```javascript
 var f
