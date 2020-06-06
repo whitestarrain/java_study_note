@@ -272,10 +272,941 @@
 - 笔记文件
   [笔记文件](pdf/函数式接口-笔记.pdf)
 
+- demo1-基础
+  ```java
+  /*
+  函数式接口：有且只有一个抽象方法的接口，称之为函数式接口        lambda表达式就是重写抽象方法的。
+  当然接口中可以包含其他的方法（默认，静态，私有等非抽象接口） !!!!!!!!!!!!!!!!!!!!记住，
+  jdk8新特性，接口中可以有这些，但默认方法必须要用default修饰
+  */
+
+  /* 一、java8新特性
+      1、函数式接口
+          当接口里面只有一个抽象方法的时候，就是函数式接口，可以使用注解强制约束接口只能有一个抽象方法。
+          注解：从java5开始引入注解，对字节码文件进行一些说明。
+          @FunctionalInterface注解的作用：在编译时告诉编译器该接口只能有一个抽象方法。
+          注：
+          1、该注解在java.lang包下，不用引入
+          2、Lambda表达式只能针对函数式接口使用
+
+      2、接口里面的静态方法
+      从java8开始，接口里面可以有静态方法，和普通类的静态方法类似，使用static修饰 ，但接口里面只能是public的
+          [public] static <返回值类型><方法名>[形参列表]{
+              //方法体
+          }
+
+      3、接口里面的默认方法
+              从java8开始，除了可以在接口里面写静态方法，还可以写非静态方法，但是必须用 default 修饰。
+          默认方法可以被继承。
+          
+          注：
+          1、default方法和static方法均只能被public修饰
+          2、如果继承了多个父接口，有重复的默认方法被继承到子接口，必须使用super引用明确指定调用哪个接口的默认方法。
+          在子接口必须重写重复的方法，并使用下面的语法。
+          <父接口名>.super.<重复方法名>([参数]);
+          3、同样地，对于一个类同时实现了多个接口，而这些接口均含有同样的默认方法的情况和2类似。
+          4、父接口的抽象方法，在子接口里面可以使用默认方法实现，这样实现类里面就无需再实现了。
+                如果实现类再去实现的话就是方法的覆盖了。
+          5、如果父接口有一个默认方法，在子接口里可以重写为抽象方法(去掉父接口的行为)。
+          */
+
+  @FunctionalInterface // 当不是抽象方法时编译失败
+  interface MyFunctionalInterface {
+      public abstract void method();
+  }
+
+  /*
+  * 函数式接口的使用：一般可以作为方法的参数和返回值类型
+  */
+  public class Demo1 {
+      public static void show(MyFunctionalInterface myinterface) {
+          myinterface.method();
+      }
+
+      public static void main(String[] args) {
+          // 调用show方法，方法的参数是一个接口，所以可以传递接口的实现类的对象（此处直接通过匿名内部类来写了）
+          show(new MyFunctionalInterface() {
+              @Override
+              public void method() {
+                  System.out.println("使用匿名内部类重写函数式接口中的方法");
+              }
+          });
+          // 调用show方法，参数是一个函数式接口，所以可以传递lambda表达式
+          show(() -> {
+              System.out.println("使用lambda表达式，重写method方法");
+          });
+
+          // 简化lambda表达式
+          show(() -> System.out.println("使用lambda表达式，重写method方法"));// 有且只有一条语句的话，大括号，分号省略
+
+          /*
+          * 匿名内部类和lambda表达式区别： 在这里匿名内部类会生成一个FunctionalInterfaceDemo1$1.class文件
+          * 而lambda表达式不会。效率更高些。
+          * 
+          * 
+          * 只要有函数式接口作为参数，就可以使用lambda表达式 lambda表达式其实就是在重写接口中唯一的方法
+          */
+      }
+  }
+  ```
+
+- demo2-性能
+  ```java  
+  /* 
+  函数式编程：
+
+  1 lambda表达式延迟执行，提高效率
+  性能浪费案例：看pdf
+  当使用showlog方法时，会先拼接字符串，再传递两个参数，导致当level为2时，字符串就白拼接了，造成了性能浪费。
+  在这里可以通过lambda表达式进行优化。
+  */
+
+  interface MessageBuildeer {
+      public abstract String messageBuilder();// 返回拼接后的字符串
+  }
+
+  class showLog02 {
+      // 旧版
+      public static void showLog(int level, String message) {
+          /*
+          * if (level==1) { System.out.println(message); }
+          */
+      }
+
+      // 优化：
+
+      public static void showLog2(int level, MessageBuildeer mb) {
+          if (level == 1) {
+              // 日志等级如果是1级，那么就输出字符串。
+              System.out.println(mb.messageBuilder());
+          }
+      }
+
+      public static void main(String[] args) {
+          String str1 = "Hello", str2 = "world";
+
+          showLog(1, str1 + str2);
+
+          showLog2(1, () -> {
+              System.out.println("满足后执行，不满足条件不执行1");
+              // 返回一个拼接好的字符串。
+              return str1 + str2;
+          });
+          showLog2(2, () -> {
+              System.out.println("满足后执行，不满足条件不执行2");// 该句不会打印
+              // 返回一个拼接好的字符串。
+              return str1 + str2;
+          });
+          /*
+          * 使用lambda表达式作为参数传递，仅仅把参数传递到shoulog2中方法中，
+          * 只有满足条件时（即日志等级是1级），才会调用接口MessageBuilder接口， 执行
+          * messageBuilder(),进行字符串的拼接，不会造成性能的浪费。
+          */
+
+      }
+  }
+  ```
+
+- demo3-练习
+  ```java
+  package _1_java_base.jdk8_new_feature._1functional_interface;
+  //两个练习
+
+  import java.util.Arrays;
+  import java.util.Comparator;
+  //1，Runable
+
+  /*
+      例如java.lang.Runnable接口就是一个函数式接口，
+      假设有一个startThread方法使用该接口作为参数，那么就可以使用Lambda进行传参。
+      这种情况其实和Thread类的构造方法参数为Runnable没有本质区别。
+  */
+  class RunnableDemo1 {
+      // 定义一个方法startThread,方法的参数使用函数式接口Runnable
+      public static void startThread(Runnable run) {
+          // 开启多线程
+          new Thread(run).start();
+      }
+
+      public static void main(String[] args) {
+          // 调用startThread方法,方法的参数是一个接口,那么我们可以传递这个接口的匿名内部类
+          startThread(new Runnable() {
+              @Override
+              public void run() {
+                  System.out.println(Thread.currentThread().getName() + "-->" + "线程启动了");
+              }
+          });
+
+          // 调用startThread方法,方法的参数是一个函数式接口,所以可以传递Lambda表达式
+          startThread(() -> {
+              System.out.println(Thread.currentThread().getName() + "-->" + "线程启动了");
+          });
+
+          // 优化Lambda表达式
+          startThread(() -> System.out.println(Thread.currentThread().getName() + "-->" + "线程启动了"));
+      }
+  }
+
+  // 2,comparable
+
+  class ComparatorDemo {
+      public static Comparator<String> getComparator() {
+          return new Comparator<String>() {
+
+              @Override
+              public int compare(String o1, String o2) {
+                  return o2.length() - o1.length();
+              }
+
+          };
+      }
+
+      // 优化：
+      public static Comparator<String> getComparator2() {
+
+          // 因为这里要返回函数式接口，所以这里也可以使用lambda表达式，不只是函数式接口作为参数时可以用，
+          // 每当使用匿名内部类时，就要考虑使用lambda表达式
+          return (String o1, String o2) -> {
+              return o2.length() - o1.length();
+          };
+      }
+
+      // 优化labmda表达式
+      public static Comparator<String> getComparator3() {
+          return (o1, o2) -> o2.length() - o1.length();// 参数类型可以省略（是因为泛型的原因，已经明确了类型），只有一行代码，所以return，大括号，分号省略（当没有大括号以及分号时，就时默认返回该句的值）
+      }
+
+      public static void main(String[] args) {
+          String[] arr = { "adsf", "asfefef", "a" };
+          Arrays.sort(arr, getComparator3());// 使用lambda表达式做出的比较器来进行排序
+          System.out.println(Arrays.toString(arr));
+      }
+  }
+  ```
+- demo4-supplier
+  ```java
+  package _1_java_base.jdk8_new_feature._1functional_interface;
+
+  import java.util.function.Supplier;
+
+  /*
+  * 常用函数式接口
+  * 位于java.util.function下
+  * 此处只说主要几个常用的。
+  */
+
+  //1.Supplier
+  /* 
+  java.util.function.Supplier<T>接口仅包含一个无参的方法：T get()。
+  用来获取一个泛型参数指定类型的对象数据。
+  由于这是一个函数式接口，这也就意味着对应的Lambda表达式需要“对外提供”一个符合泛型类型的对象数据。
+  被称为生产形接口，指定接口的泛型是什么类型，接口中的get类型就会生产什么类型的数据
+  */
+  class SupplierDemo1 {
+      // 定义一个方法，参数传递Supplier<String>接口，泛型执行get()会返回一个String
+      private static String getString(Supplier<String> s) {
+          return s.get();
+      }
+
+      public static void main(String[] args) {
+          System.out.println(getString(() -> "sadfsaf"));// 已经简化过，过程看前面笔记。
+
+      }
+  }
+
+  /*
+  * 求数组中最大值，使用Supplier接口
+  */
+  class SupplierDemo2 {
+      /*
+      * 练习：求数组元素最大值 使用Supplier接口作为方法参数类型，通过Lambda表达式求出int数组中的最大值。
+      * 提示：接口的泛型请使用java.lang.Integer类。
+      */
+
+      // 定义一个方法,用于获取int类型数组中元素的最大值,方法的参数传递Supplier接口,泛型使用Integer
+      public static int getMax(Supplier<Integer> sup) {
+          return sup.get();
+      }
+
+      public static void main(String[] args) {
+          // 定义一个int类型的数组,并赋值
+          int[] arr = { 100, 0, -50, 880, 99, 33, -30 };
+          // 调用getMax方法,方法的参数Supplier是一个函数式接口,所以可以传递Lambda表达式
+          int maxValue = getMax(() -> {
+              // 获取数组的最大值,并返回
+              // 定义一个变量,把数组中的第一个元素赋值给该变量,记录数组中元素的最大值
+              int max = arr[0];
+              // 遍历数组,获取数组中的其他元素
+              for (int i : arr) {
+                  // 使用其他的元素和最大值比较
+                  if (i > max) {
+                      // 如果i大于max,则替换max作为最大值
+                      max = i;
+                  }
+              }
+              // 返回最大值
+              return max;
+          });
+          System.out.println("数组中元素的最大值是:" + maxValue);
+      }
+  }
+
+  ```
+
+- demo5-consumer
+  ```java
+  package _1_java_base.jdk8_new_feature._1functional_interface;
+
+  import java.util.function.Consumer;
+
+  //Consumer接口
+  class ConsumerDemo1 {
+      /*
+      * java.util.function.Consumer<T>接口则正好与Supplier接口相反，它不是生产一个数据，而是消费一个数据，
+      * 其数据类型由泛型决定。 Consumer接口中包含抽象方法void accept(T t)，意为消费一个指定泛型的数据。 消费方式自己定义
+      */
+
+      /*
+      * 定义一个方法， 参数为String资源以及一个Consumer<String>接口 通过lambda表达式
+      */
+      public static void methodConsumer(String name, Consumer<String> c) {
+          c.accept(name);
+      }
+
+      public static void main(String[] args) {
+          methodConsumer("测试资源", (name) -> {
+              // 消费方式：输出长度
+              System.out.println("字符串长度为：" + name.length());
+          });
+      }
+  }
+
+  class ConsumerDemo2 {
+      /*
+      * 如果一个方法的参数和返回值全都是Consumer类型，那么就可以实现效果： 消费数据的时候，首先做一个操作，然后再做一个操作，实现组合。
+      * 而这个方法就是Consumer接口中的default方法
+      * 
+      * 
+      * Consumer<String> con1,con2; String s="aaa";
+      * 
+      * con1.accept(s); con2.accept(s); 等同于：
+      * con1.andThen(con2).accept(s);//andThen用来连接连个接口，消费顺序从左到右。
+      */
+
+      public static void method(String s, Consumer<String> c1, Consumer<String> c2) {
+          c1.andThen(c2).accept(s);
+      }
+
+      // 在这里一个c1用来将字符串变为大写，c2用来将字符串倒置，并输出
+      public static void main(String[] args) {
+          method("abcdefg", (s) -> {
+              s = s.toUpperCase();
+              s = s + "1";
+              System.out.println(s);
+          }, (s) -> {
+              StringBuilder sb = new StringBuilder();
+              sb.append(s);
+              sb.reverse();
+              s = sb.toString();
+              System.out.println(s);
+          });// lambda表达式中，如果只有一句，那么不加分号就相当于返回那句表达式的值
+      }
+
+      /*
+      * ！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！。。
+      * 执行结果： ABCDEFG1 gfedcba
+      * 原因： 这里指的消费资源，一直是指的是消费给定的一个资源，即使该资源在一个accept中该改变，accept消费的也是在改变前的资源
+      */
+  }
+  ```
+
+- demo6-predicate
+  ```java
+  package _1_java_base.jdk8_new_feature._1functional_interface;
+
+  import java.util.ArrayList;
+  import java.util.function.Predicate;
+
+  /*
+  * 有时候我们需要对某种类型的数据进行判断，从而得到一个boolean值结果。
+  * 这时可以使用java.util.function.Predicate<T>接口
+  * 
+  * boolean test(T t)方法：
+  * 用来对指定数据类型进行判断的方法，
+  * 符合条件返回true，否则返回false
+  */
+  class PredicateDemo1 {
+      public static boolean CheckString(String s, Predicate<String> p) {
+          return p.test(s);
+      }
+
+      public static void main(String[] args) {
+          String s = "aaaaa";
+          boolean b = CheckString(s, str -> str.length() == 3);// 返回字符串的长度是否等于3（lambda表达式能省略就多省略些。）
+          System.out.println("长度是否等于3：" + b);
+      }
+  }
+
+  /*
+  *  and()方法：
+  * 相当于&&符号，用于判断两个条件
+  * 源码在pdf上
+  */
+  class PredicateDemo2{
+      private static boolean checkString(String s,Predicate<String> p1,Predicate<String> p2) {
+          return p1.and(p2).test(s);
+          //等价于p1.test()&&p2.test()
+      }
+      /*
+      定义一个方法，一个字符串，两个接口，用于判断：
+      1. 字符串是长度是否大于5
+      2. 字符串中是否有a
+      两个条件是否同时存在。
+      */
+      public static void main(String[] args) {
+          String s="adfadfdf";
+        boolean b= checkString(s,str->str.length()>5,str->str.contains("a"));//lambda表达式中不能与local variable 名称相同
+        System.out.println(b);
+      }
+  }
+
+  /* 
+  与and的“与”类似，默认方法or实现逻辑关系中的“或”
+  这里就不再演示，把上面的and改成or就行了
+  */
+
+  /* 
+      negate方法：取反
+      使用方法：p1.negate().test(s);
+      等价于 !p1.test(s);
+  */
+
+  /* 
+  一个小应用
+    */
+  class DemoPredicate{
+      public static ArrayList<String> filter(String arr[],Predicate<String> p1,Predicate<String> p2) {
+          ArrayList<String> list=new ArrayList<String>();
+          for(String s:arr){
+              if(p1.and(p2).test(s)){
+                  list.add(s);
+              }
+          }
+          return list;
+      }
+      public static void main(String[] args) {
+          String[] array= { "迪丽热巴,女", "古力娜扎,女", "马尔扎哈,男", "赵丽颖,女" };
+        ArrayList<String> a= filter(array,s->{
+          String temp=s.split(",")[0];
+          return temp.length()>=4;
+        },s->{
+          String temp=s.split(",")[1];
+          return temp.equals("女");
+        });
+        for(String s:a){
+            System.out.println(s);
+        }
+      }
+  }
+  ```
+
+- demo7-Function
+  ```java
+  package _1_java_base.jdk8_new_feature._1functional_interface;
+
+  import java.util.function.Function;
+
+  /*
+  * java.util.function.Function<T,R>接口用来根据一个类型的数据得到另一个类型的数据，前者称为前置条件，后者称为后置条件
+  * 把T类型转换为R类型
+  * 当然如何操作都可以，并不一定是单纯的转换，所谓Function嘛,也能是Function<String,String> ，用来对字符串进行操作
+  */
+
+  /* 
+  基本使用
+  */
+  class FunctionDemo1 {
+      /*
+      * 方法参数传递一个整数的String以及一个Function<String,Integer>， 将String转换为Integer
+      */
+      public static Integer change(String str, Function<String, Integer> fun) {
+          Integer in = fun.apply(str);
+          return in;
+      }
+
+      public static void main(String[] args) {
+          String str = "1234";
+          Integer i = change(str, s -> Integer.parseInt(s));
+          System.out.println(i);
+      }
+  }
+
+  /*
+  * andThen默认方法 也就是进行两次操作
+  * 
+  */
+  class FunctionDemo2 {
+      public static void change(String s, Function<String, Integer> fun1, Function<Integer, String> fun2) {
+          String ss = fun1.andThen(fun2).apply(s);
+          System.out.println(ss);
+      }
+
+      public static void main(String[] args) {
+          String str = "1111";
+          //先转换为integer加2，再转换为字符串加上另一个字符串
+          change(str, s -> Integer.parseInt(s)+2, i -> i + "" + "aaaa");
+      }
+  }
+  ```
+
 # 4. Stream 流，方法引用
 
 - 笔记文件
   [笔记文件](pdf/Stream流、方法引用-笔记.pdf)
+
+
+- demo1
+  ```java
+  package _1_java_base.jdk8_new_feature._2_stream;
+  import java.util.ArrayList;
+  import java.util.List;
+
+  /*
+  * 说到Stream便容易想到I/O Stream，而实际上，谁规定“流”就一定是“IO流”呢？
+  * 在Java8中，得益于Lambda所带来的函数式编程，引入了一个全新的Stream概念，用于解决已有集合类库既有的弊端。
+  */
+  class Normal {
+      public static void main(String[] args) {
+          List<String> list = new ArrayList<>();
+          list.add("张无忌");
+          list.add("周芷若");
+          list.add("赵敏");
+          list.add("张强");
+          list.add("张三丰");
+          for (String tempString : list) {
+              if (tempString.startsWith("张")) {
+                  System.out.println(tempString);
+              }
+          }
+          for (String tempString : list) {
+              if (tempString.length() >= 3) {
+                  System.out.println(tempString);
+              }
+          }
+      }
+  }
+
+  /*
+  * Stream是jdk1.8之后出现的，关注做什么，而不是怎么做 期中很多方法调用函数式接口
+  */
+
+  class ByStream {
+      public static void main(String[] args) {
+          List<String> list = new ArrayList<>();
+          list.add("张无忌");
+          list.add("周芷若");
+          list.add("赵敏");
+          list.add("张强");
+          list.add("张三丰");
+
+          // 集合中新方法 Steam。返回一个Stream<T>,Stream可以通过filter传入Predicate（此处直接使用的lambda表达式）来进行筛选
+          list.stream().filter(name -> name.startsWith("张")).filter(name -> name.length() >= 3)// 此处进行内部迭代，增强for循环，Iterator都是外部迭代
+                  .forEach(name -> System.out.println(name));
+          ;
+      }
+  }
+
+  /*
+  * 看pdf!!!!!!!!!!!!!!!!!!!!!，了解详细概念
+  */
+  ```
+
+- demo2-getstream
+  ```java
+  package _1_java_base.jdk8_new_feature._2_stream;
+
+  import java.util.ArrayList;
+  import java.util.HashMap;
+  import java.util.HashSet;
+  import java.util.List;
+  import java.util.Map;
+  import java.util.Set;
+  import java.util.stream.Stream;
+
+  /*
+  java.util.stream.Stream<T>是Java 8新加入的最常用的流接口。（这并不是一个函数式接口。）
+      获取一个流非常简单，有以下几种常用的方式：
+      所有的Collection集合都可以通过stream默认方法获取流；(单列集合，map没有这个方法)
+      Stream接口的静态方法of可以获取数组对应的流 
+  */
+  class getStreamDemo1 {
+      public static void main(String[] args) {
+          // 把集合转换为Stream流
+          List list = new ArrayList<String>();
+          Stream s = list.stream();
+
+          Set<String> set = new HashSet<>();
+          Stream s2 = set.stream();
+
+          Map<String, String> m = new HashMap<String, String>();
+          Set<Map.Entry<String, String>> se = m.entrySet();
+          Stream s3 = se.stream();
+
+          // Stream接口 of函数,参数为可变参数 public static<T> Stream<T> of(T... values)，传输数组或者多个T参数
+          Stream<Integer> s4 = Stream.of(1, 2, 3, 4);
+          Integer[] intarr={1,2,3,4};
+          Stream<Integer> s5=Stream.of(intarr);
+      }
+  }
+  ```
+
+- demo3-commonmethod
+  ```java
+  package _1_java_base.jdk8_new_feature._2_stream;
+
+  import java.util.ArrayList;
+  import java.util.List;
+  import java.util.stream.Stream;
+
+  /*
+  * 延迟方法：返回值类型仍然是Stream接口自身类型的方法，因此支持链式调用。（除了终结方法外，其余方法均为延迟方法。）
+  * 终结方法：返回值类型不再是Stream接口自身类型的方法，因此不再支持类似StringBuilder那样的链式调用。本小节中，终结方法包括count和forEach方法。
+  */
+  class commonUsedMethodDemo1 {
+          public static void main(String[] args) {
+                  List<String> list = new ArrayList<>();
+                  list.add("n");
+                  list.add("m");
+                  list.add("s");
+                  list.add("l");
+                  list.add("l");
+                  // ————————————————————————————————————————————————————————————————————
+                  /*
+                  * foreach: void forEach(Consumer<? super T> action); 终结方法
+                  * 用来遍历Stream中的数据，传入参数的是Consumer接口
+                  */
+                  list.stream().forEach(name -> System.out.println(name));// 此处不用加参数类型是因为List中已经明确类型。
+                  // ————————————————————————————————————————————————————————————————————
+
+                  /*
+                  * filter 过滤，将一个流转化为另一个子集流 参数为接口Predicate
+                  */
+                  Stream<String> s2 = list.stream().filter(name -> name.length() >= 3);
+                  s2.forEach(name -> System.out.println(name));
+
+                  // ————————————————————————————————————————————————————————————————————
+                  /*
+                  *注意点：
+                  * Stream属于管倒流，只能被消费一次 延迟方法中 第一个Stream调用完方法，数据就会流转到下一个流上，
+                  * 第一个Stream就会关闭，就不能再调用方法了，否则会抛出异常
+                  */
+                  // ————————————————————————————————————————————————————————————————————
+                  /*
+                  * Map() 映射 把一个数据映射到为另一个数据，本质上就是Function接口 参数为接口Function
+                  */
+                  Stream<String> ss = Stream.of("111", "222", "333");
+                  ss.map(str -> Integer.parseInt(str) + 1).forEach(i -> System.out.println(i));
+                  // ————————————————————————————————————————————————————————————————————
+                  /*
+                  * count方法： 统计个数，返回Long类型整数 终结方法， 似Collection中的size方法，用来统计流中数据的个数
+                  */
+
+                  Long l = list.stream().count();
+                  System.out.println(l);
+                  // ————————————————————————————————————————————————————————————————————
+                  /*
+                  * limit(Long l)方法，对流中前n个元素进行截取，返回新的流 延迟方法
+                  */
+                  list.stream().limit(3).forEach(s -> System.out.println(s));
+                  // ————————————————————————————————————————————————————————————————————
+
+                  /*
+                  * skip(Long l) 跳过前n个元素,只保留之后的元素，返回新的流 n过大会返回一个空流 延迟方法
+                  */
+                  list.stream().skip(3).forEach(s -> System.out.println(s));
+                  // ————————————————————————————————————————————————————————————————————
+                  /*
+                  * concat(Stream s1,Stream s2)方法，Stream接口中的静态方法 用于连接两个流
+                  */
+                  Stream<String> stream1 = list.stream();
+                  Stream<String> stream2 = Stream.of("a", "w", "s", "l");
+                  Stream stream3 = Stream.concat(stream1, stream2);
+                  stream3.forEach(s->System.out.println(s));
+
+          }
+  }
+  ```
+
+- demo4-test
+  ```java
+  package _1_java_base.jdk8_new_feature._2_stream;
+
+  import java.util.ArrayList;
+  import java.util.stream.Stream;
+
+  class Person {
+      private String name;
+
+      public Person() {
+      }
+
+      public Person(String name) {
+          this.name = name;
+      }
+
+      @Override
+      public String toString() {
+          return "Person{" + "name='" + name + '\'' + '}';
+      }
+
+      public String getName() {
+          return name;
+      }
+
+      public void setName(String name) {
+          this.name = name;
+      }
+  }
+
+  public class Demo4_test {
+
+      public static void main(String[] args) {
+          // 第一支队伍
+          ArrayList<String> one = new ArrayList<>();
+          one.add("迪丽热巴");
+          one.add("宋远桥");
+          one.add("苏星河");
+          one.add("石破天");
+          one.add("石中玉");
+          one.add("老子");
+          one.add("庄子");
+          one.add("洪七公");
+          // 1. 第一个队伍只要名字为3个字的成员姓名；存储到一个新集合中。
+          // 2. 第一个队伍筛选之后只要前3个人；存储到一个新集合中。
+          Stream<String> oneStream = one.stream().filter(name -> name.length() == 3).limit(3);
+
+          // 第二支队伍
+          ArrayList<String> two = new ArrayList<>();
+          two.add("古力娜扎");
+          two.add("张无忌");
+          two.add("赵丽颖");
+          two.add("张三丰");
+          two.add("尼古拉斯赵四");
+          two.add("张天爱");
+          two.add("张二狗");
+          // 3. 第二个队伍只要姓张的成员姓名；存储到一个新集合中。
+          // 4. 第二个队伍筛选之后不要前2个人；存储到一个新集合中。
+          Stream<String> twoStream = two.stream().filter(name -> name.startsWith("张")).skip(2);
+
+          // 5. 将两个队伍合并为一个队伍；存储到一个新集合中。
+          // 6. 根据姓名创建Person对象；存储到一个新集合中。
+          // 7. 打印整个队伍的Person对象信息。
+          Stream.concat(oneStream, twoStream).map(name -> new Person(name)).forEach(p -> System.out.println(p));
+      }
+  }
+  ```
+- demo5函数引用
+  ```java
+  package _1_java_base.jdk8_new_feature._3_function_reference;
+
+  /*
+  * 方法引用是为了解决；lambda表达式冗余问题
+  * 就行写一个方法可以调用多次一样，lambda写一个lambda表达式也可以调用多次
+  * 迄今为止转变：实现接口的类->匿名类->lambda表达式->方法引用，后三者在同一个位置可以相互替换
+  */
+  @FunctionalInterface
+  interface printInterface {
+      void printMethod(String s);
+  }
+
+  public class Demo1_base {
+      // 定义一个方法，参数为函数式接口，对字符串进行打印
+      public static void print(String s, printInterface p) {
+          p.printMethod(s);
+      }
+
+      public static void main(String[] args) {
+          // 调用方法，通过lambda表达式进行输出
+          print("Hello World", s -> System.out.println(s));// 接口中抽象方法已经指定了参数类型
+
+          /*
+          * 分析： 通过lambda表达式，把参数s传给对象System.out,对象System.out调用Println方法 要求：对象和方法都已经存在
+          * 此时可以通过方法引用来优化lambda表达式
+          */
+          print("Hello World", System.out::println);
+          /*
+          * 双冒号::为引用运算符，而它所在的表达式被称为方法引用。如果Lambda要表达的函数方案已经存在于某个方法的实现中，
+          * 那么则可以通过双冒号来引用该方法作为Lambda的替代者，参数可以省略
+          */
+
+          /*
+          * 语义分析 ：
+          * 例如上例中，System.out对象中有一个重载的println(String)方法恰好就是我们所需要的。
+          * 那么对于printString方法的函数式接口参数，对比下面两种写法，完全等效：
+          * Lambda表达式写法：s ->System.out.println(s);
+          * 方法引用写法：System.out::println
+          * 第一种语义是指：拿到参数之后经Lambda之手，继而传递给System.out.println方法去处理。
+          * 第二种等效写法的语义是指：直接让System.out中的println方法来取代Lambda。
+          * 两种写法的执行效果完全一样，而第二种方法引用的写法复用了已有方案，更加简洁。注:Lambda
+          * 中传递的参数一定是方法引用中的那个方法可以接收的类型,否则会抛出异常
+          */
+      }
+  }
+  ```
+
+- staticmethodreference
+  ```java
+  package _1_java_base.jdk8_new_feature._3_function_reference;
+
+  /*
+      通过现有对象以及方法进行引用
+      通过类中的静态方法进行引用
+  */
+  //
+  class printClass{
+      public void print(String s){
+          System.out.println(s);
+      }
+      public static void printtoUpcase(String s){
+          System.out.println(s.toUpperCase());
+      }
+  }
+  public class Demo2_objAndStaticMethod {
+      public static void mainPrint(String s,printInterface p) {
+          p.printMethod(s);
+      }
+      public static void main(String[] args) {
+          mainPrint("Hello World",new printClass()::print);//现有对象中的现有方法
+          mainPrint("Hello World", printClass::printtoUpcase);//通过类中的静态方法
+      }
+  }
+
+  ```
+
+- superAndThis
+  ```java
+  package _1_java_base.jdk8_new_feature._3_function_reference;
+
+  /*
+      类中的lambda表达式，如果有继承关系，那么可以使用super引用来代替lambda
+      如果使用调用本类方法，那么可以通过this引用来代替lambda
+  */
+  @FunctionalInterface
+  interface greeAble {
+      void greet();
+  }
+
+  class Father {
+      public void sayHello() {
+          System.out.println("Father:hello");
+      }
+
+      public void sayHello2(greeAble g) {
+          g.greet();
+      }
+  }
+
+  class son extends Father {
+      public void sayHello1Son1(){
+          sayHello2(()->new Father().sayHello());//使用lambda表达式
+      }
+      //通过super进行引用
+      public void sayHello2Son() {
+          sayHello2(super::sayHello);
+      }
+
+      public void sayHello(){
+          System.out.println("Son:Hello");
+      }
+      public void sayHello(greeAble g){
+          g.greet();
+      }
+      public void autoSayHello(){
+          sayHello(this::sayHello);
+      }
+  }
+
+  public class Demo3_SuperAndThis {
+      public static void main(String[] args) {
+          new son().sayHello1Son1();
+          new son().sayHello2Son();
+          new son().autoSayHello();
+      }
+  }
+  ```
+
+- constuctor
+  ```java
+  package _1_java_base.jdk8_new_feature._3_function_reference;
+
+  class Person {
+      private String name;
+
+      public Person() {
+      }
+
+      public Person(String name) {
+          this.name = name;
+      }
+
+      public String getName() {
+          return name;
+      }
+
+      public void setName(String name) {
+          this.name = name;
+      }
+  }
+
+  /*
+      定义一个创建Person对象的函数式接口
+  */
+  @FunctionalInterface
+  interface PersonBuilder {
+      //定义一个方法,根据传递的姓名,创建Person对象返回
+      Person builderPerson(String name);
+  }
+
+  class Demo4_ClassConstructor {
+      //定义一个方法,参数传递姓名和PersonBuilder接口,方法中通过姓名创建Person对象
+      public static void printName(String name,PersonBuilder pb){
+          Person person = pb.builderPerson(name);
+          System.out.println(person.getName());
+      }
+      public static void main(String[] args) {
+          //调用printName方法,方法的参数PersonBuilder接口是一个函数式接口,可以传递Lambda
+          printName("艹",(String name)->{
+              return new Person(name);
+          });
+          /*
+              使用方法引用优化Lambda表达式
+              构造方法new Person(String name) 已知
+              创建对象已知 new
+              就可以使用Person引用new创建对象
+          */
+          printName("草",Person::new);//使用Person类的带参构造方法,通过传递的姓名创建对象
+      }
+  }
+
+  @FunctionalInterface
+  interface ArrayBuilder{
+      int[] arrayBuilder(int l);
+  }
+  class Demo4_ArrayConstructor {
+      public static int[] getArray(int l,ArrayBuilder ab) {
+          return ab.arrayBuilder(l);
+      }
+      public static void main(String[] args) {
+          //lambfa表达式
+          int[] a=getArray(4,l->new int[l]);
+          System.out.println(a.length);
+
+          //数组new方法引用
+          int[] b=getArray(5, int[]::new);
+          System.out.println(b.length);
+      }
+  }
+  ```
 
 # 5. MySQL
 
@@ -1811,7 +2742,7 @@
          1. 取值：
             1. yes：不依赖其他文件（但尽管 yes 也能以来其他文件）
             2. no：依赖其他文件（约束）
-   1. 指令 ������ 了解）
+   1. 指令 <?xml-stylesheet type="text/css" href="a.css"?>（了解）
       1. 相当于 css，现在基本不用
    1. 标签
       1. 命名规则
@@ -4342,7 +5273,6 @@ public class CookieServletDemo extends HttpServlet {
             if ("abc".equals(user.getName())) {
         %>
         <%="您好" + user.getName()%>
-
         <%
         } else {
         %>
@@ -4362,13 +5292,40 @@ public class CookieServletDemo extends HttpServlet {
             out.write("错误")
          }
         ```
+        ```jsp
+        <!-- 示例2： -->
+        <%
+        List<User> list = (List<User>) session.getAttribute("allUsers");
+        for (int i = 0; i < list.size(); i++) {
+        %>
+        <tr>
+            <td>
+                <%=i+1%>
+            </td>
+            <td>
+                <%=list.get(i).getUsername()%>
+            </td>
+            <td>
+                <%=list.get(i).getTel()%>
+            </td>
+            <td>
+                <a href="FindUserServlet?id=<%=list.get(i).getUserid()%>">修改</a>
+                <a href="SelectUserServlet?id=<%=list.get(i).getUserid()%>">查看</a>
+                <a href="DeleteUserServlet?id=<%=list.get(i).getUserid()%>">删除</a>
+            </td>
+        </tr>
+        <%
+            }
+        %>
+        ```
     2. <%! %>
        > 定义的代码在转换类中的成员位置，可以定义成员变量，方法，静态代码块等
        > 用的非常少，Servlet，jsp 中尽量不要定义成员变量，这样可能会引发一些线程安全问题（共同访问，修改时访问等）
     3. <%= %>
        > 相当于输出语句，定义的 java 代码会输出到页面上，System.out.print()中可以定义什么该脚本就可以定义什么。
        > 该脚本转换到 java 代码中的话位于 service 方法中，使用内置对象 out 进行输出
-       > <% int i=3 %> <%= i %>
+       > <% int i=3 %> <%= i %>。
+       > 在标签中也可以这样用`<a href="findServlet?id=<%=user.id%> 修改 </a>" >`
 
 - jsp 内置对象
   > 不需要获取和创建，可以直接使用的对象
@@ -4416,8 +5373,13 @@ public class CookieServletDemo extends HttpServlet {
           - 当标注为 true 时，可以使用 exception 对象，用来抓异常，从哪跳转来的抓哪的，通常会写入日志文件。检查 bug 时很有用
 
     - include：导入页面资源文件，将其他页面导入到指定 jsp 中。
-      > 比如用来重用动态的页眉，顶部菜单等。
-      > 使用较少。
+      > 为静态包含。比如用来重用动态的页眉，顶部菜单，或者导入资源文件和定义变量等。会在翻译阶段进行引入。会合并翻译生成一个java文件
+      > 
+      > jsp动作元素`<jsp:include page="a.jsp"></jsp:include>` 为动态包含，会生成两个java文件。
+      >静态包含在两个文件中不允许有相同的变量，而动态包含允许。
+      > 动态包含发生在：执行class文件阶段，动态加入
+      > 
+      > 两者使用都较少。
       > `<%@ incllue file="foot.jsp" %>`
     - taglib：导入资源
       > 一般用来导入标签库（比如后面的 JSTL）
@@ -4464,7 +5426,11 @@ public class CookieServletDemo extends HttpServlet {
 
     - exception ····Throwable····异常对象。声明 isErrorPage 为 true 时才会有这个对象
 
-## 14.4. MVC 开发模式
+## 14.4. jsp动作元素
+
+> 基本上不用了。感兴趣可以去查资料
+
+## 14.5. MVC 开发模式
 
 - jsp 演变历史
 
@@ -4498,7 +5464,9 @@ public class CookieServletDemo extends HttpServlet {
 
 > 因此，为了替换 jsp 中的 java 代码，可以使用 EL 表达式以及 JSTL 标签
 
-## 14.5. EL 表达式
+## 14.6. EL 表达式
+
+### 14.6.1. 基础
 
 - 概念：Experssion Language:表达式语言
 - 作用：替换和简化 jsp 页面中 java 页面的编写。**在标签的引号内部以及 javascript 中仍然可以使用**
@@ -4508,88 +5476,121 @@ public class CookieServletDemo extends HttpServlet {
   - 忽略 el 表达式方法：
     - 忽略所有：jsp 的 page 指令下 isELIgnored 可以设置是否忽略 EL 表达式
     - 忽略单个：加一个反斜线`\${}`。（转义字符）
-- 作用：
 
-  - 运算
-    - 运算符：
-      - 算术运算符：+ - \* /(div) %(mod)
-      - 比较运算符：> < == >= <= !=
-      - 逻辑运算符：&&(and) ||(or) !(not)
-      - **空运算符**：empty
-        - 用于判断字符串，集合，数组对象是否为 null，以及长度是否为 0
-        - `${empty list}`
-        - `${not empty str}` 当不为 null 和空时才返回 true
-  - 获取值
+### 14.6.2. 基本使用
 
-    > el 表达式只能从域对象中获取值
 
-    - 语法:
 
-      - 通用：
+- 运算
+  - 运算符：
+    - 算术运算符：+ - \* /(div) %(mod)
+    - 比较运算符：> < == >= <= !=
+    - 逻辑运算符：&&(and) ||(or) !(not)
+    - **空运算符**：empty
+      - 用于判断字符串，集合，数组对象是否为 null，以及长度是否为 0
+      - `${empty list}`
+      - `${not empty str}` 当不为 null 和空时才返回 true
+- 获取值
 
-        - \${域名称.键名}：从指定域中获取指定键的值
-          - 域名称
-            > el 中域名称及对应 jsp 内置对象。**注意：**el中的域对象只能使用getAttribute方法，而jsp内置对象就是普通对象
-            - pageScope-->pageContext
-            - requestScope-->request
-            - sessionScope-->session
-            - applicationScope-->application(ServletContext)
-          - 例：
-            > <%= request.getAttribute("checkcodeError") == null ? "" : request.getAttribute("checkcodeError") %>
-            > 等价于：
-            > \${requestScope.checkcodeError}
-        - \${键名}：表示一次从最小的域中查找是否有该键对应的值，直到找到为止
+  > el 表达式只能从域对象中获取值
 
-          > 会依序从 Page、Request、Session、Application 范围查找。
+  - 语法:
 
-      - 获取对象，list，map 集合的值
+    - 通用：
 
-        - 对象：通过对象的属性来获取
-          > 属性(property)：getter,setter 去掉 get，set 再将首字母变小写（同 javaBean）
-          > 本质上会调用 getter，setter 方法
-          - 例：`requestScope.user.name`
-          - 假如想要获得特定格式的 Date，可以在 user 类中，添加 getDateStr()方法，用来返回特定格式的日期格式。再通过 dateStr 属性来调用
-            > 这种 get 方法并没有对应成员变量，而是单纯为了格式化日期数据
-            > 这叫做**逻辑视图**。以后会经常用
-        - List：\${域名称.键名称[索引]}
-          > 不加中括号和索引的话就会把 list 中的所有值打印出来。如[aaa,bbb]
-          - 如果角标越界会返回空字符串，而不会抛出异常
-          - 当然，如果 list 中装对象，也可以类似这样：`requestScope.list[0].name`
-        - Map：
+      - \${域名称.键名}：从指定域中获取指定键的值
+        - 域名称
+          > el 中域名称及对应 jsp 内置对象。**注意：**el中的域对象只能使用getAttribute方法，而jsp内置对象就是普通对象
+          - pageScope-->pageContext
+          - requestScope-->request
+          - sessionScope-->session
+          - applicationScope-->application(ServletContext)
+        - 例：
+          > <%= request.getAttribute("checkcodeError") == null ? "" : request.getAttribute("checkcodeError") %>
+          > 等价于：
+          > \${requestScope.checkcodeError}
+      - \${键名}：表示一次从最小的域中查找是否有该键对应的值，直到找到为止
 
-          - \${域名称.键名.key 名称}
-          - \${map["键名称"]}
+        > 会依序从 Page、Request、Session、Application 范围查找。
 
-            > 要用引号引起来，单双都行
+    - 获取对象，list，map 集合的值
 
-        - 例：`requestScope.map.gender`
+      - 对象：通过对象的属性来获取
+        > 属性(property)：getter,setter 去掉 get，set 再将首字母变小写（同 javaBean）
+        > 本质上会调用 getter，setter 方法
+        - 例：`requestScope.user.name`
+        - 假如想要获得特定格式的 Date，可以在 user 类中，添加 getDateStr()方法，用来返回特定格式的日期格式。再通过 dateStr 属性来调用
+          > 这种 get 方法并没有对应成员变量，而是单纯为了格式化日期数据
+          > 这叫做**逻辑视图**。以后会经常用
+      - List：\${域名称.键名称[索引]}
+        > 不加中括号和索引的话就会把 list 中的所有值打印出来。如[aaa,bbb]
+        - 如果角标越界会返回空字符串，而不会抛出异常
+        - 当然，如果 list 中装对象，也可以类似这样：`requestScope.list[0].name`
+      - Map：
 
-    - 如果获得不到值，返回空字符串而不是 null
+        - \${域名称.键名.key 名称}
+        - \${map["键名称"]}
 
-  - 隐式对象
+          > 要用引号引起来，单双都行
 
-    > 类似 jsp 的内置对象
-    > el 表达式中有 11 个内置对象，包括域对象
-    > ![](./image/el-1.jpg)
+      - 例：`requestScope.map.gender`
 
-    - pageContext:
+  - 如果获得不到值，返回空字符串而不是 null
 
-      1. 获取 jsp 其他 8 个内置对象
-         > jsp 页面中动态获取虚拟目录`${pageContext.request.contextPath}`
-         > 比如表单中的 action 属性的值，需要虚拟目录
-         > 可以写成：
+- 其他隐式对象
 
-      ```html
-      <form action="${pageContext.request.contextPath}/login.jsp"></form>
-      ```
+  > 类似 jsp 的内置对象
+  > el 表达式中有 11 个内置对象，包括域对象
+  > ![](./image/el-1.jpg)
 
-- 其他要点：
+  - pageContext:
+
+    1. 获取 jsp 其他 8 个内置对象
+        > jsp 页面中动态获取虚拟目录`${pageContext.request.contextPath}`
+        > 比如表单中的 action 属性的值，需要虚拟目录
+        > 可以写成：
+
+    ```html
+    <form action="${pageContext.request.contextPath}/login.jsp"></form>
+    ```
+
+### 14.6.3. el函数
+
+![](./image/jspfn.jpg)
+
+```jsp
+使用前在Jsp页面的首部加上以下代码:
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %> 
+下面是JSTL中自带的方法列表以及其描述:
+
+函数名 函数说明 使用举例 
+fn:contains 判断字符串是否包含另外一个字符串 <c:if test="${fn:contains(name, searchString)}"> 
+fn:containsIgnoreCase 判断字符串是否包含另外一个字符串(大小写无关) <c:if test="${fn:containsIgnoreCase(name, searchString)}"> 
+fn:endsWith 判断字符串是否以另外字符串结束 <c:if test="${fn:endsWith(filename, ".txt")}"> 
+fn:escapeXml 把一些字符转成XML表示，例如 <字符应该转为< ${fn:escapeXml(param:info)} 
+fn:indexOf 子字符串在母字符串中出现的位置 ${fn:indexOf(name, "-")} 
+fn:join 将数组中的数据联合成一个新字符串，并使用指定字符格开 ${fn:join(array, ";")} 
+fn:length 获取字符串的长度，或者数组的大小 ${fn:length(shoppingCart.products)} 
+fn:replace 替换字符串中指定的字符 ${fn:replace(text, "-", "•")} 
+fn:split 把字符串按照指定字符切分 ${fn:split(customerNames, ";")} 
+fn:startsWith 判断字符串是否以某个子串开始 <c:if test="${fn:startsWith(product.id, "100-")}"> 
+fn:substring 获取子串 ${fn:substring(zip, 6, -1)} 
+fn:substringAfter 获取从某个字符所在位置开始的子串 
+${fn:substringAfter(zip, "-")} 
+fn:substringBefore 获取从开始到某个字符所在位置的子串 ${fn:substringBefore(zip, "-")} 
+fn:toLowerCase 转为小写 ${fn.toLowerCase(product.name)} 
+fn:toUpperCase 转为大写字符 ${fn.UpperCase(product.name)} 
+fn:trim 去除字符串前后的空格 ${fn.trim(name)}
+```
+
+### 14.6.4. 其他要点：
 
   - **.和[]**
 
     ```
     []与.运算符
     EL 提供.和[]两种运算符来存取数据。
+    两个可以混合使用
     当要存取的属性名称中包含一些特殊字符，如.或?等并非字母或数字的符号，就一定要使用 []。
     例如：
     ${user.My-Name}应当改为${user["My-Name"] }
@@ -4625,9 +5626,11 @@ public class CookieServletDemo extends HttpServlet {
     	param和paramValues--request.getParameter();
     	requestScope.key-- request.getAttribute("key");
     两者不同，一个是域中的共享数据，一个是请求参数
+
+    不过因为逻辑处理基本都在servlet中做，jsp中基本用不到param
     ```
 
-    ```jsp
+    ```
     param和paramValues:
 
     <%--    请求为：http://localhost:8080/Demo/temp.jsp?name=neu20182825&name=zhangsan--%>
@@ -4687,7 +5690,7 @@ public class CookieServletDemo extends HttpServlet {
   ```
 
 
-## 14.6. JSTL 标签
+## 14.7. JSTL 标签
 
 - 概念：JavaServer Pages Tag Library：jsp 标准标签库
 
@@ -4771,7 +5774,7 @@ public class CookieServletDemo extends HttpServlet {
     </c:foreach>
     ```
 
-## 14.7. 综合案例（用户信息管理）
+## 14.8. 综合案例（用户信息管理）
 
 - 简单功能
   - 登录
@@ -4798,7 +5801,7 @@ public class CookieServletDemo extends HttpServlet {
 
   - hidden 的 input 存储数据
 
-## 14.8. 三层架构
+## 14.9. 三层架构
 
 # 15. Filter
 
@@ -5114,7 +6117,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
    1. 标签选择器（元素选择器）
       > 语法： \$("html 标签名") 获得所有匹配标签名称的元素
    2. id 选择器
-      > 语法： \$("#id 的属性值") 获得与指定 id 属性值匹配的元素
+      > �����法： \$("#id 的属性值") 获得与指定 id 属性值匹配的元素
    3. 类选择器
       > 语法： \$(".class 的属性值") 获得与指定的 class 属性值匹配的元素
    4. 并集选择器：
@@ -5322,8 +6325,6 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
       this.prop("check",false);
     }
   })
-
-
   //因为上面添加了check方法，所以可以使用check
   $("#btn-check").click(function(){
     $("#input[type="checkbox]").check();
@@ -5354,19 +6355,19 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
   3. 引入jQueryUI的js文件
   4. 使用jQueryUI功能
 
-# AJAX
+# 18. AJAX
 
-## 基本
+## 18.1. 基本
 
 - 概念：ASynchronous Javascript And XML，异步的javascript和xml
   - 目的：通过在后台与服务器进行少量数据交换，Ajax 可以使网页实现异步更新。这意味着可以在不重新加载整个网页的情况下，对网页的某部分进行更新。
   - 异步和同步：客户端和服务端通信的基础上。
     > ![](./image/ajax-1.jpg)
-## 原生js实现方式
+## 18.2. 原生js实现方式
 
 > 用的不多。了解即可。参考下w3school文档就行了
 
-## JQuery方式
+## 18.3. JQuery方式
 
 > 用的很多
 - 种类：
@@ -5404,7 +6405,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
     > 上面ajax的简化。这里的type是返回内容格式。使用同$.get
 
 
-## JSON
+## 18.4. JSON
 
 
 - 概念：JavaScript Object Notation
@@ -5474,7 +6475,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
         - 调用方法
           - readValue(json字符串，class)
 
-## 案例
+## 18.5. 案例
 
 ![](./image/ajax-2.jpg)
 
@@ -5485,5 +6486,340 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
   - 因为要使用response.getWriter()，因此要注意中文乱码问题，设置response.setContentType()
 
 
-# Redis
+# 19. Redis
 
+## 19.1. 基础
+
+- 概念：redis时一款高性能的NOSQL系列的非关系型数据库
+  > 推荐阅读：https://baijiahao.baidu.com/s?id=1644537541383564235&wfr=spider&for=pc
+- 详细
+  ```
+  1.1.什么是NOSQL
+			NoSQL(NoSQL = Not Only SQL)，意即“不仅仅是SQL”，是一项全新的数据库理念，泛指非关系型的数据库。
+			随着互联网web2.0网站的兴起，传统的关系数据库在应付web2.0网站，特别是超大规模和高并发的SNS类型的web2.0纯动态网站已经显得力不从心，暴露了很多难以克服的问题，而非关系型的数据库则由于其本身的特点得到了非常迅速的发展。NoSQL数据库的产生就是为了解决大规模数据集合多重数据种类带来的挑战，尤其是大数据应用难题。
+
+			1.1.1.	NOSQL和关系型数据库比较
+				优点：
+					1）成本：nosql数据库简单易部署，基本都是开源软件，不需要像使用oracle那样花费大量成本购买使用，相比关系型数据库价格便宜。
+					2）查询速度：nosql数据库将数据存储于缓存之中，关系型数据库将数据存储在硬盘中，自然查询速度远不及nosql数据库。
+					3）存储数据的格式：nosql的存储格式是key,value形式、文档形式、图片形式等等，所以可以存储基础类型以及对象或者是集合等各种格式，而数据库则只支持基础类型。
+					4）扩展性：关系型数据库有类似join这样的多表查询机制的限制导致扩展很艰难。
+
+				缺点：
+					1）维护的工具和资料有限，因为nosql是属于新的技术，不能和关系型数据库10几年的技术同日而语。
+					2）不提供对sql的支持，如果不支持sql这样的工业标准，将产生一定用户的学习和使用成本。
+					3）有的不提供关系型数据库对事务的处理。
+          4）并不安全，数据存储在内存中可能未来得及持久化导致丢失
+
+			1.1.2.	非关系型数据库的优势：
+				1）性能NOSQL是基于键值对的，可以想象成表中的主键和值的对应关系，而且不需要经过SQL层的解析，所以性能非常高。
+				2）可扩展性同样也是因为基于键值对，数据之间没有耦合性，所以非常容易水平扩展。
+
+			1.1.3.	关系型数据库的优势：
+				1）复杂查询可以用SQL语句方便的在一个表以及多个表之间做非常复杂的数据查询。
+				2）事务支持使得对于安全性能很高的数据访问要求得以实现。对于这两类数据库，对方的优势就是自己的弱势，反之亦然。
+
+			1.1.4.	总结
+				关系型数据库与NoSQL数据库并非对立而是互补的关系，即通常情况下使用关系型数据库，在适合使用NoSQL的时候使用NoSQL数据库，
+				让NoSQL数据库对关系型数据库的不足进行弥补。
+				一般会将数据存储在关系型数据库中，在nosql数据库中备份存储关系型数据库的数据
+
+  1.2.主流的NOSQL产品
+    •	键值(Key-Value)存储数据库
+        相关产品： Tokyo Cabinet/Tyrant、Redis、Voldemort、Berkeley DB
+        典型应用： 内容缓存，主要用于处理大量数据的高访问负载。 
+        数据模型： 一系列键值对
+        优势： 快速查询
+        劣势： 存储的数据缺少结构化
+    •	列存储数据库
+        相关产品：Cassandra, HBase, Riak
+        典型应用：分布式的文件系统
+        数据模型：以列簇式存储，将同一列数据存在一起
+        优势：查找速度快，可扩展性强，更容易进行分布式扩展
+        劣势：功能相对局限
+    •	文档型数据库
+        相关产品：CouchDB、MongoDB
+        典型应用：Web应用（与Key-Value类似，Value是结构化的）
+        数据模型： 一系列键值对
+        优势：数据结构要求不严格
+        劣势： 查询性能不高，而且缺乏统一的查询语法
+    •	图形(Graph)数据库
+        相关数据库：Neo4J、InfoGrid、Infinite Graph
+        典型应用：社交网络
+        数据模型：图结构
+        优势：利用图结构相关算法。
+        劣势：需要对整个图做计算才能得出结果，不容易做分布式的集群方案。
+  1.3 什么是Redis
+    Redis是用C语言开发的一个开源的高性能键值对（key-value）数据库，官方提供测试数据，50个并发执行100000个请求,读的速度是110000次/s,写的速度是81000次/s ，且Redis通过提供多种键值数据类型来适应不同场景下的存储需求，目前为止Redis支持的键值数据类型如下：
+      1) 字符串类型 string
+      2) 哈希类型 hash
+      3) 列表类型 list
+      4) 集合类型 set
+      5) 有序集合类型 sortedset
+    1.3.1 redis的应用场景
+      •	缓存（数据查询、短连接、新闻内容、商品内容等等）
+      •	聊天室的在线好友列表
+      •	任务队列。（秒杀、抢购、12306等等）
+      •	应用排行榜
+      •	网站访问统计
+      •	数据过期处理（可以精确到毫秒
+      •	分布式集群架构中的session分离
+  ```
+
+- 特点及原理：
+  > ![](./image/redis-1.jpg)
+
+- 下载安装
+  - 解压直接可以使用（默认端口6379）
+  - 文件
+    - redis.windows.conf:配置文件
+    - redis.cli.exe:redis客户端
+    - redis.server.exe:redis服务端
+
+- 数据结构
+  > key-value形式，key都是字符串，value有5种不同的数据结构
+  - 类型：
+    - 字符串：string 重复时会进行覆盖
+    - 哈希 hash
+    - 列表 list 允许重复
+    - 集合 set 不允许重复
+    - 有序集合 sortedset 不允许重复，自动排序
+  - 示例图 
+    > ![](./image/redis-2.jpg)
+
+## 19.2. 基本命令操作
+
+> 更多请查询redis官方文档
+
+- 字符串类型
+  - 存储 set key value
+  - 获取 get key
+  - 删除 del key
+    > set username zhangsan 
+    > get username
+
+- 哈希
+  - hset key field value
+  - hget key  field
+  - hgetall key 获取所有hash表中的键值对
+  - hdel key field
+    > hset myhash username wangwu
+    > hget myhash username
+    > hgetall myhash
+
+- 列表
+  > 可以添加一个元素到列表的头部或者尾部
+  - 添加
+    - lpush key value:列表头部添加一个元素
+      > 在Redis2.4版本以前， lpush 只接受单个 value 值。
+    - rpush key value:列表尾部添加一个元素
+  - 查询
+    - lrange key start end:获取一定范围的元素
+      > lrange mylist 0 -1：这样会获取所有元素
+  - 删除
+    - lpop key:删除列表最左边的元素，并将元素返回
+    - rpop key:删除最右边的元素，并将元素返回
+    
+- hash 
+  - 添加:sadd key value
+    > 在Redis2.4版本以前， SADD 只接受单个value 值。
+  - 查询：smembers key：获取set中所有元素
+  - 删除：srem key value:删除set集合中value元素
+
+- sortedset
+  ```
+  Redis 有序集合和集合一样也是string类型元素的集合,且不允许重复的成员。
+  不同的是每个元素都会关联一个double类型的分数。redis正是通过分数来为集合中的成员进行从小到大的排序。
+  有序集合的成员是唯一的,但分数(score)却可以重复。
+  集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。 集合中最大的成员数为 232 - 1 (4294967295, 每个集合可存储40多亿个成员)。
+  ```
+  - 存储：zadd key score value
+    > score的大小表示权的大小，权高的在后面
+    > zadd mysortedset 80 zhangsan
+  - 获取：zrange key start end
+    > 依旧0,-1为所有元素
+  - 删除：zrem key value
+    > 删除key对应sortedset中的value值
+
+
+- 通用
+  - keys 正则表达式：查询key值
+  - type key ：查询key对应value的类型
+  - del key：删除指定的键值对。（会删除整个list，set，而不是删除里面的元素）
+
+## 19.3. 持久化
+
+- 概念：
+  - redis是一个内存数据库，当redis服务器重启或者电脑重启，数据就会丢失。
+  - 持久化可以保存内存中的数据到硬盘中
+- 机制
+  - RDB：默认方式，不需要就行配置，默认使用这种机制。在一定的间隔事件中检测key的变化，进行持久化数据。频率设置根据实际需要进行改动
+    > 推荐
+    - redis.windows.conf文件中可以配置
+      ```
+      #   after 900 sec (15 min) if at least 1 key changed
+      save 900 1
+      #   after 300 sec (5 min) if at least 10 keys changed
+      save 300 10
+      #   after 60 sec if at least 10000 keys changed
+      save 60 10000
+      ```
+    - 存储在redis文件夹下的rdb后缀名的文件中
+    - 以指定配置文件启动或重新启动redis服务器：
+      > D:\learn\redis-2.8.9>redis-server.exe redis.windows.conf
+  - AOF：在日志中，记录每一条命令的操作。每执行一条命令都会进行记录
+    > 不推荐。默认关闭
+    - 修改appendonly 的值为yes，开启AOF
+    - 设置：
+      ```
+      //配置文件中默认为这样。注释掉两个，开启一个
+      # appendfsync always：每一次操作都进行持久化
+      appendfsync everysec：每隔一秒操作一次持久化
+      # appendfsync no：每隔不进行持久化
+      ```
+    - 持久化文件存储在redis文件夹下后缀名为aof的文件中
+
+## 19.4. Jedis
+
+### 19.4.1. 基本
+
+- 概念：java操作redis数据库的工具，类似于jdbc
+- 快速开始：
+  - 下载jar包
+    - commoms-pool(连接池)
+    - jedis
+  - 导入使用
+  - 关闭连接
+    ```java
+    public void test1(){
+      //1.获取连接
+      Jedis jedis = new Jedis ("localhost",6379) ;//也可以空参，默认为"localhost",6379
+      //2.操作
+      jedis.set("usernaml","zhangsan");
+      //3.关闭连接
+      jedis.close();
+    }
+    ```
+
+### 19.4.2. 方法
+
+> 名称和命令的名字相同
+
+- 操作string
+  - set
+  - get
+  - setex(key,second,value)指定时间后自动删除
+    > 以后可以用来存激活码什么的
+- 操作hash
+  - hset
+  - hget
+  - hgetAll()返回`Map<String,String>`
+- 操作list
+  - lpush/lpop
+  - rpush/lpop
+- 操作set
+  - sadd
+  - smembers() 返回Set<String>
+- 操作sortedset
+  - zadd
+
+### 19.4.3. 连接池
+
+- 概念：类似jdbc连接池
+
+- 使用：
+  - 创建JedisPool连接池对象
+    - 也有空参方法，为默认配置
+    - 也可以传入 JedisPoolConfig对象,host,port 来创建对象
+      > JedisPoolConfig对象可以设置最大连接数
+  - 获取连接并使用
+    - getResouce()
+  - 归还到连接池中
+    - Jedis.close()
+
+- 详细配置：
+  ```
+  #最大活动对象数     
+  redis.pool.maxTotal=1000    
+  #最大能够保持idel状态的对象数      
+  redis.pool.maxIdle=100  
+  #最小能够保持闲置状态的对象数   
+  redis.pool.minIdle=50    
+  #当池内没有返回对象时，最大等待时间    
+  redis.pool.maxWaitMillis=10000    
+  #当调用borrow Object方法时，是否进行有效性检查    
+  redis.pool.testOnBorrow=true    
+  #当调用return Object方法时，是否进行有效性检查    
+  redis.pool.testOnReturn=true  
+  #“空闲链接”检测线程，检测的周期，毫秒数。如果为负值，表示不运行“检测线程”。默认为-1.  
+  redis.pool.timeBetweenEvictionRunsMillis=30000  
+  #向调用者输出“链接”对象时，是否检测它的空闲超时；  
+  redis.pool.testWhileIdle=true  
+  # 对于“空闲链接”检测线程而言，每次检测的链接资源的个数。默认为3.  
+  redis.pool.numTestsPerEvictionRun=50  
+  #redis服务器的IP    
+  redis.ip=xxxxxx  
+  #redis服务器的Port    
+  redis1.port=6379   
+  ```
+- 通过配置文件进行获取连接池
+  - 要通过自己读取一个一个设置，推荐写一个工具类，获取连接
+
+### 19.4.4. 案例
+
+- 需求：
+  - 在index.html页面，页面中有一个省份下拉列表
+  - 当页面加载完毕后，发送ajax请求，加载所有省份
+
+- 流程：
+  > ![](./image/redis-3.jpg)
+  ```java  
+  public class ProvinceServiceImpl implements ProvinceService {
+      //声明dao
+      private ProvinceDao dao = new ProvinceDaoImpl();
+
+      @Override
+      public List<Province> findAll() {
+          return dao.findAll();
+      }
+
+      /**
+          使用redis缓存
+      */
+
+      @Override
+      public String findAllJson() {
+          //1.先从redis中查询数据
+          //1.1获取redis客户端连接
+          Jedis jedis = JedisPoolUtils.getJedis();
+          String province_json = jedis.get("province");//province键对应的是json字符串
+
+          //2判断 province_json 数据是否为null
+          if(province_json == null || province_json.length() == 0){
+              //redis中没有数据
+              System.out.println("redis中没数据，查询数据库...");
+              //2.1从数据中查询
+              List<Province> ps = dao.findAll();
+              //2.2将list序列化为json
+              ObjectMapper mapper = new ObjectMapper();
+              try {
+                  province_json = mapper.writeValueAsString(ps);
+              } catch (JsonProcessingException e) {
+                  e.printStackTrace();
+              }
+
+              //2.3 将json数据存入redis
+              jedis.set("province",province_json);
+              //归还连接
+              jedis.close();
+          }else{
+              System.out.println("redis中有数据，查询缓存...");
+          }
+          return province_json;
+      }
+  }
+  ```
+- 注意：
+  - 使用redis缓存不经常发生变化的数据。
+  - 数据库中的数据发生改变时要更将redis数据删除后再次存入。否则数据不会更新
+  - 通常在service中进行redis数据更新
