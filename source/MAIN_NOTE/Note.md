@@ -757,6 +757,8 @@
           change(str, s -> Integer.parseInt(s)+2, i -> i + "" + "aaaa");
       }
   }
+  
+  // 注意 Function只是其中一个，还有DoubleFunction，ToDoublueFunction等等，只不过规定了输入或者输出类型，换汤不换药。查文档去吧
   ```
 
 # 4. Stream 流，方法引用
@@ -1005,7 +1007,7 @@
       }
   }
   ```
-- demo5函数引用
+- demo5函数引用。
   ```java
   package _1_java_base.jdk8_new_feature._3_function_reference;
 
@@ -5706,7 +5708,31 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
     - http://java.sun.com/jsp/jstl/core 为高版本的核心标签库，推荐使用
   - 使用标签
 
-- 标签
+- 基础标签
+  - `<c:set scope="" var="" value=""></c:set>` 往域中添加数据
+    > 也可以`<c:set/>`,进行单标签闭合
+    - var“版本”用于设置作用域属性
+      >如果“value”为null，“var”指定的属性将被删除！如果“var”指定的属性不存在，则会创建一个属性，但仅当“value”不为null时才会创建新属性。
+    - -target“版本”用于设置bean属性或Map值。
+      > 如果“target”是一个Map，“property”指定的是该Map的一个键；如果“target”是一个bean，“property”指定的是该bean的一个成员字段。
+      ```jsp
+      <!-- 
+        不能同时有“var”和“target”属性。
+        “scope” 是可选的，如果没有使用这个属性，则默认为页面作用域
+       -->
+      <c:set target="${petMap}" property="dogName" value="Clover" scope="session"/> 
+      <!-- 
+        如果“target”表达式为null，容器会抛出一个异常。
+        如果“target”表达式不是一个Map或bean，容器会抛出一个异常。
+        如果“target”表达式是一个bean，但是这个bean没有与“property”匹配的成员字段，容器会抛出一个异常。
+       -->
+      ```
+
+  - `<c:out value="" default=""></c:out>` 输出，同`<%= %>`
+  - `<c:remove var="" scope=""></c:remove> `删除域中数据
+
+
+- 常用标签
 
   - if--if
 
@@ -5721,6 +5747,10 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
 
     <c:if test="${not empty list}">
       遍历集合
+    </c:if>
+
+    <!-- 也可以这样： 但很不常用-->
+    <c:if test="true" scope="session" var="name1" value="value1">
     </c:if>
     ```
 
@@ -5773,6 +5803,32 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
       ${s.count} ${s.index} ${str}<br>
     </c:foreach>
     ```
+  - forTokens-字符串迭代
+    > 标签用于实现类似java.util.StringTokenizer类的迭代功能，按照指定的分隔符对字符串进行迭代。用得很少
+    ```jsp
+    <!-- 
+    items用于指定将要迭代的字符串；
+    delims用于指定一个或多个分隔符；
+    var用于将当前迭代的子字符串保存到page域中的属性名称；
+    varStatus表示当前被迭代到的对象的状态信息，包括四个属性：index（表示当前迭代成员的索引值）、count（表示当前已迭代成员的数量）、
+    first（表示当前迭代到的成员是否为第一个）、last（表示当前迭代到的成员是否为最后一个）；
+    begin指定从第begin个子字符串开始进行迭代，begin的索引值从0开始编号；
+    end指定迭代到第begin个字符串，begin的索引值从0开始编号；
+    step指定迭代的步长，即每次迭代后的迭代因子增量。
+     -->
+    <c:set var="sourceStr" value="a|b|c|d|e" />
+    <c:forTokens var="str" items="${sourceStr}" delims="|" varStatus="status">
+      <c:out value="${status.count}"/>.<c:out value="${str}"/>&nbsp;
+      <c:if test="${status.last}">
+        <p>总共被分为<c:out value="${status.count}"/>段</p>
+      </c:if>
+    </c:forTokens>
+    <!-- 
+      结果：
+      1.a 2.b 3.c 4.d 5.e
+      总共被分为5段
+     -->
+    ```
 
 ## 14.8. 综合案例（用户信息管理）
 
@@ -5815,6 +5871,7 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
 - 快速入门
   1. 定义一个类实现 Filter 接口（javax.Servlet.Filter）
   2. 复写方法
+    > 里面request有必要可以强转为HttpRequest
   3. 配置拦截路径
      > @WebFilter()
   4. 放行：`filterChain.doFilter(servletRequest,servletResponse)`
@@ -5865,9 +5922,27 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 
 ### 15.2.3. 生命周期
 
-- init()
+- init(FilterConfig config)
   - 在服务器启动时会创建 Filter 对象，然后调用 init 方法。
   - 一般用于加载资源
+    - 比如读取web.xml中FilterConfig里配置的初始化参数
+      ```xml
+      <filter>
+          <filter-name>demo1</filter-name>
+          <filter-class>cn.itcast.web.filter.FilterDemo1</filter-class>
+
+          <!-- 配置初始化参数 -->
+          <init-param>
+            <param-name>encode</param-name>
+            <param-value>utf-8</param-value>
+          </init-param>
+
+      </filter>
+      <filter-mapping>
+          <filter-name>demo1<filter-name>
+          <url-pattern>/*</url-pattern>
+      </filter-mapping>
+      ```
 - doFilter()
   - 每一次请求被拦截资源时会执行。因此会多次执行
   - 进行逻辑性操作
@@ -5915,6 +5990,8 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 - 过滤器先后问题：
   - 注解配置：按照类名的字符串比较规则，较小的先执行
   - web.xml 配置：filter-pattern 谁配置在上面，谁先执行
+
+
 
 ## 15.3. 案例
 
@@ -6028,13 +6105,34 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 
 - 概念：web 三大组件之一
 
-  > servlet Filter Listener
+  > 三大组件：servlet Filter Listener
 
-  - 事件监听机制
-    - 事件：一个动作
-    - 事件源：事件发生地方
-    - 监听器：一个对象
-    - 注册监听：将事件源和监听器绑定在一起。当事件源上发生某个事件后执行监听器代码
+- 事件监听机制
+  - 事件：一个动作
+  - 事件源：事件发生地方
+  - 监听器：一个对象
+  - 注册监听：将事件源和监听器绑定在一起。当事件源上发生某个事件后执行监听器代码
+- 监听对象（三个域对象）：
+  - ServletContext
+    - ServletContextListener
+    - ServletContextAttributeListener
+  - HttpSession
+    - HttpSessionListener
+    - HttpSessionIdListener
+    - HttpSessionActivationListener
+    - HttpSessionAttributeListener
+    - HttpSessionBindingListener
+  - ServletRequest
+    - ServletRequestListener
+    - ServletRequestAttributeListener
+- 监听动作：
+  - 域对象的创建和销毁
+  - 域对象中属性的增加和删除
+  - 监听绑定到HttpSession域中的某个对象的状态的事件监听器
+- 可以用来统计登录人数等等，当然，也可以用servlet实现该功能
+
+
+> **下面就说明一个示例**
 
 - ServletContextListener 接口
 

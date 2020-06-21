@@ -227,3 +227,25 @@ vi 通过vim进行编辑
 - gitk 乱码：
   - 执行：git config --global gui.encoding utf-8
   - 编码设置成常用的就行，也可以去掉--global，对指定仓库设置特定的编码
+
+- connect to host ssh.github.com port 22: Connection timed out解决方法
+  ```
+  如果用端口443测试发现可以连接上github
+  ssh -T -p 443 git@ssh.github.com
+
+  就是端口22不能使用
+  在./ssh 下找到congfig文件，如果没有就创建一个
+
+  添加配置：
+  Host github.com /*服务器地址为github地址*/
+
+  User "XXX@XX.com" /*github上的注册邮箱为用户账号*/
+
+  Hostname ssh.github.com /*服务器地址为github地址*/
+
+  PreferredAuthentications publickey /*采用公匙*/
+
+  IdentityFile ~/.ssh/id_rsa /*公匙文件路径*/
+
+  Port 443 /*修改端口为443*/
+  ```
