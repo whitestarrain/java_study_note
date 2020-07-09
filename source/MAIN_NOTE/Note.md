@@ -1210,971 +1210,19 @@
   }
   ```
 
-# 5. MySQL
+# 5. MySQL和sql
+> 看另一个md去
 
-## 5.1. 数据库基本概念
+# 6. JDBC
 
-1. 英文名称：Database
-2. 什么是数据库：
-   - 用于存储和管理数据的仓库
-3. 数据可特点：
-   1. 持久化存储数据，其实数据库就是一个文件系统
-   2. 方便存储和管理数据，使用了统一的方式操作数据库--SQL
-4. 常用数据库软件：
-   ![常用数据库](image/MySQL-1.jpg)
-
-## 5.2. 基本命令
-
-- cmd->services.msc 打开服务
-- MySQL 打开与关闭（cmd 下）
-  1. net start mysql 开启 mysql（管理员权限打开 cmd）
-  2. net stop mysql 关闭 mysql（管理员权限打开 cmd）
-- 登陆与退出（cmd 下）
-
-  - 本地：
-    1. 登陆：mysql -uroot -proot
-       > -u:user，后面直接加用户名 -p:password,后面直接加密码
-       > 也可以写成--user=root --password=root
-       > 或者不直接加，只输入-p（即：mysql -uroot -p,之后输入密码会以\*反显）
-    2. 退出：exit
-  - 远程：
-
-    1. 登陆： mysql -h127.0.0.1 -uroot -proot
-
-       > -h 后直接加上 ip 地址，本机为 127.0.0.1
-
-    2. 退出：exit 或者 quit
-    3. 登陆： mysql --host=127.0.0.1 --user=root --password=root
-
-       > 相当于全称，这里有两个-
-
-## 5.3. 数据结构
-
-![示意图](image/MySQL-2.jpg)
-
-- 安装目录
-  - 配置文件 my.ini
-- 数据目录
-  - 计算机硬件和 MySQL 软件合称 MySQL 服务器
-  - 一个数据库就是一个文件夹
-  - 一个数据库中可以存放多张表，表对应文件夹中的.frm 结尾文件
-  - 每个表中存放多条数据记录
-
-# 6. SQL
-
-## 6.1. 什么是 SQL
-
-    Structured Query Language：结构话查询语言。
-    其实就是操作所有关系型数据库(Relational DBMS)的规则
-    每一种数据库操作方式存在不一样的地方，称为“方言”
-
-## 6.2. 通用语法
-
-1. SQL 可以单行或者多行书写，以分号结尾
-2. 使用 table 制表符增强可读性
-3. 数据库不区分大小写，但关键字推荐使用大写
-4. 3 种注释
-   1. 单行注释：
-      1. -- 内容（两个横杠和**一个空格**）
-      2. #内容 （方言 MySQL 特有书写方式，不必要加空格）
-   2. 多行注释：/_ 内容 _/
-
-## 6.3. SQL 语句分类
-
-1. DDL(data definition Language)
-   用来定义数据库对象：数据库，表，列等。关键字：Creat，drop，alter 等
-2. DML(Data Manipulation Language)
-   用来对数据库中的数据进行增删。关键字：insert，delete，update 等。
-3. DQL(Data Query Language)
-   用来查询表中的记录（数据）。关键字 select，where 等
-4. DCL(Data Control Language)
-   数据控制语言，用来定义数据库访问权限和安全级别，及创建用户。关键字：GRANT，REVOKE 等
-   ![语法分类图解](image/MySQL-3.jpg)
-
-## 6.4. 数据类型
-
-![数据类型](image/MySQL-4.jpg)
-
-## 6.5. 语法
-
-### 6.5.1. DDL(操作数据库)
-
-- 对数据库整体
-
-  1. C(Create) 创建
-
-     - create database 数据库名
-
-       > 重名时会报错
-
-     - create database if not exists 数据库名
-
-       > 当指定数据库名不存在时才创建，存在也不会报错
-
-     - create database 数据库名 character set gbk
-
-       > 以指定字符集创建数据库，这里为 gbk
-
-  2. R(Retrieve) 查询
-
-     - show databases;
-       > 额外知识：
-       > information_schema 用来 MySQL 中的一些信息，里面存放的是视图（以后才学），而不是表，并且并不对应物理文件
-       > mysql 用来存放数据库中的核心数据
-       > performance_schema 用来存放调整数据库性能的一些数据
-       > 这是三个都最好不要改
-     - show creat database 数据库名称
-
-       > 查看某一个数据库字符集：查询某个数据库创建语句
-
-  3. U(Update) 修改
-
-     - alter database 数据库名称 character set 字符集名称
-
-       > 修改某个数据库字符集（utf8，没有-）
-
-  4. D(Delete) 删除
-
-     - drop database 数据库名称
-
-       > 一般不会做的操作
-
-     - drop database if exists
-
-       > 当数据库存在时才删除
-
-  5. 使用数据库
-
-     - select database()
-
-       > 查询正在使用的数据库名称
-
-     - use 数据库名称
-
-       > 使用数据库，相当于进入数据库
-
-- 对表整体
-
-  1. C(Create) 创建
-
-     - create table (if not exists) 表名(
-       列名 1 数据类型 1,
-       列名 2 数据类型 2,
-       列名 3 数据类型 3,
-       ......
-       列名 n 数据类型 n;
-       );
-       > 创建表，注意小括号和逗号，最后一列没有逗号
-       ```sql
-       //常用数据类型例：
-       age int
-       score double(5,2)//最多有5位，小数点后保留两位
-       riqi date 2000-12-12
-       jjutiriqi datetime //格式举例：2000-12-12 12:12:12
-       shijianchuo timestamp //格式举例：2000-12-12 12:12:12
-       //时间戳：如果不给这个字段赋值，那么默认使用当前系统时间赋值
-       name varchar(20)
-       //字符串类型，最多20个字符
-       ```
-       ```sql
-       //例：
-       create table student(
-           id int,
-           name varchar(32),
-           age int,
-           score double(4,1),
-           birthday date,
-           inserttime timestamp
-       );
-       ```
-     - create 新表 like 已经存在表
-
-       > 创建一个新的表和已经存在的一个表结构相同，也就是赋值表
-
-  2. R(Retrieve) 查询
-
-     - show tables
-
-       > 查询一个数据库中所有表的名称
-
-     - desc 表名
-
-       > 查询表结构
-
-     - show create table 表名
-
-       > 查询表的字符集
-
-  3. U(Update) 修改<p id="DML_update"> </p>
-
-     - alter table 表名 rename to 新表名;
-
-       > 修改表名
-
-     - alter table 表名 character set 字符集;
-
-       > 修改表的字符集
-
-     - alter table 表名 add 列名 数据类型;
-
-       > 增加一列
-
-     - alter table 表名 drop 列名;
-
-       > 删除列
-
-     - alter table 表名 change 旧列名 新列名 新列名类型
-
-       > 修改列名称，类型
-
-     - alter table 表名 modify 列名 新的类型
-
-       > 只修改列的类型
-
-  4. D(Delete) 删除
-
-     - drop table (if exists) 表名
-
-       > 删除表
-
-     - truncate table 表名
-       > 删除整个表再创建一个一模一样结构的表
-       > 相当于一下两条语句整合
-       > create 新表 like 已经存在表;
-       > drop table 表名
-
-### 6.5.2. DML(增删改表中数据)
-
-1. 添加数据
-   - insert into 表名(列名 1,列名 2.....列名 n) values(值 1,值 2...值 n),(值 1,值 2...值 n).....;
-     > 往表中插入数据
-     - 注意：
-       1. 列名和值要一一对应
-       2. 如果表名后没有写列名，那么默认给所有列添加值。但建议都写上，不要偷懒
-       3. 除了数字类型，其他数据类型都要使用引号引起来，单引号双引号都行
-2. 删除数据
-   - delete from 表名 [where 条件]
-     > 把满足条件的数据从指定表中删除。例： delete from student where id=1;
-     - 注意：
-       1. !!!!!如果不加条件，就会删除表中所有数据!!!!!!
-       2. 但不推荐上述操作，因为会一条一条删除，效率太低，推荐使用 **truncate table 表名**;--删除整个表，然后再创建一个一模一样的空表
-3. 修改数据
-   - update 表名 set 列名 1=值 1,.....[where 条件];
-     > 例：UPDATE student SET age=20,score=100 WHERE id=2;
-     - 注意：
-       1. 如果不加任何条件，就会把所有表中所有记录都修改，比如把 score 都改为 100
-
-### 6.5.3. DQL(表内数据查询)
-
-- select \* from 表名
-
-  > 查询表中所有数据
-
-1. 整体语法： >所有语句都涉及到
-
-   <pre>
-       select 
-           字段列表
-       from
-           表名列表
-       where
-           条件列表
-       group by
-           分组字段
-       having
-           分组之后的条件
-       order by
-           排序
-       limit
-           分页限定
-   </pre>
-
-2. 基础查询：
-
-   1. 多个字段查询
-      - select 字段名 from 表名;
-        > 例：-- 查询姓名和年龄：SELECT NAME,age FROM student;
-        > 一般不使用\*号，阅读性太差,也可以分分行，多加些注释
-        > ![](image/MySQL-5-1.jpg)
-   2. 去除重复结果集
-
-      - select distinct 字段名 from 表名;
-
-        > 如果指定的多个字段名都相同，才可以去重
-
-   3. 计算列
-      - select 字段 1+字段 2 from 表名;
-        > 计算两个字段相加结果,这里可以进行四则运算。
-        > 例：SELECT id,score+age FROM student;
-        > ![](image/MySQL-5-2.jpg)
-        > 如果有 null 参与的运算结果都是 null，因此有下面表达式：
-      - select 字段 1+ifnull(表达式 1,表达式 2) from 表名;
-        > 表达式 1：判断那个字段为 null。
-        > 表达式 2：为 null 时的替换值。
-        > 例：select id+ifnull(score,0) from student;
-   4. 起别名
-      - select 字段 1+字段 2 as 新名称 from 表名;
-        > 将某个结果（列名字段或者表名）起一个别名用来显示出来,as 也能用**一个或者多个空格**表示。
-        > 此时多分行比较好
-
-3. 条件查询
-   1. where 条件
-   2. 运算符
-      > ![](image/MySQL-5-3.jpg) >![](image/MySQL-5-4.jpg)
-      > 例：select \* from student where age>15
-      > ![](image/MySQL-5-5.jpg)
-   3. 注意：
-      - null 不能使用=和<>来判断，应该使用 is 和 is not.
-        > 例：select _ from student where age is null
-        > select _ from student where age is not null
-   4. like：
-      - \_:单个任意字符
-      - %:多个任意字符
-        > 例： select name from student where '李%'
-        > ![](image/MySQL-5-6.jpg)
-4. 排序查询
-   - select 字段 from 表名 order by 排序字段 1 排序方式 1,排序字段 2 排序方式 2....;
-     > 排序方式：
-     > ASC:升序（默认）
-     > DESC:降序
-     > 越靠后，排序优先度越低，只有靠第一种排序相同时，那么才考虑之后的排序方式
-5. 聚合函数:将一列数据作为一个整体，进行**纵向**的计算。
-
-   1. count:计算个数
-
-      - 一般选择非空的列
-      - 或者使用 count(\*)（不推荐）
-
-        > count (distinct nam) 来去重（mysql 是否可用未证实）
-
-   2. max:计算最大值
-   3. min:计算最小值
-   4. sum:计算和；
-   5. avg:计算平均值
-
-   - 注意：聚合函数计算会自动**排除 null 值**，可以通过 ifnull()来避免
-   - 语法：select 函数(字段名) from 表名
-     或者 select 函数(ifnull(字段名,值)) from 表名
-     > 例：
-     > ![](image/MySQL-5-7.jpg)
-
-6. 分组查询
-   - group by 分组字段;
-     > 例：select sex,AVG(math),count(id) from student group by sex;
-     > selct 后有什么，后面就显示什么
-     > ![](image/MySQL-5-8.jpg)<br>
-     > 注意：分组之后查询字段：分组字段(比如 sex,如果用每个人都不同的字段分组，就没有意义了)，聚合函数
-     > 例：<br>![](image/MySQL-5-9.jpg)
-   - 添加判断语句：
-     > 普通 where 添加在前面，分组之后条件判断加载后面并且用 having 关键字
-     > where 和 having 区别（**面试会考**）：
-     1. where 在分组之前进行限定，不满足条件不参与分组， having 在分组之后进行限定，不满足条件不会被查询出来
-     2. where 不可以进行聚合函数的判断，而 having 可以
-        > [查看格式](#453-dql表内数据修改查询)
-        > 例：
-        > ![](image/MySQL-5-10.jpg)
-7. 分页查询
-   - limit 开始的索引,每页查询的条数
-     > 例：<br>select _from student limit 0,3;-- 从 0 开始查，显示三条记录。（第一页）
-     > select _ from student limit 3,3;-- 从 3 开始，显示 3 条，（第二页）
-     > 开始索引=（当前页码-1）\*每页显示条数
-   - limit 这个语法是 SQL 的一个**方言**
-
-### 6.5.4. DCL
-
-[跳转](#611-dcl)
-
-## 6.6. 约束
-
-### 6.6.1. 概念
-
-> 对表中的数据进行限定，保证数据的正确性，有效性和完整性
-
-### 6.6.2. 分类
-
-- 主键约束 pramary key
-- 非空约束 not null
-- 唯一约束 unique
-- 外键约束 foreign key
-
-### 6.6.3. 非空约束
-
-1. 在创建表是添加约束
-   - 在数据定义后面加 空格+not null
-     例：
-     `SQL creat table stu{ id int, name varchar(20) not null -- name为非空约束 };`
-2. 删除非空约束(就是修改表的一个字段)
-   - alter table 表名 modify 字段名 字段类型
-     > 也就是说后面什么都不加，就取消掉了约束
-     > [跳转到列数据类型修改](#DML_update)
-3. 创建表后添加非空约束
-
-   - alter table 表名 modify 字段名 字段类型 not null
-
-     > 和上面同理
-
-### 6.6.4. 唯一约束
-
-- 注意：MySQL 中唯一约束限定的列的值可以有多个 null
-
-1. 创建表是添加唯一约束
-   - 在数据定义后面加 空格和 unique
-     ```SQL
-     creat table ste{
-         id int,
-         phont_number varchar(20) unique
-     };
-     ```
-2. 删除唯一约束
-   - alter table 表名 drop index 字段名
-     > 唯一约束有时候也称为唯一索引，所有有 drop index
-     > [跳转到列数据类型修改](#DML_update)
-3. 创建表后添加唯一约束
-
-   - alter table 表名 modify 字段名 字段类型 unique
-
-     > 和非空约束添加同理，但当添加时，该列数据必须不能有重复的，否则会报错
-
-### 6.6.5. 主键约束
-
-- 含义：非空且唯一。是表中记录的唯一标识
-- 限制：一张表只能有一个字段为主键
-
-1. 创建表时添加主键约束
-   - 后面加 primary key 即可
-     ```SQL
-     creat table stu(
-         id int primary key,
-         name varchar(20)
-     );
-     ```
-2. 删除主键约束
-
-   - alter table 表名 drop primary key;
-
-     > 主键只有一个，所以不需要指定
-
-3. 创建表后添加主键
-
-   - alter table 表名 modify 字段名 字段类型 primary key;
-
-     > 不能有重复数据以及空数据。
-
-4. 自动增长
-   - 概念：如果某一列是数值类型的，使用 auto_increment 可以完成值的自动增长
-   - 基本上都是和主键一起使用，但也可以分开使用，但是这种情况很少
-   - 语法：
-     ```SQL
-     creat table stu(
-         id int primary key auto_increment,
-         name varchar(20)
-     );
-     ```
-     > 也可以手动设置，但每次增长是上次数据+1（也就是等价于最大值+1）
-
-### 6.6.6. 外键约束
-
-- 情景
-  > 有时数据会有冗余
-  > 例：
-  > ![](image/MySQL-4.6.6-1.jpg)
-  > 每个部门就在一个地方，不需要每条员工信息都记一次
-  > <br>解决办法：
-  > 创建两张表
-  > 一张表记员工信息（employee 表），一张表记部门所在地（department 表）
-  > ![](image/MySQL-4.6.6-2.jpg) ![](image/MySQL-4.6.6-3.jpg)
-  > 此时如果删除一个部门，另一张表中还有人对应那个部门，显然不合理。应该先删除人员。
-- 为解决上述问题使用外键约束，即让表与表之间产生关系，从而确保数据的正确性。
-
-1. 添加表时添加外键
-
-   ```SQL
-   creat table 表名(
-       ...
-       外键列
-       constraint 外键名称(自己起名，不能重复) foreign key 外键列名称 references 主表名称(主表列名称)
-       -- 一般都关联主键列，当然也能关联其他列
-       -- 主表必须先存在，此处主表为部门表
-       -- 必须先删除关联表记录，再删除主表记录
-       -- 在多的一方建立外键，指向一的一方的主键
-       -- contraint 外键名称 这部分也可以不写，系统会自动分配外键名称
-   )
-
-   -- 例：
-   creat table employee(
-       ...
-       dep_id int, -- 外键对应主表的主键   --注意，此时该句不是最后一句，要加逗号
-       constraint emp_dept foreign key (dep_id) references  department(id)
-   )
-   ```
-
-   大致图解：
-   ![](image/MySQL-4.6.6-4.jpg)
-
-   > 此时若其他表记录与主表记录相互关联，那么就不能对该条主表记录进行删除
-   > 同样，新加的其他表记录也必须与主表关联记录的所有数据中来取。例如这里新建员工体条目 dep_id 只能取 1 和 2 或者保留为 null
-
-2. 删除外键
-
-   - alter table 其他表的名 drop foreign key 外键名（自己起的那个）
-
-3. 创建表之后，添加外键
-
-   - alter table 其他表的名 add constraint 外键名称（自己起名，不能重复） foreign key 外键列名称 references 主表名称(主表列名称)
-
-     > 中文括号是备注，英文括号中需要填东西
-
-4. 级联操作
-
-   - 情景
-
-     > 当修改主表中的记录时，必须先修改与之关联的记录。为了方便修改数据，就有了级联操作。也就是修改一的同时自动修改多
-
-   - 概念：当修改主表中的记录时，其他表中的记录也会跟着修改（使用一定要谨慎）
-
-     > 比如这里修改 department 表中的一个 id 为 5，employee 表中对应 dep_id 也会修改为 5
-
-   - 添加级联更新：
-
-     - 在添加外键语句后 加上：on update cascade
-
-   - 添加级联删除：
-
-     - 在添加外键语句后 加上：on delete cascade
-
-       例：
-
-     ```SQL
-     -- 先取消键的关联
-     alter table employee drop foreign key emp_dept
-     -- 再重新加上外键，此时添加级联更新语句和级联删除语句
-     alter table employee add constraint emp_dept foreign key dem_id references department(id) on
-     e
-     ```
-
-## 6.7. 数据库设计
-
-### 6.7.1. 多表间关系
-
-1. 多表间关系：
-
-   - 一对一（了解）：
-
-     - 如人的身份证
-
-       > 一个人只能有一个身份证
-
-   - 一对多（多对一）：
-     - 如部门和部门
-       > 一个部门能有多个员工
-       > 一个员工只能在一个部门
-   - 多对多
-     - 如大学生选择课程
-       > 一个学生能选多门课程，
-       > 一个课程能被多个学生选择
-
-2. 实现关系：
-   - 一对多（多对一）
-     - 实现方式：在多的一方建立外键，指向一的一方的主键
-       ![](image/MySQL-4.7.1-1.jpg)
-   - 多对多
-     - 实现方式：通过中间表
-       ![](image/MySQL-4.7.1-2.jpg)
-   - 一对一（实际开发基本不会使用）
-     - 实现方式：
-     - 基本上会合成一张表，如果必须要用两张表的话：
-     1. <br> ![](image/MySQL-4.7.1-3.jpg)
-     2. 使两表主键（id）相同
-
-### 6.7.2. 范式
-
-- 概念：在设计数据库是需要遵循的规范，要遵循后面的范式要求，必须要遵循前面所有范式。
-  范式（数据库设计范式，数据库的设计范式）是符合某一种级别的关系模式的集合。构造数据库必须遵循一定的规则。在关系数据库中，这种规则就是范式。关系数据库中的关系必须满足一定的要求，即满足不同的范式。
-- 分类(一般前三个就足够)：
-
-  1. 第一范式（1NF）：每一列都是不可分割的原子数据项
-
-     > 即每列不可分割。所有的表创建出来后都满足该范式
-
-  2. 第二范式（2NF）：在 1NF 的基础上，非码属性必须依赖于候选码（在 1NF 基础上消除非主属性对主码的部分函数依赖）
-
-     - 函数依赖：通过 A 的属性的值，可以确定唯一 B 的属性的值（A-->B），则称 B 依赖于 A。
-     - 属性组：如果（A,B）-->C，则（A,B）称为一个属性组，合称为 D。
-     - 完全函数依赖：如果 D 是一个**属性组**，通过 D 中所有属性才能确定 B 属性的唯一值，那么则称 B 完全依赖于 D
-     - 部分函数依赖：如果 D 是一个**属性组**，通过 D 中部分属性便可以确定 B 属性的唯一的值，那么称 B 部分依赖于 D
-     - 传递函数依赖：A-->B,B-->C(A,是属性或者属性组，B,C 是属性)，则称属性 C 函数传递依赖于 A
-     - 码：如果一个属性或者属性组在一张表中被其他所有属性完全依赖，则称该属性或属性组为该表的**码**。比如学号和课程名称组合可以称为码
-       _ 主属性：码属性组中的所有属性
-       _ 非主属性：除码属性组中的所有属性
-
-       > 即消除部分函数依赖
-
-  3. 第三范式（3NF）：在 2NF 的基础上，任何非主属性不依赖于其他非主属性。（在 2 范式的基础上消除传递依赖。）
-  4. Boyce-Codd 范式（BCNF）
-  5. 第四范式（4NF）
-  6. 第五范式（5NF）
-
-- 情景举例：
-  1. 第一范式所存在问题：
-     ![](image/MySQL-4.7.2-1.jpg)
-  2. 通过分表实行第二范式，解决第一个问题：
-     ![](image/MySQL-4.7.2-2.jpg)
-  3. 通过分表实行第三范式，解决第二三个问题。
-     ![](image/MySQL-4.7.2-3.jpg)
-
-## 6.8. 数据库备份和还原
-
-> 其实就是将所有数据还原为命令行
-
-1. 命令行
-   - 备份（不用登陆）： mysqldump -u 用户名 -p 密码 指定数据库 > 保存的路径
-   - 还原：
-     1. 登陆数据库
-     2. 创建数据库
-     3. 使用数据库
-     4. 执行文件：source 文件路径
-2. 直接右键备份还原。
-
-## 6.9. 多表查询
-
-### 6.9.1. 小知识点
-
-- 单表查询语法回顾：
-
-    <pre>
-        select 
-            字段列表
-        from
-            表名
-        where
-            条件列表
-        group by
-            分组字段
-        having
-            分组之后的条件
-        order by
-            排序
-        limit
-            分页限定
-    </pre>
-
-- 多表查询查询出来的内容称为**笛卡尔积**
-  > 即多个表的所有记录的所有组合，个数为 n*m *.....
-  > 要完成多表查询，需要消除无用的数据
-
-### 6.9.2. 多表查询分类
-
-#### 6.9.2.1. 内连接查询
-
-1. 隐式内连接
-
-   - from 后有多个表，使用 where 条件消除无用的数据。表名.'列名' 来表示某表某列，单引号加不加都行
-
-     > 例：emp.'dept_id'=dept.'id'
-
-     ```SQL
-     -- 例：
-     select
-         t1.name,
-         t1.sex,
-         t2.name  -- 2
-     from
-         employee t1,
-         department t2   -- 1 先起别名，避免表名过长过于麻烦
-     where
-         t1.id=t2.id -- 3
-     -- 格式仿照这样写，多分行方便加注释
-     ```
-
-2. 显式内连接
-
-   - select 字段列表 from 表名 inner join 表名 2 on 条件
-
-     > 将其他表加入到主表中,这样会显示其他表的所有信息而不能指定只显示哪几项，通过 where 进行记录筛选。效果与隐式内连接相同
-
-     ```SQL
-     -- 例：
-     select
-         *
-     from
-         employee t1
-     [inner] join
-         department t2
-     where
-         t1.id=t2.id;
-     ```
-
-- 内连接查询注意：
-  1. 从那些表中查数据
-  2. 查询条件是什么
-  3. 查询那些字段
-
-#### 6.9.2.2. 外连接查询
-
-1. 左外连接：
-   - select 查询字段列表 from 表 1 left [outer] join 表 2 on 条件
-   - 查询的是左表(语句中表的位置)所有记录与笛卡尔积中满足条件记录的和，不满足条件的左表记录，对应其他表数据会以 null 显示。
-     ![](image/MySQL-4.9.2-1.jpg)
-   ```SQL
-   -- 例：
-   select
-       t1.*,t2.name
-   from
-       employee t1
-   left join
-       department t2
-   on
-       t1.id=t2.id
-   ```
-2. 右外连接：
-   - select 查询字段列表 from 表 1 right [outer] join 表 2 on 条件
-   - 查询的是右表中所有记录与笛卡尔积中满足条件记录的和，不满足条件的右表记录，对应其他表的数据会以 null 显示
-
-- 可以注意到，只要掌握一个即可，把两个表换换位置就能从左变右，从右变左
-
-#### 6.9.2.3. 子查询
-
-- 概念：查询中嵌套查询，称嵌套查询为子查询。
-
-  ```SQL
-  -- 如计算工资最高的人的姓名：
-  select max(salary) from employee
-  select * from employee where salary=9000 -- 不一定是9000，看上一条语句执行结果
-
-  --上两条语句整合为：
-  select * from employee where employee.'salary'=(select max(salary) from employee)
-  -- 括号内为子查询
-  -- 单个表时在列字段前面加不加表限定都行
-  ```
-
-- 不同情况
-
-  1. 子查询结果是单行单列
-
-     - 子查询可以作为条件（或者单个数值），使用运算符来进行判断
-
-       > 例：上面
-
-  2. 子查询结果是多行单列
-
-     - 使用运算符 in 来进行所有值的 or 操作：
-
-       ```SQL
-       -- 格式不知道是否规范！
-
-       -- 查询两个部门对应的所有员工的信息
-       select
-           *
-       from
-           employee
-       where
-           id
-       in
-           (
-           select
-               id
-           from
-               department
-           where
-               name='财务部'
-               or name='市场部'
-           )
-       ```
-
-  3. 子查询结果是多行多列
-     - 将子查询得到的结果也作为一个表来进行处理
-       ```SQL
-       -- 查询入职日期是2000-2-22之后的员工的信息
-       -- 普通内连接
-       select
-           *
-       from
-           employee t1,
-           department t2
-       where
-           t1.dept_id=t2.id
-           and t1.join_date>'2000-2-22'
-       -- 子表查询
-       select
-           *
-       from
-           employee t1,
-           (
-               select
-                   *
-               from
-                   employee
-               where
-                   employee.join_date>'2000-2-22'
-           ) t2
-       where
-           t1.id=t2.id
-       ```
-
-- 多表查询练习，再看下视频？
-
-  - 自关联映射（不会的话看 30 分钟处）
-
-## 6.10. 事务
-
-### 6.10.1. 基本介绍
-
-- 概念：
-  - 如果一个包含多个步骤的业务操作，被事务管理，那么这些操作会同时成功或者同时失败
-    ![](image/MySQL-4.10.1-1.jpg)
-    > 拿 java 类比：
-    > 被事务管理：编译。如果有语法错误，整个类都不会被编译
-    > 不被事务管理：异常。出现异常后停止执行后面代码，前面代码已经执行
-- 操作：
-
-  1. 开启事务 start transaction
-  2. 回滚 rollback
-  3. 提交 commit
-
-  ```SQL
-  -- 例：张三给李四转500
-
-  -- 0 开启事务
-      start transaction;
-
-  -- 1 张三账户-500
-      update account set balance=balance-500 where name='zhangsan';
-
-  --  **假设此处可能出错**
-
-  -- 2 李四账户+500
-      update account set balance=balance+500 where name='lisi';
-
-  -- 中间没有发生错误，进行提交
-      commit;
-
-  -- 发现有错误，回滚.此时会回滚到开启事务之前
-  -- 也可以说提交后没有事务开启了，此时rollback什么也不会发生
-      rollback;
-  ```
-
-- 提交
-  - 提交方式：
-    1. mysql 默认是自动提交的，一条 DML（增删改）语句会自动提交一次.（oracle 是默认手动提交事务）
-    2. 当开启事务后，就不会自动提交了，如果不进行手动提交数据不会被修改
-  - 查看默认提交方式：
-    > select @@autocommit;
-    > 结果为 1 代表自动提交，0 代表手动提交<br>
-    > set @@autocommit =0
-    > 关闭自动提交
-
-### 6.10.2. 四大特征
-
-1. 原子性：是不可分割的最小操作单位，要么同时成功，要么同时失败
-2. 持久性：如果事务一旦提交或者回滚，数据库会持久更新数据。
-3. 隔离性：多个事务之间相互独立。但一般会相互影响。
-4. 一致性：表示事务操作前后数据总量不变。
-
-### 6.10.3. 隔离等级（了解）
-
-- 概念：多个事务之间，是相互独立的。但如果多个事务操作**同一批数据**，也就是并发操作，则会引发一些问题，设置不同的隔离级别就可以解决这些问题
-- 存在问题：
-  1. 脏读：一个事务读取到另一个事务中没有提交的数据
-  2. 不可重复读（虚读）：同一个事务中，两次读取的数据不一样
-  3. 幻读：一个事务操作（DML）数据表中所有记录，而此时另一个事务添加了一条数据，导致第一个事务查询不到自己的修改（MySQL 中并不存在该问题）
-- 隔离级别：
-  - 隔离级别从小到大安全性越来越高，效率越来越低
-  1. read uncommitted:读未提交（事务 1 修改的数据未提交时，事务 2 会读到修改后的数据）
-     - 产生问题：脏读，不可重复读，幻读
-  2. read committed:读已提交（事务 1 只有提交了修改数据，事务 2 才可以读到已经修改改的数据，否则只会读到修改前数据）（oracle 默认）
-     - 产生问题：不可重复读，幻读
-  3. repeatalbe read:可重复读（事务 1 只有提交了修改数据，事务 2 也提交后，才可以读到已修改数据，否则只会读到修改前数据）（MySQL 默认）
-     - 产生问题：幻读
-  4. serializable（只有事务 1 提交后才可以读到数据，否则事务 2 会一直等待，不会读取任何数据）:串行化
-     - 可以解决所有问题
-- 隔离级别设置与查询：
-
-  ```SQL
-  -- 查询：
-  select @@tx_isolation
-
-  -- 设置：
-  set global transaction isolation level 级别字符串
-  -- 设置后必须重新关闭打开数据库才能生效
-  ```
-
-## 6.11. DCL
-
-- 注意：
-  基本上不常用，因为会有 DBA（数据库管理员）专门管一个公司的数据库，并且分配给职员账户，所以 DCL 了解即可
-
-- 管理用户
-
-  1. 添加用户
-
-     - creat user '用户名'@'主机名' identified by '密码'
-
-       > 主机名可以写 localhost 和%等
-
-  2. 删除用户
-
-     - drop user '用户名'@'主机名'
-
-  3. 修改用户密码
-
-     1. 普通修改密码
-
-        - update user set password=password('新密码') where user='用户名'
-
-          > password()是 MySQL 密码加密函数
-
-        - set password for '用户名'@'主机名'=password('新密码')
-
-          > 同样效果，DCL 特有方式。
-
-     2. 当忘记 root 账户密码
-
-        1. cmd --> net stop mysql
-
-           > 停止 MySQL 服务
-
-        2. mysqld --skip-grant-tables
-
-           > 使用无验证方式打开 MySQL 服务，此时光标会卡住
-
-        3. 打开一个新的 cmd，输入 mysql 回车，登录成功
-        4. 通过命令行修改密码，关闭两个窗口
-
-           - update user set password=password('新密码') where user='root'
-
-        5. 打开任务管理器，手动结束 mysqld.exe 这一进程
-        6. 打开新 cmd，正常登陆
-
-  4. 查询用户：
-     mysql 数据库-->user 表
-     ![](image/MySQL-4.11-1.jpg)
-     localhost 是本地主机，%时通配符，表示任意主机，可以用来远程登陆
-     数据库中密码会进行加密
-
-- 权限管理
-
-  - 查询权限
-
-    - show grants for '用户名'@'主机名';
-
-  - 授予权限
-    - grant 权限列表 on 数据库名.表名 to '用户名'@'主机名';
-      > 所有权限关键字：all
-      > 所有数据库和表：_ ._ ><br>所有权限分类：SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, SHUTDOWN, PROCESS, FILE, REFERENCES, INDEX, ALTER, SHOW DATABASES, SUPER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, REPLICATION SLAVE, REPLICATION CLIENT, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, CREATE USER
-  - 撤销权限
-
-    - revoke 权限列表 on 数据库名.表名 from '用户名'@'主机名';
-
-# 7. JDBC
-
-## 7.1. JDBC 基本概念
+## 6.1. JDBC 基本概念
 
 - 概念：Java DataBase Connectivity :java 数据库连接，即通过 java 语言操作数据库。
 - 本质：其实是官方（sun 公司）定义的一套操作所有关系型数据库的规则，即一套接口
   各个数据库厂商提供去实现这套接口，提供数据库驱动 jar 包，我们可以用这套接口编程，但真正执行的代码是驱动 jar 包中的实现类
   ![](image/JDBC5.1-1.jpg)
 
-## 7.2. JDBC 快速入门
+## 6.2. JDBC 快速入门
 
 - 步骤：
   1. 导入驱动 jar 包（此处是使用 mysql，导入 mysql-connector-java-5.1.48.jar）
@@ -2188,7 +1236,7 @@
   7. 处理结果
   8. 释放资源
 
-## 7.3. JDBC 相关接口
+## 6.3. JDBC 相关接口
 
 > java 包中以下除 DriverManger 都是接口
 
@@ -2267,6 +1315,9 @@
 
     - 预编译 SQL:参数通过?作为占位符替代
 
+  - 常用执行方法
+    > ![](./image/preparestatement.jpg)
+
   - 步骤：
 
     1. 导入驱动 jar 包
@@ -2296,7 +1347,7 @@
     - 可以防止 SQL 注入问题
     - 效率更高
 
-## 7.4. JDBC 控制事务
+## 6.4. JDBC 控制事务
 
 > JDBCDemo7
 
@@ -2310,9 +1361,9 @@
 3. 回滚事务
    - 在 catch 中回滚事务 conn.rollback()
 
-## 7.5. JDBC 练习
+## 6.5. JDBC 练习
 
-### 7.5.1. 工具类练习
+### 6.5.1. 工具类练习
 
 - 目的：简化书写
 - 分析：
@@ -2321,7 +1372,7 @@
      - 不传递参数但要保证工具类通用性：通过配置文件。
   3. 抽取一个方法释放资源
 
-### 7.5.2. 登陆练习
+### 6.5.2. 登陆练习
 
 - 目的：了解并通过 PreparedStatement 来解决 JDBC 注入问题
 
@@ -2363,7 +1414,7 @@
   }
   ```
 
-### 7.5.3. JDBC 控制事务
+### 6.5.3. JDBC 控制事务
 
 - 了解在哪里开启，在哪里提交，在哪里回滚。[](#74-jdbc控制事务)
 
@@ -2411,9 +1462,9 @@
   }
   ```
 
-## 7.6. 数据库连接池
+## 6.6. 数据库连接池
 
-### 7.6.1. 概念等
+### 6.6.1. 概念等
 
 - 情景：
   > 获取连接的操作是向系统底层申请资源，是非常耗时的。而上几个 Demo 中，一直都是使用时创建连接对象，不用后关闭连接对象，十分耗时间
@@ -2439,7 +1490,7 @@
     1. C3P0:数据库连接池技术(较老)
     2. Druid:数据库连接池技术，由阿里巴巴开发(较新)(最好的数据库连接池技术之一)
 
-### 7.6.2. C3P0
+### 6.6.2. C3P0
 
 - 步骤：
 
@@ -2493,7 +1544,7 @@
   - c3p0-config.xml
   - 本文件
 
-### 7.6.3. Druid
+### 6.6.3. Druid
 
 - 步骤：
 
@@ -2531,7 +1582,7 @@
   }
   ```
 
-### 7.6.4. 练习：工具类
+### 6.6.4. 练习：工具类
 
 1. 定义一个类 JDBCUtils
 2. 提供静态代码块进行加载配置文件，初始化连接池对象
@@ -2626,15 +1677,15 @@
   }
   ```
 
-## 7.7. Spring JDBC
+## 6.7. Spring JDBC
 
-### 7.7.1. 概念
+### 6.7.1. 概念
 
 - 是 Spring 对 JDBC 的简单封装，提供了 JdbcTemplate 来简化 JDBC 的开发
 
   > Spring 是 javaEE 的灵魂框架，这只是 Spring 的一小部分，之后会有 Spring 的专题
 
-### 7.7.2. 步骤
+### 6.7.2. 步骤
 
 1. 导入 jar 包
 2. 创建 JdbcTemplate 对象，依赖于数据源 DataSource
@@ -2663,7 +1714,7 @@
 
 - 代码：看文件
 
-### 7.7.3. 练习
+### 6.7.3. 练习
 
 - 注意：要使用 Junit 的话，必须要在 public class 中。一般不会看输出，而看颜色判断是否能成功运行
 
@@ -2680,7 +1731,7 @@
 
 - 代码：看文件
 
-# 8. 代码生成(Emmet)
+# 7. 代码生成(Emmet)
 
 - 子：>
 - 父：^
@@ -2702,9 +1753,9 @@
   > 不在括号中加>是整个层次降低一次，比如 P>（各种样式），后面的各种样式都在 p 中。括号中是局部。有多个元素的括号后不能加>和^，因为无法分辨是哪个下面，那个上面
   > 多练才行，意外得十分不熟
 
-# 9. XML
+# 8. XML
 
-## 9.1. 概念
+## 8.1. 概念
 
 1. Extensible Markup Language 可扩展标记语言
    1. 可扩展：标签都是自定义的\<people\>
@@ -2726,7 +1777,7 @@
       2. xml 语法十分严格，html 语法松散
       3. xml 是存储数据的，html 是展示数据的
 
-## 9.2. 语法
+## 8.2. 语法
 
 1. 基本语法
    1. xml 文档后缀名.xml
@@ -2761,7 +1812,7 @@
          2. 格式：<![CDATA[ ]]>
 3. 快速入门
 
-## 9.3. 约束
+## 8.3. 约束
 
 - 背景：
   ![](./image/xml-1.jpg)
@@ -2839,7 +1890,7 @@
 
         ![](./image/schema-1.jpg)
 
-## 9.4. 解析
+## 8.4. 解析
 
 - 概念：操作 xml 文档，将文档中的数据读取到内存中
 - 操作 xml 文档：
@@ -2931,9 +1982,9 @@
 
         > [跳转](https://www.w3school.com.cn/xpath/xpath_syntax.asp)
 
-# 10. tomcat
+# 9. tomcat
 
-## 10.1. 回顾
+## 9.1. 回顾
 
 1. 软件架构
    1. C/S：客户端/服务端
@@ -2962,9 +2013,9 @@
          1. tcp：安全协议 三次握手 速度稍慢
          2. udp：不安全协议，速度快
 
-## 10.2. web 服务器软件
+## 9.2. web 服务器软件
 
-### 10.2.1. 概念
+### 9.2.1. 概念
 
 - 服务器：安装了服务器软件的计算机
 - 服务器软件：接收用户的请求，处理请求做出响应
@@ -2981,7 +2032,7 @@
   - JBoss：JBoss 公司，大型 javaEE 服务器，收费，支持所有 javaEE 规范
   - tomcat：Apache 基金组织，中小型 javaEE 服务器，仅支持少量 javaEE 规范。开源免费
 
-### 10.2.2. tomcat
+### 9.2.2. tomcat
 
 - 开始
   - 下载
@@ -3105,7 +2156,7 @@
       5. 改为 Update resources
       6. （其实就是添加资源刷新，但因为 java 代码改得较多，所以不加 updata Classes 了）
 
-# 11. 快捷键
+# 10. 快捷键
 
 <table>
 <thead>
@@ -3357,9 +2408,9 @@
       →
     </span></p></div> </main>
 
-# 12. Servlet 基础
+# 11. Servlet 基础
 
-## 12.1. 概念
+## 11.1. 概念
 
 - server applet:运行在服务端的小程序
   - servlet 就是一个接口，定义了 java 类被浏览器访问到（或被服务器识别到）的规则
@@ -3368,7 +2419,7 @@
 
   > ![](./image/servlet.jpg)
 
-## 12.2. 快速入门
+## 11.2. 快速入门
 
 1. 创建 javaee 项目，勾选 web application,勾选 web.xml（Servlet3.0 版本后面再说）
 2. 定义一个类，实现 Servlet 接口
@@ -3377,7 +2428,7 @@
 
 > 实质就是让一个虚拟路径映射到一个实现 Servlet 接口的类。类中有相关方法。
 
-## 12.3. 执行原理
+## 11.3. 执行原理
 
 1. 当服务器接收到客户端浏览器的请求后，会解析 url 请求的路径，获取访问的 servlet 的资源路径
 2. 查找 web.xml 文件是否有对应的<url-pattern>标签及内容
@@ -3388,7 +2439,7 @@
 
    > ![](./image/servlet2.jpg)
 
-## 12.4. Servlet 中的生命周期
+## 11.4. Servlet 中的生命周期
 
 > servlet 类的对象并不需要我们自己创建，我们只需要声明 servlet 的类，
 > 对象的创建和方法调用是由 web 服务器(容器)自动完成，response 和 request 对象也是服务器自动创建的
@@ -3449,7 +2500,7 @@
   - servletConfig()：获取 ServletConfig 对象，也就是 ServletConfig 配置对象
   - getServletInfo()：获取 servlet 的一些信息，比如版本，作者（一般不会实现）
 
-## 12.5. 多线程访问与两种参数
+## 11.5. 多线程访问与两种参数
 
 ![](./image/servlet--3.jpg)
 
@@ -3496,7 +2547,7 @@
 
   - 应用范围：所有 Servlet，整个项目中
 
-## 12.6. Servlet3.0
+## 11.6. Servlet3.0
 
 > 背景：
 > 当有多个 Servlet 的时候需要重复配置很多次
@@ -3520,7 +2571,7 @@
 
      > @WebServlet("资源路径") 。例：@WebServlet("/demo")
 
-## 12.7. IDEA 与 tomcat 配置
+## 11.7. IDEA 与 tomcat 配置
 
 - IDEA 会为每一个 tomcat 部署的项目单独建立一根配置
 
@@ -3598,7 +2649,7 @@
             └─WEB-INF
   ```
 
-## 12.8. Servlet 体系结构及路径配置
+## 11.8. Servlet 体系结构及路径配置
 
 > 背景：每次都要把所有 5 个方法都重载
 
@@ -3655,9 +2706,9 @@
         2. 但当有`/*`以及`/demo`时，/demo 优先要更高
      3. \*.xxx：看似是文件，后缀名自定
 
-## 12.9. HTTP 请求协议：
+## 11.9. HTTP 请求协议：
 
-### 12.9.1. 基础概念
+### 11.9.1. 基础概念
 
 > 在 old 中有笔记，可以看看那里的，这里是复习+补充
 
@@ -3679,7 +2730,7 @@
   - 1.0（每次请求响应后都会断开，在新建连接）
   - 1.1（复用连接，不会立马断掉，如果一段时间没有数据传输才会断开）
 
-### 12.9.2. http 请求消息
+### 11.9.2. http 请求消息
 
 - 请求消息数据格式
 
@@ -3770,20 +2821,20 @@
         ```
         ![](./image/http-3.jpg)
 
-### 12.9.3. http 响应消息
+### 11.9.3. http 响应消息
 
 - 响应消息数据格式
 
-## 12.10. Request 对象
+## 11.10. Request 对象
 
-### 12.10.1. 原理：
+### 11.10.1. 原理：
 
 ![](./image/http-4.jpg)
 
 1. request 和 response 对象是由服务器创建的，我们来使用它们
 2. request 对象是用来获取请求消息的，response 对象是用来设置响应消息
 
-### 12.10.2. Request
+### 11.10.2. Request
 
 - 继承体系结构：
 
@@ -3795,7 +2846,7 @@
 
         > //通过 System.out.println(rep);得到。tomcat 中实现 HttpServletRequest 接口的类。tomcat 是 apache 公司的
 
-#### 12.10.2.1. Request 基本方法
+#### 11.10.2.1. Request 基本方法
 
 - Request 功能：
 
@@ -3904,7 +2955,7 @@
       //和get方式中的格式相同
       ```
 
-#### 12.10.2.2. 获取参数通用方法
+#### 11.10.2.2. 获取参数通用方法
 
 - 其他功能（都很常用）
   - 获取请求参数（通用，get，post 都适用）：
@@ -3944,7 +2995,7 @@
       }
       ```
 
-#### 12.10.2.3. 中文乱码问题
+#### 11.10.2.3. 中文乱码问题
 
 - 中文乱码问题：
   - tomcat8 已经将 get 方式的中文乱码问题解决了
@@ -3952,7 +3003,7 @@
   - **解决：**在获取参数前，添加一句：req.setCharacterEncoding("utf-8")//此处的编码与网页编码一致
   - 原理：post 方式时，getParameter()内部依旧使用流的方式
 
-#### 12.10.2.4. 请求转发
+#### 11.10.2.4. 请求转发
 
 - 请求转发
 
@@ -4001,7 +3052,7 @@
     2. 只能转发到当前服务器内部资源中。（比如转发到 www.baidu.com 就不行）
     3. 多个资源间，使用的是同一个请求。（也就是访问最开始那个资源时的请求）
 
-#### 12.10.2.5. 共享数据
+#### 11.10.2.5. 共享数据
 
 - 共享数据
   > ![](./image/servlet-4.jpg)
@@ -4013,7 +3064,7 @@
     2. Object getAttribute(String name)根据键获取值
     3. void removeAttribute(String name)根据键移除键值对
 
-#### 12.10.2.6. 其他
+#### 11.10.2.6. 其他
 
 - 获取 ServletContext
 
@@ -4023,9 +3074,9 @@
 
 > 当两个 Servlet 类的对应虚拟地址相同时，服务器开启时会报错。
 
-### 12.10.3. Request 案例
+### 11.10.3. Request 案例
 
-#### 12.10.3.1. 分析
+#### 11.10.3.1. 分析
 
 - 用户需求：
 
@@ -4059,7 +3110,7 @@
      2. FailServlet
      3. SuccessServlet
 
-#### 12.10.3.2. 代码：从上到下（不想看折叠或跳过）
+#### 11.10.3.2. 代码：从上到下（不想看折叠或跳过）
 
 - 目录结构：
   ```
@@ -4396,7 +3447,7 @@ public class SuccessServlet extends HttpServlet {
 </html>
 ```
 
-#### 12.10.3.3. BeanUtils 基本使用
+#### 11.10.3.3. BeanUtils 基本使用
 
 > 主要用来简化数据封装，用来封装 JavaBean
 
@@ -4435,7 +3486,7 @@ public class SuccessServlet extends HttpServlet {
   2. getProperty(Object bean,key,value):获取某个对象中某个属性的值（必须是属性值）
   3. populate(Object bean,Map map):将 map 中键的值作为属性的名称，设置到传入的对象中
 
-## 12.11. 路径
+## 11.11. 路径
 
 1. 绝对路径(以/开头)
 
@@ -4479,9 +3530,9 @@ public class SuccessServlet extends HttpServlet {
          2. 目标：http://localhost/Demo1/demo.html
          3. 相对路径：../Demo1/demo.html
 
-## 12.12. HTTP 响应协议
+## 11.12. HTTP 响应协议
 
-### 12.12.1. HTTP 响应消息
+### 11.12.1. HTTP 响应消息
 
 ```
 示例：
@@ -4540,9 +3591,9 @@ Date: Mon, 02 Mar 2020 14:21:37 GMT
 
     > 有的是看得懂的 html 页面，也有些时看不懂的，比如图片的二进制数据
 
-## 12.13. Responds 对象
+## 11.13. Responds 对象
 
-### 12.13.1. 基本功能
+### 11.13.1. 基本功能
 
 - 设置响应行
   - 设置状态码：`void setStatus(int sc)`
@@ -4596,7 +3647,7 @@ http头部；
 起作用。
 ```
 
-### 12.13.2. 重定向
+### 11.13.2. 重定向
 
 - 图解：
 
@@ -4628,7 +3679,7 @@ http头部；
   }
   ```
 
-### 12.13.3. 重定向和转发对比
+### 11.13.3. 重定向和转发对比
 
 > **面试重要题目**
 
@@ -4644,11 +3695,11 @@ http头部；
 > 当需要传递数据时可以使用转发，不需要时使用重定向。
 > 之后还会有很多域对象
 
-### 12.13.4. 案例解析
+### 11.13.4. 案例解析
 
-#### 12.13.4.1. 完成重定向
+#### 11.13.4.1. 完成重定向
 
-#### 12.13.4.2. 服务器输出字符数据到浏览器
+#### 11.13.4.2. 服务器输出字符数据到浏览器
 
 - 获取的 Print 输出流不需要刷新！！
 
@@ -4671,7 +3722,7 @@ http头部；
 
     - 简单形式解决：`resp.setContextType("text/html;charset=utf-8")`
 
-#### 12.13.4.3. 服务器数据字节数据到浏览器
+#### 11.13.4.3. 服务器数据字节数据到浏览器
 
 ```java
 protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -4683,12 +3734,12 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response) 
   }
 ```
 
-#### 12.13.4.4. 验证码
+#### 11.13.4.4. 验证码
 
 > 这里只是简单地做个演示
 > 实际上以后验证码不需要自己实现，**从网上找找比较美观的就行**
 
-##### 12.13.4.4.1. 主要代码
+##### 11.13.4.4.1. 主要代码
 
 ```java
 @WebServlet("/checkCode")
@@ -4737,7 +3788,7 @@ public class CheckCodeServlet extends HttpServlet {
 
 ```
 
-##### 12.13.4.4.2. 点击刷新的实现
+##### 11.13.4.4.2. 点击刷新的实现
 
 ```html
 <!DOCTYPE html>
@@ -4762,7 +3813,7 @@ public class CheckCodeServlet extends HttpServlet {
 </html>
 ```
 
-## 12.14. 跳转与转发代码执行时机
+## 11.14. 跳转与转发代码执行时机
 
 > 例：
 
@@ -4800,9 +3851,9 @@ for (int i = 0; i < 5; i++) {
 
 
 
-## 12.15. ServletContext
+## 11.15. ServletContext
 
-### 12.15.1. 基本
+### 11.15.1. 基本
 
 - 概念：代表整个 web 应用，可以和 Servlet 程序的容器（tomcat）进行通信
 - 创建时间:服务器启动时被创建
@@ -4811,9 +3862,9 @@ for (int i = 0; i < 5; i++) {
     - 通过 request 对象获取：`requ.getServletContext()`
     - 通过 HttpServlet 获取：`this.getServletContext()` //继承了 HttpServlet
 
-### 12.15.2. 功能
+### 11.15.2. 功能
 
-#### 12.15.2.1. 获取 MIME 类型
+#### 11.15.2.1. 获取 MIME 类型
 
 - MIME：
 
@@ -4831,7 +3882,7 @@ for (int i = 0; i < 5; i++) {
 
   ```
 
-#### 12.15.2.2. ServletContext 域对象
+#### 11.15.2.2. ServletContext 域对象
 
 - 方法：
   - setAttribute(String name,Object value)
@@ -4843,7 +3894,7 @@ for (int i = 0; i < 5; i++) {
     - 作用域很大并且并且生命周期很长
     - 因此使用很谨慎
 
-#### 12.15.2.3. 获取文件的真实（服务器）路径
+#### 11.15.2.3. 获取文件的真实（服务器）路径
 
 - 原因：
   ![](./image/Servlet-11.jpg)
@@ -4865,22 +3916,22 @@ for (int i = 0; i < 5; i++) {
   > 在本地工作空间部署的某个项目，当前获取的目录为：D:\learn\IdeaProject\note\out\artifacts\Demo_war_exploded\a.txt
   > ![](./image/servlet-12.jpg)
 
-## 12.16. 客户端下载文件案例
+## 11.16. 客户端下载文件案例
 
-### 12.16.1. 需求：
+### 11.16.1. 需求：
 
 - 页面显示超链接
 - 点击超链接后弹出下载页面
 - 完成图片文件下载
 
-### 12.16.2. 分析
+### 11.16.2. 分析
 
 - 超链接指向的资源如果能被浏览器解析，就会在浏览器中展示，比如图片，如果不能解析，则弹出下载提示框。
 - 需求：任何资源都必须弹出下载提示框
 - 使用响应头设置资源打开方式为附件
   - content-disposition:attachment;filename=xxx
 
-### 12.16.3. 步骤：
+### 11.16.3. 步骤：
 
 - 定义页面，编辑超链接 href 属性，指向 servlet，并传递资源名称作为参数
 - 定义 servlet
@@ -4890,7 +3941,7 @@ for (int i = 0; i < 5; i++) {
   - 指定 response 的响应头：content-disposition:attachment;filename=xxx
   - 将数据写到 response 输出流
 
-### 12.16.4. 中文文件名展示问题
+### 11.16.4. 中文文件名展示问题
 
 - 描述：不同浏览器现实的中文名称都会乱码，并且乱码内容不同
 - 解决：
@@ -4899,9 +3950,9 @@ for (int i = 0; i < 5; i++) {
 
 > 因为新版 jdk 中没有 sun.misc.BASE64Encoder，所以 util 文件暂时无法使用，解决方式待定
 
-# 13. Servlet 会话技术
+# 12. Servlet 会话技术
 
-## 13.1. 基本概念
+## 12.1. 基本概念
 
 - 会话：一次会话中包含多次请求和响应
 
@@ -4922,11 +3973,11 @@ for (int i = 0; i < 5; i++) {
 
 - 设计这方面编程时，要一个请求一个响应得想
 
-## 13.2. cookie
+## 12.2. cookie
 
-### 13.2.1. 概念：将数据保存在客户端的会话技术
+### 12.2.1. 概念：将数据保存在客户端的会话技术
 
-### 13.2.2. 快速入门：
+### 12.2.2. 快速入门：
 
 - 流程示例
 
@@ -4951,7 +4002,7 @@ for (int i = 0; i < 5; i++) {
 > 流程示例图示：
 > ![](./image/cookie-1.jpg)
 
-### 13.2.3. 实现原理
+### 12.2.3. 实现原理
 
 > **每次请求响应的具体过程** > ![](./image/cookie-base.jpg)
 >
@@ -4959,7 +4010,7 @@ for (int i = 0; i < 5; i++) {
 > 本地浏览器会把 cookie 保存下来
 > 具体可以自己抓包试试
 
-### 13.2.4. cookie 细节
+### 12.2.4. cookie 细节
 
 - 一次可不可以发送多个 cookie
   - 可以
@@ -4994,7 +4045,7 @@ for (int i = 0; i < 5; i++) {
   - request 只是将 cookie 从客户端带到服务端
   - 想要更新客户端的话需要将数据从服务端通过 response 带到客户端
 
-### 13.2.5. uri 解码编码
+### 12.2.5. uri 解码编码
 
 - 使用：URLEncoder 对象中的静态方法
 
@@ -5069,7 +4120,7 @@ public class CookieServletDemo extends HttpServlet {
 
 ```
 
-### 13.2.6. cookie 的特点
+### 12.2.6. cookie 的特点
 
 1. cookie 存储数据在客户端
 
@@ -5099,7 +4150,7 @@ public class CookieServletDemo extends HttpServlet {
   - Cookie 的大小和个数受限，不同浏览器有所区别，基本上单个 Cookie 保存的数据不能超过 4095 个字节，50 个/每个域名；
   - Cookie 安全性不够高，所有的 Cookie 都是以纯文本的形式记录于文件中，因此如果要保存用户名密码等信息时，最好事先经过加密处理。
 
-### 13.2.7. url重写
+### 12.2.7. url重写
 
 > 在禁用cookie时使用该方式传递session的id信息。不过现在基本上不会禁用cookie，用的也很少了
 
@@ -5110,7 +4161,7 @@ public class CookieServletDemo extends HttpServlet {
 - `	encodeRedirectURL(String url)`非通用，记住上面那个就行了
 
 
-## 13.3. cookie 案例
+## 12.3. cookie 案例
 
 - 记住上一次访问时间
   - 访问一个 Servlet，如果是第一次访问，则提示：你好，欢迎访问
@@ -5133,14 +4184,14 @@ public class CookieServletDemo extends HttpServlet {
       - 响应数据
       - 写回 cookie，添加
 
-## 13.4. session
+## 12.4. session
 
-### 13.4.1. 概念：
+### 12.4.1. 概念：
 
 - 服务器端会话技术，在**一次会话**的多次请求间共享数据，不需要请求转发，将数据保存在服务端的对象 HttpSession 中
   > 在浏览器不关闭（JSESSIONID 不失效）以及 session 失效之前，所有的请求和响应属于一次会话
 
-### 13.4.2. ※原理※：
+### 12.4.2. ※原理※：
 
 - session 也是一个域对象（HttpServletRequest，ServletContext）。session 的实现是依赖于 cookie 的
 
@@ -5149,7 +4200,7 @@ public class CookieServletDemo extends HttpServlet {
   > 多个客户端流程：
   > ![](./image/session-6.jpg)
 
-### 13.4.3. 快速入门
+### 12.4.3. 快速入门
 
 - 获取 session：request.getSession();
   - 重载：getSession(boolean)
@@ -5167,7 +4218,7 @@ public class CookieServletDemo extends HttpServlet {
   - 获取 HttpSession 对象产生的时间，单位是毫秒：long getCreationTime()
   - 获取用户最后通过这个 HttpSession 对象送出请求的时间：long getLastAccessedTime()
 
-### 13.4.4. session 细节
+### 12.4.4. session 细节
 
 1. 当客户端关闭后，服务器不关闭，两次获取 session 是否为同一个
 
@@ -5207,7 +4258,7 @@ public class CookieServletDemo extends HttpServlet {
   - session 没有大小限制，cookie 有
   - seesion 较安全，cookie 相对不太安全
 
-## 13.5. session 案例
+## 12.5. session 案例
 
 - 需求分析：
 
@@ -5221,9 +4272,9 @@ public class CookieServletDemo extends HttpServlet {
 
   > ![](./image/session-4.jpg)
 
-# 14. jsp
+# 13. jsp
 
-## 14.1. 基础
+## 13.1. 基础
 
 - 概念：java server pages:java 服务器端页面
 
@@ -5339,7 +4390,7 @@ public class CookieServletDemo extends HttpServlet {
       > 原因：![](./image/jsp-2.jpg)
       > 建议统一使用 out
 
-## 14.2. 改进 cookie 案例
+## 13.2. 改进 cookie 案例
 
 - 将 doPost 中的代码复制一下就行了
 
@@ -5347,7 +4398,7 @@ public class CookieServletDemo extends HttpServlet {
 
 - 但其实并不推荐，阅读性太差，展示和代码流程控制糅杂到一起了，这里只是试试
 
-## 14.3. 指令，注释，内置对象
+## 13.3. 指令，注释，内置对象
 
 - jsp 指令
 
@@ -5428,11 +4479,11 @@ public class CookieServletDemo extends HttpServlet {
 
     - exception ····Throwable····异常对象。声明 isErrorPage 为 true 时才会有这个对象
 
-## 14.4. jsp动作元素
+## 13.4. jsp动作元素
 
 > 基本上不用了。感兴趣可以去查资料
 
-## 14.5. MVC 开发模式
+## 13.5. MVC 开发模式
 
 - jsp 演变历史
 
@@ -5466,9 +4517,9 @@ public class CookieServletDemo extends HttpServlet {
 
 > 因此，为了替换 jsp 中的 java 代码，可以使用 EL 表达式以及 JSTL 标签
 
-## 14.6. EL 表达式
+## 13.6. EL 表达式
 
-### 14.6.1. 基础
+### 13.6.1. 基础
 
 - 概念：Experssion Language:表达式语言
 - 作用：替换和简化 jsp 页面中 java 页面的编写。**在标签的引号内部以及 javascript 中仍然可以使用**
@@ -5479,7 +4530,7 @@ public class CookieServletDemo extends HttpServlet {
     - 忽略所有：jsp 的 page 指令下 isELIgnored 可以设置是否忽略 EL 表达式
     - 忽略单个：加一个反斜线`\${}`。（转义字符）
 
-### 14.6.2. 基本使用
+### 13.6.2. 基本使用
 
 
 
@@ -5556,7 +4607,7 @@ public class CookieServletDemo extends HttpServlet {
     <form action="${pageContext.request.contextPath}/login.jsp"></form>
     ```
 
-### 14.6.3. el函数
+### 13.6.3. el函数
 
 ![](./image/jspfn.jpg)
 
@@ -5585,7 +4636,7 @@ fn:toUpperCase 转为大写字符 ${fn.UpperCase(product.name)}
 fn:trim 去除字符串前后的空格 ${fn.trim(name)}
 ```
 
-### 14.6.4. 其他要点：
+### 13.6.4. 其他要点：
 
   - **.和[]**
 
@@ -5692,7 +4743,7 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
   ```
 
 
-## 14.7. JSTL 标签
+## 13.7. JSTL 标签
 
 - 概念：JavaServer Pages Tag Library：jsp 标准标签库
 
@@ -5830,7 +4881,7 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
      -->
     ```
 
-## 14.8. 综合案例（用户信息管理）
+## 13.8. 综合案例（用户信息管理）
 
 - 简单功能
   - 登录
@@ -5857,11 +4908,11 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
 
   - hidden 的 input 存储数据
 
-## 14.9. 三层架构
+## 13.9. 三层架构
 
-# 15. Filter
+# 14. Filter
 
-## 15.1. 基本
+## 14.1. 基本
 
 - web 过滤器：当访问服务器资源时，过滤器可以把请求拦截下来，完成一些特殊的功能：
   - 一般用于完成通用操作
@@ -5876,9 +4927,9 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
      > @WebFilter()
   4. 放行：`filterChain.doFilter(servletRequest,servletResponse)`
 
-## 15.2. 细节
+## 14.2. 细节
 
-### 15.2.1. web.xml 配置
+### 14.2.1. web.xml 配置
 
 > 和 servlet 配置基本相同
 
@@ -5894,7 +4945,7 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
 </filter-mapping>
 ```
 
-### 15.2.2. 执行流程
+### 14.2.2. 执行流程
 
 > 图解：
 > ![](./image/filter-1.jpg)
@@ -5920,7 +4971,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 
 > **注意：在一次请求中， Filter 和 Servlet 的 Request 对象是同一个**
 
-### 15.2.3. 生命周期
+### 14.2.3. 生命周期
 
 - init(FilterConfig config)
   - 在服务器启动时会创建 Filter 对象，然后调用 init 方法。
@@ -5950,7 +5001,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
   - 服务器关闭后，Filter 对象被销毁，如果服务器正常关闭，则会正常执行 destory 方法
   - 一般用来释放资源
 
-### 15.2.4. 配置详解
+### 14.2.4. 配置详解
 
 - 拦截路径配置
   - 具体资源路径：/index.jsp
@@ -5979,7 +5030,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
       - ERROR：错误跳转资源
       - ASYIC：异步访问资源
 
-### 15.2.5. 过滤器链
+### 14.2.5. 过滤器链
 
 - 如果有两个过滤器，执行顺序：
   - 过滤器 1 前部分
@@ -5993,9 +5044,9 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 
 
 
-## 15.3. 案例
+## 14.3. 案例
 
-### 15.3.1. 案例需求
+### 14.3.1. 案例需求
 
 - 登录验证：
   - 访问资源，验证是否登录
@@ -6018,7 +5069,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
     - 获得对应代理对象
     - 将代理对象对象放行
 
-### 15.3.2. 代理模式
+### 14.3.2. 代理模式
 
 > 推荐阅读：https://blog.csdn.net/briblue/article/details/73928350
 
@@ -6099,7 +5150,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 
     ```
 
-# 16. Listener
+# 15. Listener
 
 > 用的很少。这里只说一个监听接口，其他自己查查文档
 
@@ -6159,11 +5210,11 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
       ```
     - 注解:直接在类上写一个：`@WebListener`即可
 
-# 17. JQuery
+# 16. JQuery
 
 > 最好查文档去
 
-## 17.1. 基础概念
+## 16.1. 基础概念
 
 > 注：$ 和 jquery 作用相同
 
@@ -6209,7 +5260,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
     - `$('#div1').css("background-Color","red")`
     - `$('#div1').css("backgroundColor","red")` 推荐。鼠标放上去有提示
 
-## 17.2. 选择器
+## 16.2. 选择器
 
 1. 基本选择器
    1. 标签选择器（元素选择器）
@@ -6262,7 +5313,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
    4. 选中选择器
       > 语法： :selected 获得下拉框选中的元素
 
-## 17.3. DOM操作
+## 16.3. DOM操作
 
 - 内容
   - html()：设置或获取标签体内容，也可以设置标签
@@ -6314,7 +5365,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
   11. $(html标签)：创建html标签
     - 如：`$("<div>")` `<tr><td></td><td></td></tr>`
 
-## 17.4. 动画
+## 16.4. 动画
 
 > 查文档吧，这一节笔记基本没啥用，就是一个总览
 
@@ -6345,7 +5396,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 
 - 特点：动画效果完了之后才会开始执行回调方法。这个个性在做动画时十分有用
 
-## 17.5. 遍历
+## 16.5. 遍历
 
 - js遍历：
   - for
@@ -6369,7 +5420,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
     - for(i of arr){}
 
 
-## 17.6. 事件绑定
+## 16.6. 事件绑定
 
 > 这只是入门，更多请查文档
 
@@ -6396,13 +5447,13 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 - return false：可以取消冒泡以及浏览器默认行为
 
 
-## 17.7. 链式编程
+## 16.7. 链式编程
 
 > 但不建议写太长
 
 - 概念：返回jq对象的函数可以继续调用其他函数，java中本来就有
 
-## 17.8. 插件
+## 16.8. 插件
 
 - 机制原理：
   > 之后会将js和css封装到文件中
@@ -6442,7 +5493,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 - 使用：
   > http://www.htmleaf.com/jQuery/ 看着说明导入文件，用用就行了
 
-## 17.9. jqueryUI
+## 16.9. jqueryUI
 
 > 基本ui
 
@@ -6453,19 +5504,19 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
   3. 引入jQueryUI的js文件
   4. 使用jQueryUI功能
 
-# 18. AJAX
+# 17. AJAX
 
-## 18.1. 基本
+## 17.1. 基本
 
 - 概念：ASynchronous Javascript And XML，异步的javascript和xml
   - 目的：通过在后台与服务器进行少量数据交换，Ajax 可以使网页实现异步更新。这意味着可以在不重新加载整个网页的情况下，对网页的某部分进行更新。
   - 异步和同步：客户端和服务端通信的基础上。
     > ![](./image/ajax-1.jpg)
-## 18.2. 原生js实现方式
+## 17.2. 原生js实现方式
 
 > 用的不多。了解即可。参考下w3school文档就行了
 
-## 18.3. JQuery方式
+## 17.3. JQuery方式
 
 > 用的很多
 - 种类：
@@ -6503,7 +5554,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
     > 上面ajax的简化。这里的type是返回内容格式。使用同$.get
 
 
-## 18.4. JSON
+## 17.4. JSON
 
 
 - 概念：JavaScript Object Notation
@@ -6573,7 +5624,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
         - 调用方法
           - readValue(json字符串，class)
 
-## 18.5. 案例
+## 17.5. 案例
 
 ![](./image/ajax-2.jpg)
 
@@ -6584,9 +5635,9 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
   - 因为要使用response.getWriter()，因此要注意中文乱码问题，设置response.setContentType()
 
 
-# 19. Redis
+# 18. Redis
 
-## 19.1. 基础
+## 18.1. 基础
 
 - 概念：redis时一款高性能的NOSQL系列的非关系型数据库
   > 推荐阅读：https://baijiahao.baidu.com/s?id=1644537541383564235&wfr=spider&for=pc
@@ -6685,7 +5736,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
   - 示例图 
     > ![](./image/redis-2.jpg)
 
-## 19.2. 基本命令操作
+## 18.2. 基本命令操作
 
 > 更多请查询redis官方文档
 
@@ -6745,7 +5796,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
   - type key ：查询key对应value的类型
   - del key：删除指定的键值对。（会删除整个list，set，而不是删除里面的元素）
 
-## 19.3. 持久化
+## 18.3. 持久化
 
 - 概念：
   - redis是一个内存数据库，当redis服务器重启或者电脑重启，数据就会丢失。
@@ -6777,9 +5828,9 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
       ```
     - 持久化文件存储在redis文件夹下后缀名为aof的文件中
 
-## 19.4. Jedis
+## 18.4. Jedis
 
-### 19.4.1. 基本
+### 18.4.1. 基本
 
 - 概念：java操作redis数据库的工具，类似于jdbc
 - 快速开始：
@@ -6799,7 +5850,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
     }
     ```
 
-### 19.4.2. 方法
+### 18.4.2. 方法
 
 > 名称和命令的名字相同
 
@@ -6821,7 +5872,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 - 操作sortedset
   - zadd
 
-### 19.4.3. 连接池
+### 18.4.3. 连接池
 
 - 概念：类似jdbc连接池
 
@@ -6863,7 +5914,7 @@ public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain
 - 通过配置文件进行获取连接池
   - 要通过自己读取一个一个设置，推荐写一个工具类，获取连接
 
-### 19.4.4. 案例
+### 18.4.4. 案例
 
 - 需求：
   - 在index.html页面，页面中有一个省份下拉列表
