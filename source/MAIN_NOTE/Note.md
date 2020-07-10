@@ -4274,7 +4274,13 @@ public class CookieServletDemo extends HttpServlet {
 
 # 13. jsp
 
-## 13.1. 基础
+## 13.1. ※注意※
+
+- jsp早已不受待见。这个看看就行。
+  > 推荐开发架构：<br>
+  > ![](./image/REST架构前后端分离.jpg)
+
+## 13.2. 基础
 
 - 概念：java server pages:java 服务器端页面
 
@@ -4390,7 +4396,7 @@ public class CookieServletDemo extends HttpServlet {
       > 原因：![](./image/jsp-2.jpg)
       > 建议统一使用 out
 
-## 13.2. 改进 cookie 案例
+## 13.3. 改进 cookie 案例
 
 - 将 doPost 中的代码复制一下就行了
 
@@ -4398,7 +4404,7 @@ public class CookieServletDemo extends HttpServlet {
 
 - 但其实并不推荐，阅读性太差，展示和代码流程控制糅杂到一起了，这里只是试试
 
-## 13.3. 指令，注释，内置对象
+## 13.4. 指令，注释，内置对象
 
 - jsp 指令
 
@@ -4479,11 +4485,11 @@ public class CookieServletDemo extends HttpServlet {
 
     - exception ····Throwable····异常对象。声明 isErrorPage 为 true 时才会有这个对象
 
-## 13.4. jsp动作元素
+## 13.5. jsp动作元素
 
 > 基本上不用了。感兴趣可以去查资料
 
-## 13.5. MVC 开发模式
+## 13.6. MVC 开发模式
 
 - jsp 演变历史
 
@@ -4517,9 +4523,9 @@ public class CookieServletDemo extends HttpServlet {
 
 > 因此，为了替换 jsp 中的 java 代码，可以使用 EL 表达式以及 JSTL 标签
 
-## 13.6. EL 表达式
+## 13.7. EL 表达式
 
-### 13.6.1. 基础
+### 13.7.1. 基础
 
 - 概念：Experssion Language:表达式语言
 - 作用：替换和简化 jsp 页面中 java 页面的编写。**在标签的引号内部以及 javascript 中仍然可以使用**
@@ -4530,7 +4536,7 @@ public class CookieServletDemo extends HttpServlet {
     - 忽略所有：jsp 的 page 指令下 isELIgnored 可以设置是否忽略 EL 表达式
     - 忽略单个：加一个反斜线`\${}`。（转义字符）
 
-### 13.6.2. 基本使用
+### 13.7.2. 基本使用
 
 
 
@@ -4607,7 +4613,7 @@ public class CookieServletDemo extends HttpServlet {
     <form action="${pageContext.request.contextPath}/login.jsp"></form>
     ```
 
-### 13.6.3. el函数
+### 13.7.3. el函数
 
 ![](./image/jspfn.jpg)
 
@@ -4636,7 +4642,7 @@ fn:toUpperCase 转为大写字符 ${fn.UpperCase(product.name)}
 fn:trim 去除字符串前后的空格 ${fn.trim(name)}
 ```
 
-### 13.6.4. 其他要点：
+### 13.7.4. 其他要点：
 
   - **.和[]**
 
@@ -4743,7 +4749,7 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
   ```
 
 
-## 13.7. JSTL 标签
+## 13.8. JSTL 标签
 
 - 概念：JavaServer Pages Tag Library：jsp 标准标签库
 
@@ -4881,7 +4887,7 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
      -->
     ```
 
-## 13.8. 综合案例（用户信息管理）
+## 13.9. 综合案例（用户信息管理）
 
 - 简单功能
   - 登录
@@ -4908,7 +4914,7 @@ fn:trim 去除字符串前后的空格 ${fn.trim(name)}
 
   - hidden 的 input 存储数据
 
-## 13.9. 三层架构
+## 13.10. 三层架构
 
 # 14. Filter
 

@@ -1,5 +1,7 @@
 ﻿# 1. mybatis
 
+> 官方文档：https://mybatis.org/mybatis-3/zh/index.html
+
 ## 1.1. 基础
 
 ### 1.1.1. mubatis入门
@@ -496,34 +498,85 @@ public class MybatisTest {
 		- ognl：`user.username`
 	- mybatis中，因为parameterType已经提供了属性所属的类，所以直接使用`#{username}`即可
 - parameterType
-	- 传递简单对象
-	- 传递pojo对象（javabean对象）
-		- mybatis使用ognl表达式解析对象字段的值
-	- 传递pojo包装对象（pojo对象作为某个对象的属性）
-		```xml
-			<!-- 根据queryVo的条件查询用户 -->
-			<select id="findUserByVo" parameterType="com.itheima.domain.QueryVo" resultType="com.ithema.domain.User">
-					select * from user where username like #{user.username}
-					<!-- 相当于vo.getUser().getUsername() -->
-			</select>
-		```
-		```java
-			/**
-			* 测试使用QueryVo作为查询条件
-			*/
-			@Test
-			public void testFindByVo(){
-					QueryVo vo = new QueryVo();
-					User user = new User();
-					user.setUserName("%王%");
-					vo.setUser(user);
-					//5.执行查询一个方法
-					List<User> users = userDao.findUserByVo(vo);
-					for(User u : users){
-							System.out.println(u);
-					}
-			}
-		```
+	- 传递单个参数
+		- 传递简单对象
+		- 传递pojo对象（javabean对象）
+			- mybatis使用ognl表达式解析对象字段的值
+		- 传递pojo包装对象（pojo对象作为某个对象的属性）（和下面javabean传参法类似）
+			```xml
+				<!-- 根据queryVo的条件查询用户 -->
+				<select id="findUserByVo" parameterType="com.itheima.domain.QueryVo" resultType="com.ithema.domain.User">
+						select * from user where username like #{user.username}
+						<!-- 相当于vo.getUser().getUsername() -->
+				</select>
+			```
+			```java
+				/**
+				* 测试使用QueryVo作为查询条件
+				*/
+				@Test
+				public void testFindByVo(){
+						QueryVo vo = new QueryVo();
+						User user = new User();
+						user.setUserName("%王%");
+						vo.setUser(user);
+						//5.执行查询一个方法
+						List<User> users = userDao.findUserByVo(vo);
+						for(User u : users){
+								System.out.println(u);
+						}
+				}
+			```
+	- 传递多个参数
+		- 顺序传参法
+			> #{}里面的数字代表你传入参数的顺序。<br>
+			> 这种方法不建议使用，sql层表达不直观，且一旦顺序调整容易出错。
+			```java
+				public User selectUser(String name, int deptId);
+			```
+			```xml
+				<select id="selectUser" resultMap="UserResultMap">
+						select * from user
+						where user_name = #{0} and dept_id = #{1}
+				</select>
+			```
+		- @Param注解传参法
+			> #{}里面的名称对应的是注解 @Param括号里面修饰的名称。<br>
+			> 这种方法在参数不多的情况还是比较直观的，推荐使用
+			```java
+			public User selectUser(@Param("userName") String name, int @Param("deptId") deptId);
+			```
+			```xml
+				<select id="selectUser" resultMap="UserResultMap">
+						select * from user
+						where user_name = #{userName} and dept_id = #{deptId}
+				</select>
+			```
+		- Map传参法
+			> #{}里面的名称对应的是 Map里面的key名称。<br>
+			> 这种方法适合传递多个参数，且参数易变能灵活传递的情况。
+			```java
+			public User selectUser(Map<String, Object> params);
+			```
+			```xml
+				<select id="selectUser" parameterType="java.util.Map" resultMap="UserResultMap">
+						select * from user
+						where user_name = #{userName} and dept_id = #{deptId}
+				</select>
+			```
+		- Java Bean传参法
+			> #{}里面的名称对应的是 User类里面的成员属性。<br>
+			> 这种方法很直观，但需要建一个实体类，扩展不容易，需要加属性，看情况使用。
+			```java
+			public User selectUser(User params);
+			```
+			```xml
+				<select id="selectUser" parameterType="com.test.User" resultMap="UserResultMap">
+						select * from user
+						where user_name = #{userName} and dept_id = #{deptId}
+				</select>
+			```
+
 - 返回值
 	- 当对象中属性名称和数据库字段名称不相同时就会无法将数据封装
 	- 解决方式：
@@ -538,6 +591,7 @@ public class MybatisTest {
 					<!-- 因此一个map映射就能表示一张表到一个实体类的封装 -->
 					<resultMap id="userMap" type="com.ithema.domain.User">
 							<!-- 主键字段的对应 -->
+							<!-- 复合主键的话就多个id标签 -->
 							<id property="userId" column="id"></id>
 							<!-- property对应java中的属性名，严格区分大小写 -->
 							<!--非主键字段的对应。-->
@@ -561,19 +615,6 @@ public class MybatisTest {
 
 > 不多说了，了解即可
 ```java
-package com.itheima.dao.impl;
-
-import com.itheima.dao.IUserDao;
-import com.itheima.domain.User;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-
-import java.util.List;
-
-/**
- * @author 黑马程序员
- * @Company http://www.ithiema.com
- */
 public class UserDaoImpl implements IUserDao {
 
     private SqlSessionFactory factory;
@@ -738,7 +779,9 @@ public class UserDaoImpl implements IUserDao {
 	> ![](./image/mybatis类型别名.jpg)
 - 使用typeAliases标签配置别名.**只能配置domain中类的别名**
 	- `typeAlias`标签
+		> 放在SqlMapConfig.xml最上面，因为下面会用
 	- `package`标签
+		> 放在mappers中
 	```xml
     <!--使用typeAliases配置别名，它只能配置domain中类的别名 -->
     <typeAliases>
@@ -765,6 +808,7 @@ public class UserDaoImpl implements IUserDao {
 
 ### 1.3.1. 连接池（原理了解）
 
+> 自己去分析源码
 - 连接池复习：
 	> ![]("./image/连接池复习.png")
 - mybatis连接池配置方式：
@@ -779,28 +823,842 @@ public class UserDaoImpl implements IUserDao {
 	- POOLED源码过程分析
 		> ![](./image/pooled.jpg)<br>
 		> ![](./image/mybatis_pooled的过程.png)
-	- JDNI见扩展资料
 
-### 1.3.2. 事务
+- JDNI扩展（了解）
+	- 百科
+		> JNDI(Java Naming and Directory Interface,Java命名和目录接口)是SUN公司提供的一种标准的Java命名系统接口，JNDI提供统一的客户端API，通过不同的访问提供者接口JNDI服务供应接口(SPI)的实现，由管理者将JNDI API映射为特定的命名服务和目录系统，使得Java应用程序可以和这些命名服务和目录服务之间进行交互。目录服务是命名服务的一种自然扩展。两者之间的关键差别是目录服务中对象不但可以有名称还可以有属性（例如，用户有email地址），而命名服务中对象没有属性
+	- JDNI模仿window的注册表
+		> ![](./image/JNDI.png)
+	- 使用步骤
+		- maven创建工程
+		- webapp下创建META-INF目录
+		- META-INF目录下创建context.xml文件
+			```xml
+				<?xml version="1.0" encoding="UTF-8"?>
+				<Context>
+				<!-- 
+				<Resource 
+				name="jdbc/eesy_mybatis"						数据源的名称 	对应上面那幅图的name
+				type="javax.sql.DataSource"						数据源类型
+				auth="Container"								数据源提供者
+				maxActive="20"									最大活动数
+				maxWait="10000"									最大等待时间
+				maxIdle="5"										最大空闲数
+				username="root"									用户名
+				password="1234"									密码
+				driverClassName="com.mysql.jdbc.Driver"			驱动类
+				url="jdbc:mysql://localhost:3306/eesy_mybatis"	连接url字符串
+				/>
+				-->
+				<Resource 
+				name="jdbc/eesy_mybatis"
+				type="javax.sql.DataSource"
+				auth="Container"
+				maxActive="20"
+				maxWait="10000"
+				maxIdle="5"
+				username="root"
+				password="1234"
+				driverClassName="com.mysql.jdbc.Driver"
+				url="jdbc:mysql://localhost:3306/eesy_mybatis"
+				/>
+				</Context>
+			```
+		- 如果不经过服务器，是无法访问数据库（连接池依赖于服务器）。所以测试可以在jsp中写。在一个普通测试文件中不行
 
+### 1.3.2. 事务（原理了解）
 
+> 自己去分析源码
+- 默认不自动提交
+- 创建SqlSession时，`openSession(true)`即可获得自动提交的SqlSession对象
+- 注意**一般不会使用自动提交，在测试时可以用用**
 
 ### 1.3.3. 动态sql（会用即可）
 
+> 更多查文档
+
+- if标签：选择性连接
+	```xml
+		<select id="findUserByCondition" resultMap="userMap" parameterType="user">
+        select * from user where 1=1
+				
+				<!-- 这里test中要与对象属性名相同，大小写敏感 -->
+				<!-- 不能使用&&，只能用and -->
+        <if test="userName != null and userSex != null">
+          and username = #{userName} and userSex = #{userSex}
+        </if>
+        <if test="userAddress != null">
+            and userAddress = #{userAddress}
+        </if>
+    </select>
+	```
+- where标签：代表where语句，能够省略`where 1=1`，自动添加`and`
+	```xml
+    <select id="findUserByCondition" resultMap="userMap" parameterType="user">
+        select * from user
+        <where>
+            <if test="userName != null">
+                and username = #{userName}
+            </if>
+            <if test="userSex != null">
+                and sex = #{userSex}
+            </if>
+        </where>
+    </select>
+	```
+- foreach标签：为了 in ....语句
+	- SQL语句：select字段from user where id in(?)
+	- <foreach>标签用于遍历集合，它的属性：
+		- collection:代表要遍历的集合元素，注意编写时不要写#{}
+		- open:代表语句的开始部分
+		- close:代表结束部分
+		- item:代表遍历集合的每个元素，生成的变量名
+		- sperator:代表分隔符
+	```java
+		public class QueryVo {
+
+				private User user;
+
+				private List<Integer> ids;
+
+				// getter setter toString 略去
+		}
+	```
+	```xml
+		<!-- 根据queryvo中的Id集合实现查询用户列表 -->
+    <select id="findUserInIds" resultMap="userMap" parameterType="queryvo">
+        select * from user
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" close=")" item="uid" separator=",">
+                    #{uid}
+                </foreach>
+            </if>
+        </where>
+    </select>
+	```
+
+- 抽取重复sql（了解）
+	```xml
+    <!-- 了解的内容：抽取重复的sql语句-->
+		<!-- 注意，这里不能写分号 -->
+    <sql id="defaultUser">
+        select * from user
+    </sql>
+
+    <!-- 根据queryvo中的Id集合实现查询用户列表 -->
+    <select id="findUserInIds" resultMap="userMap" parameterType="queryvo">
+        <include refid="defaultUser"></include>
+        <where>
+            <if test="ids != null and ids.size()>0">
+                <foreach collection="ids" open="and id in (" close=")" item="uid" separator=",">
+                    #{uid}
+                </foreach>
+            </if>
+        </where>
+    </select>
+	```
+
 ### 1.3.4. 多表查询（掌握使用）
 
-#### 1.3.4.1. 一对多
 
-#### 1.3.4.2. 一对一（？）
+#### 1.3.4.1. 一对一（多对一）
+
+> 情景：一个用户能有多个账户，一个账户只能对应一个用户<br>
+> JavaType和ofType都是用来指定对象类型的，但是JavaType是用来指定pojo中属性的类型，而ofType指定的是映射到list集合属性中pojo的类型。<br>
+> association用javatype即可，collection用ofType即可
+
+- 方式一：在domain中定义专门的 po 类作为输出类型，其中定义了 sql 查询结果集所有的字段。此方法较为简单，企业中使用普遍。
+	- 没什么新的点，看看pdf吧
+- 方式二：
+	- 使用 resultMap，定义专门的 resultMap 用于映射一对一查询结果。
+	- 从表对象中加入主表对象属性
+		> 通过面向对象的(has a)关系可以得知，我们可以在 Account 类中加入一个 User 类的对象来代表这个账户是哪个用户的。
+	- 示例：一个账户对应一个用户
+		- 注意：`association`标签
+		```java
+			public class Account implements Serializable {
+
+					private Integer id;
+					private Integer uid;
+					private Double money;
+					//从  主
+					//多对一关系，从表实体应该包含一个主表实体的对象引用
+					private User user;
+
+					//getter setter toString这里省略
+		```
+		```xml
+			<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE mapper
+							PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+							"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+			<mapper namespace="com.itheima.dao.IAccountDao">
+
+					<!-- 定义封装account和user的resultMap -->
+					<resultMap id="accountUserMap" type="account">
+							<id property="id" column="aid"></id>
+							<result property="uid" column="uid"></result>
+							<result property="money" column="money"></result>
+
+							<!-- 一对一的关系映射：配置封装user的内容-->
+							<!-- 此处column不用写。延迟加载时再说这个干嘛 -->
+							<association property="user" column="uid" javaType="user">
+									<id property="id" column="id"></id>
+									<result column="username" property="username"></result>
+									<result column="address" property="address"></result>
+									<result column="sex" property="sex"></result>
+									<result column="birthday" property="birthday"></result>
+							</association>
+					</resultMap>
+
+					<!-- 查询所有 -->
+					<select id="findAll" resultMap="accountUserMap">
+							select u.*,a.id as aid,a.uid,a.money from account a , user u where u.id = a.uid;
+					</select>
+
+					<!--查询所有账户同时包含用户名和地址信息-->
+					<select id="findAllAccount" resultType="accountuser">
+							select a.*,u.username,u.address from account a , user u where u.id = a.uid;
+					</select>
+
+			</mapper>
+		```
+
+#### 1.3.4.2. 一对多
+
+> 注意，使用左外连接，就算user有重复也没关系，会根据主键往collection中添加<br>
+
+- 方式一：新的po对象
+- 方式二：
+	- 使用resultMap，
+	- 主表对象中加入从表对象集合
+	- 示例：一个用户有多个账户
+		```java
+		package com.itheima.domain;
+
+		import java.io.Serializable;
+		import java.util.Date;
+		import java.util.List;
+
+		/**
+		* @author 黑马程序员
+		* @Company http://www.ithiema.com
+		*/
+		public class User implements Serializable {
+
+				private Integer id;
+				private String username;
+				private String address;
+				private String sex;
+				private Date birthday;
+
+				//主  从
+				//一对多关系映射：主表实体应该包含从表实体的集合引用
+				private List<Account> accounts;
+				
+				//getter setter toString略去
+		}
+		```
+		```xml
+			<?xml version="1.0" encoding="UTF-8"?>
+			<!DOCTYPE mapper
+							PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+							"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+			<mapper namespace="com.itheima.dao.IUserDao">
+
+					<!-- 定义User的resultMap-->
+					<resultMap id="userAccountMap" type="user">
+							<id property="id" column="id"></id>
+							<result property="username" column="username"></result>
+							<result property="address" column="address"></result>
+							<result property="sex" column="sex"></result>
+							<result property="birthday" column="birthday"></result>
+
+							<!-- 配置user对象中accounts集合的映射。 -->
+							<!-- ofType是集合中元素的属性 -->
+							<collection property="accounts" ofType="account">
+									<id column="aid" property="id"></id>
+									<result column="uid" property="uid"></result>
+									<result column="money" property="money"></result>
+							</collection>
+					</resultMap>
+
+					<!-- 查询所有 -->
+					<select id="findAll" resultMap="userAccountMap">
+							select * from user u left outer join account a on u.id = a.uid
+					</select>
+
+					<!-- 根据id查询用户 -->
+					<select id="findById" parameterType="INT" resultType="user">
+							select * from user where id = #{uid}
+					</select>
+
+			</mapper>
+		```
+
 
 #### 1.3.4.3. 多对多
 
-## 1.4. 缓存和注解开发
+> 也就是有中间表。进行两次左外连接<br>
+> 注意，sql语句在换行时，最好每行结尾或开头**加一个空格**<br>
+> mybatis会直接拼接，不会自动加空格
 
-### 1.4.1. 缓存和注解开发
+- 方式一：两个对象，各自包含对方的集合引用
 
-### 1.4.2. mybatis加载时机
+- 示例：用户和角色
+	- 情景
+		- 一个用户可以有多个角色
+		- 一个角色可以赋予多个用户
+	- 步骤：
+		- 建立两张表：用户表，角色表
+			- 让用户表和角色表具有多对多的关系。需要使用中间表，中间表中包含各自的主键，在中间表中是外键。
+		- 建立两个实体类：用户实体类和角色实体类
+			- 让用户和角色的实体类能体现出来多对多的关系
+			- 各自包含对方一个集合引用
+		- 建立两个配置文件
+			- 用户的配置文件
+			- 角色的配置文件
+		- 实现配置：
+			- 当我们查询用户时，可以同时得到用户所包含的角色信息
+			- 当我们查询角色时，可以同时得到角色的所赋予的用户信息
+	- 代码：
+		- 角色到用户。多对多
+			```xml
+				<?xml version="1.0" encoding="UTF-8"?>
+				<!DOCTYPE mapper
+								PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+								"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+				<mapper namespace="com.itheima.dao.IRoleDao">
 
-### 1.4.3. 一级缓存和二级缓存
+						<!--定义role表的ResultMap-->
+						<resultMap id="roleMap" type="role">
+								<id property="roleId" column="rid"></id>
+								<result property="roleName" column="role_name"></result>
+								<result property="roleDesc" column="role_desc"></result>
+								<collection property="users" ofType="user">
+										<id column="id" property="id"></id>
+										<result column="username" property="username"></result>
+										<result column="address" property="address"></result>
+										<result column="sex" property="sex"></result>
+										<result column="birthday" property="birthday"></result>
+								</collection>
+						</resultMap>
 
-### 1.4.4. 注解开发
+						<!--查询所有-->
+						<select id="findAll" resultMap="roleMap">
+						<!-- 注意行首或行末写空格 -->
+							select u.*,r.id as rid,r.role_name,r.role_desc from role r
+								left outer join user_role ur  on r.id = ur.rid
+								left outer join user u on u.id = ur.uid
+						</select>
+				</mapper>
+			```
+			> 查询结果<br>
+			> ![](./image/结果-2.jpg)
+			```java
+			public class Role implements Serializable {
+
+					private Integer roleId;
+					private String roleName;
+					private String roleDesc;
+
+					//多对多的关系映射：一个角色可以赋予多个用户
+					private List<User> users;
+
+					// 省略getter setter toString
+			}
+			```
+		- 用户到角色。多对多
+			```xml
+				<?xml version="1.0" encoding="UTF-8"?>
+				<!DOCTYPE mapper
+								PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+								"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+				<mapper namespace="com.itheima.dao.IUserDao">
+
+						<!-- 定义User的resultMap-->
+						<resultMap id="userMap" type="user">
+								<id property="id" column="id"></id>
+								<result property="username" column="username"></result>
+								<result property="address" column="address"></result>
+								<result property="sex" column="sex"></result>
+								<result property="birthday" column="birthday"></result>
+								<!-- 配置角色集合的映射 -->
+								<collection property="roles" ofType="role">
+										<id property="roleId" column="rid"></id>
+										<result property="roleName" column="role_name"></result>
+										<result property="roleDesc" column="role_desc"></result>
+								</collection>
+						</resultMap>
+
+						<!-- 查询所有 -->
+						<!-- 和上面差不多，就是反一下 -->
+						<select id="findAll" resultMap="userMap">
+								select u.*,r.id as rid,r.role_name,r.role_desc from user u
+								left outer join user_role ur  on u.id = ur.uid
+								left outer join role r on r.id = ur.rid
+						</select>
+
+						<!-- 根据id查询用户 -->
+						<select id="findById" parameterType="INT" resultType="user">
+								select * from user where id = #{uid}
+						</select>
+
+				</mapper>
+			```
+			> 查询结果<br>
+			> ![](./image/结果-1.jpg)
+			```java
+				public class User implements Serializable {
+
+						private Integer id;
+						private String username;
+						private String address;
+						private String sex;
+						private Date birthday;
+
+						//多对多的关系映射：一个用户可以具备多个角色
+						private List<Role> roles;
+
+						//getter setter toString略去
+				}
+			```
+
+## 1.4. 加载和缓存
+
+### 1.4.1. mybatis加载时机
+
+#### 1.4.1.1. 概念
+
+- 问题：
+	```
+		在一对多中，当我们有一个用户，它有100个账户。
+		在查询用户的时候，要不要把关联的账户查出来？
+		在查询账户的时候，要不要把关联的用户查出来？
+
+		在查询用户时，用户下的账户信息应该是，什么时候使用，什么时候查询的。
+		在查询账户时，账户的所属用户信息应该是随着账户查询时一起查询出来。
+	```
+- 种类
+	- 延迟加载
+		> 按需加载，懒加载。只有在需要的时候才加载
+		- 通常情景：
+			- 一对多
+			- 多对多
+	- 立即加载
+		> 只要一调用方法，就马上发起查询
+		- 通常情景
+			- 一对一
+			- 多对一
+
+#### 1.4.1.2. 实现
+
+- 原理：在用的时候调用指定select
+
+- 一对一实现。使用association实现延迟加载
+	```xml
+		<!-- SqlMapConfig中 -->
+    <!--配置参数-->
+    <settings>
+        <!--全局开关，开启Mybatis支持延迟加载-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+				<!-- 将积极加载改为按需加载 -->
+        <setting name="aggressiveLazyLoading" value="false"></setting>
+    </settings>
+	```
+	```xml
+		<?xml version="1.0" encoding="UTF-8"?>
+		<!DOCTYPE mapper
+						PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+						"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		<mapper namespace="com.itheima.dao.IAccountDao">
+
+				<!-- 定义封装account和user的resultMap -->
+				<resultMap id="accountUserMap" type="account">
+						<id property="id" column="id"></id>
+						<result property="uid" column="uid"></result>
+						<result property="money" column="money"></result>
+						<!-- 一对一的关系映射：配置封装user的内容
+						select属性指定的内容：查询用户的唯一标识。指向已定义的select标签。当不是本文件中的时要加namespace
+						用于加载复杂类型属性的映射语句的 ID，它会从 column 属性指定的列中检索数据，作为参数传递给目标 select 语句
+
+						column属性指定的内容：用户根据id查询时，所需要的 参数 的值
+						-->
+						<association property="user" column="uid" javaType="user" select="com.itheima.dao.IUserDao.findById"></association>
+				</resultMap>
+
+				<!-- 查询所有 -->
+				<select id="findAll" resultMap="accountUserMap">
+						select * from account
+				</select>
+
+				<!-- 根据用户id查询账户列表 -->
+				<select id="findAccountByUid" resultType="account">
+						select * from account where uid = #{uid}
+				</select>
+
+		</mapper>
+	```
+> 日志对比<br>
+> 左上为直接加载。右上为延迟加载，之后查询user。左下为延迟加载不查询user。<br>
+> ![](./image/延迟加载.png)
+
+- 一对多实现
+	```xml
+		<?xml version="1.0" encoding="UTF-8"?>
+		<!DOCTYPE mapper
+						PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+						"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		<mapper namespace="com.itheima.dao.IUserDao">
+
+				<!-- 定义User的resultMap-->
+				<resultMap id="userAccountMap" type="user">
+						<id property="id" column="id"></id>
+						<result property="username" column="username"></result>
+						<result property="address" column="address"></result>
+						<result property="sex" column="sex"></result>
+						<result property="birthday" column="birthday"></result>
+						<!-- 配置user对象中accounts集合的映射 -->
+						<collection property="accounts" ofType="account" select="com.itheima.dao.IAccountDao.findAccountByUid" column="id"></collection>
+				</resultMap>
+
+				<!-- 查询所有 -->
+				<select id="findAll" resultMap="userAccountMap">
+						select * from user
+				</select>
+
+				<!-- 根据id查询用户 -->
+				<select id="findById" parameterType="INT" resultType="user">
+						select * from user where id = #{uid}
+				</select>
+
+		</mapper>
+	```
+
+### 1.4.2. 缓存
+
+#### 1.4.2.1. 概念
+
+- 概念：内存中的临时数据
+- 目的：减少和数据库的交互次数，提高执行效率
+- 适用于缓存：
+	- 经常查询
+	- 不经常改变
+	- 数据的正确与否与最终结果影响不大（同步问题等可能导致数据差异）
+- 不适用于缓存：
+	- 经常改变的数据
+	- 数据的正确与否对最终结果影响很大（商品库存，银行汇率，股市牌价）
+
+#### 1.4.2.2. 一级缓存
+
+- 概念：SqlSession对象的缓存。
+	- 当我们执行查询之后，查询的结果会同时存入到SqlSession为我们提供一块区域中。
+	- 该区域的结构是一个Map。当我们再次查询同样的数据，mybatis会先去sqlsession中查询是否有，有的话直接拿出来用。（自动完成）
+	- 当SqlSession对象消失时，mybatis的一级缓存也就消失了。
+- 清除触发
+	- 清除sqlsession对象
+	- `sqlSession.clearCache()`
+	- 调用sqlsession的修改
+	- 调用sqlsession的删除
+	- 调用sqlsession的添加
+	- 调用sqlsession的commit()
+	- 调用sqlsession的close
+
+#### 1.4.2.3. 二级缓存
+
+- 概念：它指的是Mybatis中SqlSessionFactory对象的缓存。由同一个SqlSessionFactory对象创建的SqlSession共享其缓存。
+- 结构：
+	> ![](./image/二级缓存.png)
+	- 存放的是数据而不是对象，所以每次使用都会重新封装。所以每次查询出的对象都不是同一个
+- 使用步骤（开启方式）：
+	- 让Mybatis框架支持二级缓存（在SqlMapConfig.xml中配置）
+		```xml
+			<!-- 该步不必要，默认为true -->
+			<settings>
+					<setting name="cacheEnabled" value="true"/>
+			</settings>
+		```
+	- 让当前的映射文件支持二级缓存（在IUserDao.xml中配置）
+		```xml
+		<!-- 映射文件，mapper标签下，开头 -->
+	    <!--开启user支持二级缓存-->
+			<cache/>
+		```
+	- 让当前的操作支持二级缓存（在select标签中配置）
+		```xml
+			<!-- 根据id查询用户 -->
+			<select id="findById" parameterType="INT" resultType="user" useCache="true">
+					select * from user where id = #{uid}
+			</select>
+		```
+- 测试java
+	```java
+		@Test
+		public void testFirstLevelCache(){
+				SqlSession sqlSession1 = factory.openSession();
+				IUserDao dao1 = sqlSession1.getMapper(IUserDao.class);
+				User user1 = dao1.findById(41);
+				System.out.println(user1);
+				sqlSession1.close();//一级缓存消失
+
+				SqlSession sqlSession2 = factory.openSession();
+				IUserDao dao2 = sqlSession2.getMapper(IUserDao.class);
+				User user2 = dao2.findById(41);
+				System.out.println(user2);
+				sqlSession2.close();
+				
+				// 以上代码只会查询数据库一次
+				System.out.println(user1 == user2);// 因为对象会重新封装，所以会返回false
+		}
+	```
+
+## 1.5. 注解开发
+
+### 1.5.1. 环境搭建
+
+- 如果用package配置mappers的话，集合xml相同
+- 不用的区别看前面
+- 注意：
+	- 只要路径下面有映射的xml文件，使用注解时就会报错。不管mappers中有没有配置
+	- xml中的信息都能通过注解和java文件来找到
+		> ![](./image/信息对照.jpg)
+
+### 1.5.2. 单表CRUD
+
+- 四个基本注解
+	- @Select
+	- @Insert
+	- @Update
+	- @Delete
+- 代码
+	```java
+		public interface IUserDao {
+
+				/**
+				* 查询所有用户
+				* @return
+				*/
+				@Select("select * from user")
+				List<User> findAll();
+
+				/**
+				* 保存用户
+				* @param user
+				*/
+				@Insert("insert into user(username,address,sex,birthday)values(#{username},#{address},#{sex},#{birthday})")
+				void saveUser(User user);
+
+				/**
+				* 更新用户
+				* @param user
+				*/
+				@Update("update user set username=#{username},sex=#{sex},birthday=#{birthday},address=#{address} where id=#{id}")
+				void updateUser(User user);
+
+				/**
+				* 删除用户
+				* @param userId
+				*/
+				@Delete("delete from user where id=#{id} ")
+				void deleteUser(Integer userId);
+
+				/**
+				* 根据id查询用户
+				* @param userId
+				* @return
+				*/
+				@Select("select * from user  where id=#{id} ")
+				User findById(Integer userId);
+
+				/**
+				* 根据用户名称模糊查询
+				* @param username
+				* @return
+				*/
+		//    @Select("select * from user where username like #{username} ")
+				@Select("select * from user where username like '%${value}%' ")
+				List<User> findUserByName(String username);
+
+				/**
+				* 查询总用户数量
+				* @return
+				*/
+				@Select("select count(*) from user ")
+				int findTotalUser();
+		}
+
+	```
+
+#### 1.5.2.1. @Results
+
+> 相当于resultMap
+
+- 在定义并使用时，使用`Results`注解
+- 再重复使用时，使用`ResultMap`注解
+
+```java
+
+@CacheNamespace(blocking = true)
+public interface IUserDao {
+
+    /**
+     * 查询所有用户
+     * @return
+     */
+    @Select("select * from user")
+    @Results(id="userMap",value={
+            @Result(id=true,column = "id",property = "userId"),
+            @Result(column = "username",property = "userName"),
+            @Result(column = "address",property = "userAddress"),
+            @Result(column = "sex",property = "userSex"),
+            @Result(column = "birthday",property = "userBirthday"),
+            @Result(property = "accounts",column = "id",
+                    many = @Many(select = "com.itheima.dao.IAccountDao.findAccountByUid",
+                                fetchType = FetchType.LAZY))
+    })
+    List<User> findAll();
+
+    /**
+     * 根据id查询用户
+     * @param userId
+     * @return
+     */
+    @Select("select * from user  where id=#{id} ")
+    @ResultMap("userMap")
+    User findById(Integer userId);
+
+    /**
+     * 根据用户名称模糊查询
+     * @param username
+     * @return
+     */
+    @Select("select * from user where username like #{username} ")
+    @ResultMap("userMap")
+    List<User> findUserByName(String username);
+}
+
+```
+
+#### 1.5.2.2. 多表
+
+- 一对一（多对一）
+	```java
+	public interface IAccountDao {
+
+			/**
+			* 查询所有账户，并且获取每个账户所属的用户信息
+			* @return
+			*/
+			@Select("select * from account")
+			@Results(id="accountMap",value = {
+							@Result(id=true,column = "id",property = "id"),
+							@Result(column = "uid",property = "uid"),
+							@Result(column = "money",property = "money"),
+							// one是指该对象对应一个user对象。此处user对应属性是一个对象																									立即加载
+							@Result(property = "user",column = "uid",one=@One(select="com.itheima.dao.IUserDao.findById",fetchType= FetchType.EAGER))
+			})
+			List<Account> findAll();
+
+			/**
+			* 根据用户id查询账户信息
+			* @param userId
+			* @return
+			*/
+			@Select("select * from account where uid = #{userId}")
+			List<Account> findAccountByUid(Integer userId);
+	}
+
+	```
+
+- 一对多
+	```java
+	public interface IUserDao {
+
+			/**
+			* 查询所有用户
+			* @return
+			*/
+			@Select("select * from user")
+			@Results(id="userMap",value={
+							@Result(id=true,column = "id",property = "userId"),
+							@Result(column = "username",property = "userName"),
+							@Result(column = "address",property = "userAddress"),
+							@Result(column = "sex",property = "userSex"),
+							@Result(column = "birthday",property = "userBirthday"),
+							/* 这里accounts属性名对应的属性是一个List集合 */
+							@Result(property = "accounts",column = "id",
+											many = @Many(select = "com.itheima.dao.IAccountDao.findAccountByUid",
+																	fetchType = FetchType.LAZY))
+			})
+			List<User> findAll();
+
+			/**
+			* 根据id查询用户
+			* @param userId
+			* @return
+			*/
+			@Select("select * from user  where id=#{id} ")
+			@ResultMap("userMap")
+			User findById(Integer userId);
+
+			/**
+			* 根据用户名称模糊查询
+			* @param username
+			* @return
+			*/
+			@Select("select * from user where username like #{username} ")
+			@ResultMap("userMap")
+			List<User> findUserByName(String username);
+	}
+	```
+
+#### 1.5.2.3. 二级缓存配置
+
+- 一级缓存默认开启
+- 二级缓存开启步骤
+	- 全局开启支持
+		> SqlMapConfig.xml中
+	- dao接口上加一个`@CacheNamespace(blocking=true)`
+		```java
+		@CacheNamespace(blocking = true)
+		public interface IUserDao {
+
+				/**
+				* 查询所有用户
+				* @return
+				*/
+				@Select("select * from user")
+				@Results(id="userMap",value={
+								@Result(id=true,column = "id",property = "userId"),
+								@Result(column = "username",property = "userName"),
+								@Result(column = "address",property = "userAddress"),
+								@Result(column = "sex",property = "userSex"),
+								@Result(column = "birthday",property = "userBirthday"),
+								@Result(property = "accounts",column = "id",
+												many = @Many(select = "com.itheima.dao.IAccountDao.findAccountByUid",
+																		fetchType = FetchType.LAZY))
+				})
+				List<User> findAll();
+
+				/**
+				* 根据id查询用户
+				* @param userId
+				* @return
+				*/
+				@Select("select * from user  where id=#{id} ")
+				@ResultMap("userMap")
+				User findById(Integer userId);
+
+				/**
+				* 根据用户名称模糊查询
+				* @param username
+				* @return
+				*/
+				@Select("select * from user where username like #{username} ")
+				@ResultMap("userMap")
+				List<User> findUserByName(String username);
+		}
+
+		```
+
