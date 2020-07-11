@@ -1662,3 +1662,509 @@ public interface IUserDao {
 
 		```
 
+# 2. Spring
+
+## 2.1. 基础
+
+### 2.1.1. 基本概念
+
+- spring是什么	
+	> Spring框架是一个开放源代码的J2EE应用程序框架，由Rod Johnson发起，是针对bean的生命周期进行管理的轻量级容器（lightweight container）。 Spring解决了开发者在J2EE开发中遇到的许多常见的问题，提供了功能强大IOC、AOP及Web MVC等功能。Spring可以单独应用于构筑应用程序，也可以和Struts、Webwork、Tapestry等众多Web框架组合使用，并且可以与 Swing等桌面应用程序AP组合。因此， Spring不仅仅能应用于JEE应用程序之中，也可以应用于桌面应用程序以及小应用程序之中。<br>
+
+- 两大核心
+	- IoC（Inverse Of Control：反转控制）
+	- AOP（Aspect Oriented Programming：面向切面编程）
+
+- 发展历程
+	- 1997 年 IBM 提出了 EJB 的思想
+	- 1998 年，SUN 制定开发标准规范 EJB1.0
+	- 1999 年，EJB1.1 发布
+	- 2001 年，EJB2.0 发布
+	- 2003 年，EJB2.1 发布
+	- 2006 年，EJB3.0 发布
+	- Rod Johnson（spring 之父）
+		- Expert One-to-One J2EE Design and Development(2002)
+		- 阐述了 J2EE 使用 EJB 开发设计的优点及解决方案
+		- Expert One-to-One J2EE Development without EJB(2004)
+		- 阐述了 J2EE 开发不使用 EJB 的解决方式（Spring 雏形）
+		- 2017 年 9 月份发布了 spring 的最新版本 spring 5.0 通用版（GA）
+
+- 优势：pdf
+
+- 体系结构
+	> ![](./image/spring-overview.png)
+
+### 2.1.2. 程序耦合和解耦
+
+- 解释：pdf
+
+### 2.1.3. 工厂模式结构
+
+- 概念：
+	- Bean：在计算机英语中，有可重用组件的含义。
+	- JavaBean：用java语言编写的可重用组件。
+	- javabean >  实体类
+
+- 看源码
+
+### 2.1.4. IOC（控制反转）
+
+#### 2.1.4.1. 基础
+
+- 概念：
+	- 本来获取对象时是直接new，由程序直接掌握控制权
+	- 将获取对象的控制权交给工厂类，这种控制权的转移，就叫控制反转
+	- 这样当找不到相关类时，编译时也不会出错，只有在运行时才会出错
+- 作用：降低依赖，无法消除
+
+- Spring核心容器
+	- 和前面工厂模式降低耦合相同
+	- Spring核心容器也就是一个map集合
+
+- 使用步骤：
+	- resource下创建bean.xml(名称随便)
+	- 文件内容：
+		```xml
+			<?xml version="1.0" encoding="UTF-8"?>
+			<beans xmlns="http://www.springframework.org/schema/beans"
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="http://www.springframework.org/schema/beans
+							https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+					<bean id="..." class="...">  
+							<!-- collaborators and configuration for this bean go here -->
+							<!-- 	The id attribute is a string that identifies the individual bean definition. -->
+							<!-- 	The class attribute defines the type of the bean and uses the fully qualified classname. -->
+					</bean>
+
+					<bean id="..." class="...">
+							<!-- collaborators and configuration for this bean go here -->
+					</bean>
+
+					<!-- more bean definitions go here -->
+
+			</beans>
+		```
+	- 获取核心容器对象
+		```java
+		ApplicationContext context = new ClassPathXmlApplicationContext("bean.xml");
+		```
+	- 根据id获取bean对象
+		```java
+		// 两种方式
+		PetStoreService service = (AccountService)context.getBean("accountService");
+		//或
+		PetStoreService service = context.getBean("accountService", accountService.class);
+		```
+
+- ApplicationContext三个常用实现类
+	- ClassPathXmlApplicationContext：加载类路径下的配置文件，要求配置文件必须在类路径下
+	- FileSystemApplicationContext：可以加载磁盘任意路径下的配置文件。（必须有访问权限）
+	- AnnocationConfigApplicationContext：读取注解来创建容器
+
+- 核心容器的两个接口引发的问题：
+	> 接口图：<br>
+	> ![](./image/spring-application.jpg)
+	- ApplicationContext：构建核心容器时，采用立即加载的方式。读取后立即创建配置文件中的class对象
+		- 使用时机：单例模式
+	- BeanFactory：构建核心容器时，采用延迟加载的方式。什么时候根据id获取对象什么时候才创建对象
+		- 使用时机：多对象使用
+- 解决：
+	- BeanFactory是一个顶层接口，不适合直接使用
+	- ApplicationContext有继承BeanFactory接口，可以通过配置文件来设置延迟和立即加载
+	- 见Bean对象作用范围
+
+#### 2.1.4.2. bean对象细节
+
+- 创建bean三种方式
+	- 使用默认构造函数创建：
+		> spring中使用bean标签，仅配有id和class属性时，使用该种方式，没有默认构造函数时无法创建
+		```xml
+		<bean id="accountService" class="com.itheima.service.impl.AccountServiceImpl"></bean>
+		```
+	- 使用某个类（工厂类）中的方法创建对象（jar包中类方法的返回值的情景，无法调用默认构造函数）
+		> id,factory-bean,factory-method三个属性<br>
+		```xml
+		<bean id="instanceFactory" class="com.itheima.factory.InstanceFactory"></bean>
+		<bean id="accountService" factory-bean="instanceFactory" factory-method="getAccountService"></bean>
+		```
+	- 使用静态工厂中的静态方法创建对象（jar包中类方法的返回值的情景，无法调用默认构造函数）
+		> id,class,factory-method三个属性<br>
+		```xml
+		<bean id="accountService" class="com.itheima.factory.StaticFactory" factory-method="getAccountService"></bean>
+		```
+	
+- bean对象作用范围
+	- bean标签scope属性（用于指定bean对象作用范围）
+		- 取值
+			- singleton：单例的（默认值）
+			- prototype：多例的
+			- request：作用于web应用的请求范围
+			- session：作用于web应用的会话范围
+			- global-session：作用于集群环境的会话范围（全局会话范围），当不是集群环境时，它就是session
+				> ![](./image/全局session.png)
+	- 例：下方
+
+- bean对象生命周期
+	- 说明：
+		- 单例对象：
+			- 容器创建，对象创建
+			- 容器销毁，对象销毁
+		- 多例对象
+			- 当获取对象时，spring框架创建
+			- 使用过程中就不会销毁
+			- 当对象没有对其他对象引用且长时间不用，由java回收机制进行回收
+	- 属性：
+		- init-method:创建时调用
+		- destory-method:销毁时调用
+	- 例：
+		```xml
+		<bean id="accountService" class="com.itheima.service.impl.AccountServiceImpl"
+			scope="singleton" init-method="init" destroy-method="destroy"></bean>
+		```
+
+### 2.1.5. 依赖注入（Dependency Injection）
+
+- 概念：
+	> 在当前类需要用到其他类的对象，由spring为我们提供，我们只需要在配置文件中说明依赖关系的维护就称之为依赖注入。<br>
+	> 注入就是为对象中的属性赋值，创建中（构造方法注入）或者创建后（set注入）都行。
+
+- 能注入类型：
+	> 如果是经常变化的数据并不适用于注入
+	- 基本类型和String（看下面）
+	- 其他bean类型（在配置文件中或者注解配置过的bean）（看下面）
+	- 复杂类型/集合类型（此处使用的是set注入方式，使用构造函数注入的话只需要把property标签换一下即可）
+		```xml
+			<!-- 复杂类型的注入/集合类型的注入
+					用于给List结构集合注入的标签：
+							list array set
+					用于个Map结构集合注入的标签:
+							map  props
+							
+					注意！！！！：
+					结构相同，标签可以互换
+			-->
+			<bean id="accountService3" class="com.itheima.service.impl.AccountServiceImpl3">
+					<property name="myStrs">
+							<set>
+									<value>AAA</value>
+									<value>BBB</value>
+									<value>CCC</value>
+							</set>
+					</property>
+
+					<property name="myList">
+							<array>
+									<value>AAA</value>
+									<value>BBB</value>
+									<value>CCC</value>
+							</array>
+					</property>
+
+					<property name="mySet">
+							<list>
+									<value>AAA</value>
+									<value>BBB</value>
+									<value>CCC</value>
+							</list>
+					</property>
+
+					<property name="myMap">
+							<props>
+									<prop key="testC">ccc</prop>
+									<prop key="testD">ddd</prop>
+							</props>
+					</property>
+
+					<property name="myProps">
+							<map>
+									<entry key="testA" value="aaa"></entry>
+									<entry key="testB">
+											<value>BBB</value>
+									</entry>
+							</map>
+					</property>
+			</bean>
+
+		```
+
+<br>
+
+- 注入方式：
+	- 第一种：使用构造函数提供（一般不用）
+		- 使用方式：
+			- 使用的标签:constructor-arg
+			- 标签出现的位置：bean标签的内部
+			- 标签中的属性
+				- type：用于指定要注入的数据的数据类型，该数据类型也是构造函数中某个或某些参数的类型。
+				- index：用于指定要注入的数据给构造函数中指定索引位置的参数赋值。索引的位置是从0开始
+				- name：用于指定给构造函数中指定名称的参数赋值	（常用的）
+				- =============以上三个用于指定给构造函数中哪个参数赋值。下面用来给指定参数赋值===============================
+				- value：用于提供基本类型和String类型的数据。（字符串和数字类型会spring内会自动转换）
+				- ref：用于指定其他的bean类型数据。它指的就是在spring的Ioc核心容器中出现过的bean对象
+		- 示例：
+			```xml
+			<bean id="accountService" class="com.itheima.service.impl.AccountServiceImpl">
+			<!-- name是构造函数中的参数名称。 -->
+			<constructor-arg name="name" value="泰斯特"></constructor-arg>
+			<constructor-arg name="age" value="18"></constructor-arg>
+			<constructor-arg name="birthday" ref="now"></constructor-arg>
+
+			</bean>
+			<!-- 配置一个日期对象 -->
+			<bean id="now" class="java.util.Date"></bean>
+			```
+		- 优势：在获取bean对象时，注入数据是必须的操作，否则对象无法创建成功。
+    - 弊端：改变了bean对象的实例化方式，使我们在创建对象时，如果用不到这些数据，也必须提供。同时，如果只想赋几个成员的值，就要重载构造函数
+
+	- 第二种：使用set方法提供（常用）
+		- 使用：
+			- 涉及的标签：property
+			- 出现的位置：bean标签的内部
+			- 标签的属性：
+				- name：用于指定注入时所调用的set方法名称（也就是属性名称）
+				- value：用于提供基本类型和String类型的数据
+				- ref：用于指定其他的bean类型数据。它指的就是在spring的Ioc核心容器中出现过的bean对象
+		- 示例：
+			```xml
+			<bean id="accountService2" class="com.itheima.service.impl.AccountServiceImpl2">
+					<property name="name" value="TEST" ></property>
+					<property name="age" value="21"></property>
+					<property name="birthday" ref="now"></property>
+			</bean>
+			<bean id="now" class="java.util.Date"></bean>
+			```
+		- 优势： 创建对象时没有明确的限制，可以直接使用默认构造函数
+		- 弊端： 如果有某个成员必须有值，则获取对象是有可能set方法没有执行。（也就是忘了写）
+	- 第三种：使用注解提供（之后的内容）
+
+## 2.2. 基于注解ioc
+
+### 2.2.1. 开始
+
+- 创建bean.xml文件
+- 导入依赖（不同于之前的）。
+	```xml
+	<?xml version="1.0" encoding="UTF-8"?>
+	<beans xmlns="http://www.springframework.org/schema/beans"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xmlns:context="http://www.springframework.org/schema/context"
+			xsi:schemaLocation="http://www.springframework.org/schema/beans
+					https://www.springframework.org/schema/beans/spring-beans.xsd
+					http://www.springframework.org/schema/context
+					https://www.springframework.org/schema/context/spring-context.xsd">
+
+	</beans>
+	```
+- 添加要扫描的包（否则不知道注解位置）
+	```xml
+	<context:component-scan base-package="com.whitestarrain"></context:component-scan>
+	```
+
+### 2.2.2. 注入过程判断（个人）
+
+![](./image/注入过程.jpg)
+> 所有对象在使用时都已经放到容器中了<br>
+> 只有存入过，才能去注入。（bean类型）
+
+### 2.2.3. spring中ioc常用注解
+
+- 用于创建对象
+	- @Component
+		- 作用：用于把当前类存入spring容器中（通常当某类不属于任何一层时使用）
+		- 属性：
+			- value:用于指定bean的id，当不写时，默认为首字母改小写的当前类名
+	- @Controller
+		- 作用和@Component完全相同。仅仅为了区分三层结构。一般在表现层
+	- @Service
+		- 作用和@Component完全相同。仅仅为了区分三层结构。一般用在业务层
+	- @Repository
+		- 作用和@Component完全相同。仅仅为了区分三层结构。一般用在持久层
+- 用于注入数据
+	- @AutoWired
+		- 作用：自动按照类型注入。
+			- 只要容器中有唯一的一个bean对象类型和要注入的变量类型匹配，就可以注入成功。
+			- 如果没有任何匹配的类型（包括实现类），则报错
+			- 如果有多个匹配时，首先按照类型筛选出来类型相同的几个，再用查找id和变量名相同的。如果没有则报错
+		- 出现位置：变量上，方法上等
+		- 细节：因为注解已经指定了变量位置，所以setter方法已经不是必须的了
+		- 基本情况图解：
+			> ![](./image/Autowired.jpg)
+	- @Qualifier
+		- 作用：
+			- 在按照类注入的基础上，再按照名称注入，在给类成员注入时不能单独使用，必须喝@Autowired一起使用。
+			- 但是给方法参数注入时可以直接使用。具体看下面使用注解配置时的使用
+				> 不是必须的，参数会自动按照和Autowired相同的方式去容器中找。如果有多个且不同名时，可以用该注解指定
+		- 属性：
+			- value:用于指定注入bean的id
+	- @Resource
+		- 作用：直接按照bean的id进行注入
+		- 属性：
+			- name:用于指定bean的id。（注意，不是value）
+	- ========以上三个注解只能注入bean类型数据，基本类型无法进行注入========
+	- ========集合类型只能通过xml进行注入========
+	- ========如果不是自己创建的类，无法写注解，那么也只能通过xml注入，比如jdbcTemplate========
+	- @Value()
+		- 作用：用于注入基本类型和String类型数据
+		- 属性：
+			- value：用于指定数据的值，同时可以使用spring的el表达式（SpEL）
+				> jsp中，$从四个域中获取数据。mybatis中，$从上面设置的properties中获取。Spring中，看下面@PropertySource注解
+- 用于改变作用范围
+	- @Scope
+		- 作用：用于指定bean作用范围
+		- 属性：
+			- value：指定范围的取值。常用取值：singleton prototype。所有取值看上面，和xml中的相同
+- 生命周期相关（了解）
+	- @PostConstruct
+		- 作用：用于指定初始化方法
+	- @PreDestroy
+		- 作用：用于指定销毁方法
+
+> 示例：
+```java
+@Service("accountService")
+//@Scope("prototype")
+public class AccountServiceImpl implements IAccountService {
+
+//    @Autowired
+//    @Qualifier("accountDao1")
+    @Resource(name = "accountDao2")
+    private IAccountDao accountDao = null;
+
+    @PostConstruct
+    public void  init(){
+        System.out.println("初始化方法执行了");
+    }
+
+    @PreDestroy
+    public void  destroy(){
+        System.out.println("销毁方法执行了");
+    }
+
+    public void  saveAccount(){
+        accountDao.saveAccount();
+    }
+}
+```
+
+### 2.2.4. xml和注解实现单表crud
+
+> 具体见源码
+
+- 过程：
+	- 按照普通过程创建三层架构的文件
+	- 注意：所有实现类都不要写，用接口即可
+	- 配置xml时从顶向底配置，然后缺哪个配哪个，保证能配全
+
+### 2.2.5. spring新注解使用
+
+> 目的：**脱离xml**<br>
+>下面的注解主要是为了将不得不写xml的配置用配置类的方式进行配置（比如jdbcTemplate）<br>
+> 推荐jar包中的类使用xml而不是下面的注解，因为有一定的复杂性
+
+- @Configuration
+	- 作用：指定当前类是一个配置类
+	- 细节：
+		- 当配置类作为AnnotationConfigApplicationContext对象创建的参数时，该注解可以不写。(可变参数，可传多个)
+		- 但当不传入时：
+			- 方式1：主配置类要配置好扫描路径，其他配置类要写好该注解
+			- 方式2：在主配置类中使用import
+- @ComponentScan
+	- 作用：用于通过注解指定spring创建容器时要扫描的包
+	- 属性：
+		- value：用于指定创建容器时要扫描的包。
+			> `@ComponentScan(com.whitestarrain)`
+			> 等同于`<context:component-scan base-package="com.whitestarrain"></context:component-scan>`<br>
+		- basePackagee：同上
+- @Bean
+	- 作用：用于把当前方法的返回值作为bean对象存入spring的ioc容器中
+	- 属性：
+		- name：用于指定bean的id。当不写时，默认值是当前方法的名称
+	- 细节：
+		- 当我们使用注解配置方法时，如果方法有**参数**，spring框架会去容器中查找有没有可用的bean对象。
+		- 查找的方式和Autowired注解的作用是一样的
+- @import
+	- 作用：用于导入其他的配置类
+	- 属性：
+		- value:用于指定其他配置类的字节码。（当我们使用Import的注解之后，有Import注解的类就父配置类，而导入的都是子配置类）
+- @PropertySource
+	- 作用：用于指定properties文件的位置
+	- 属性
+		- value：指定文件的名称和路径。（关键字：classpath，表示类路径下）
+			> `@PropertySource("classpath:jdbcConfig.properties")`
+> 示例：
+
+```java
+@Configuration//可以省略
+@ComponentScan("com.itheima")
+@Import(JdbcConfig.class)
+@PropertySource("classpath:jdbcConfig.properties")
+public class SpringConfiguration {
+}
+```
+```java
+/**
+ * 和spring连接数据库相关的配置类
+ */
+public class JdbcConfig {
+
+    @Value("${jdbc.driver}")
+    private String driver;
+
+    @Value("${jdbc.url}")
+    private String url;
+
+    @Value("${jdbc.username}")
+    private String username;
+
+    @Value("${jdbc.password}")
+    private String password;
+
+    /**
+     * 用于创建一个QueryRunner对象
+     * @param dataSource
+     * @return
+     */
+    @Bean(name="runner")
+    @Scope("prototype")
+    public QueryRunner createQueryRunner(@Qualifier("ds2") DataSource dataSource){
+																				//这个不是必须的，参数会自动按照和Autowired相同的方式去容器中找。如果有多个且不同名时，可以用该注解指定
+        return new QueryRunner(dataSource);
+    }
+
+    /**
+     * 创建数据源对象
+     * @return
+     */
+    @Bean(name="ds2")
+    public DataSource createDataSource(){
+        try {
+            ComboPooledDataSource ds = new ComboPooledDataSource();
+            ds.setDriverClass(driver);
+            ds.setJdbcUrl(url);
+            ds.setUser(username);
+            ds.setPassword(password);
+            return ds;
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Bean(name="ds1")
+    public DataSource createDataSource1(){
+        try {
+            ComboPooledDataSource ds = new ComboPooledDataSource();
+            ds.setDriverClass(driver);
+            ds.setJdbcUrl("jdbc:mysql://localhost:3306/eesy02");
+            ds.setUser(username);
+            ds.setPassword(password);
+            return ds;
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+```
+
+### 2.2.6. spring和junit整合

@@ -3879,7 +3879,7 @@ for (int i = 0; i < 5; i++) {
 - 演示：
 
   ```java
-
+   String mimeType = req.getServletContext().getMimeType("a.jpg");
   ```
 
 #### 11.15.2.2. ServletContext 域对象
