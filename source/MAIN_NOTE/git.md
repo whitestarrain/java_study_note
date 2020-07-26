@@ -57,11 +57,11 @@
 
 # 3. 远程仓库
 
-git remote add shortname url 添加远程仓库（名字默认使用 origin）。url 可以是 ssh 或者 https
-git remote show remote-name 查看某个远程仓库的详细信息
-git remote rename old_repo_name new_repo_name 注意，对远程仓库的重命名，也会使对应的远程分支名称发生变化，原来的 pb/master 分支现在成了 paul/master。
-git remote rm reponame 删除指定仓库名的仓库。对应分支也会被删除
-git checkout remote_repo/branch_name 切换到远程仓库分支，会显示 HEAD detached
+- git remote add shortname url 添加远程仓库（名字默认使用 origin）。url 可以是 ssh 或者 https
+- git remote show remote-name 查看某个远程仓库的详细信息
+- git remote rename old_repo_name new_repo_name 注意，对远程仓库的重命名，也会使对应的远程分支名称发生变化，原来的 pb/master 分支现在成了 paul/master。
+- git remote rm reponame 删除指定仓库名的仓库。对应分支也会被删除
+- git checkout remote_repo/branch_name 切换到远程仓库分支，会显示 HEAD detached
 
 # 4. 分支
 
