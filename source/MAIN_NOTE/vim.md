@@ -18,9 +18,10 @@
 	- f,到达第一个逗号的位置，逗号可以变成其他字符。F同理，反方向。然后通过分号;跳转到下一个，逗号，跳转到上一个(find)
 	- C-i C-o新位置，旧位置
 	- -(不按shift)到上一行第一个非空格字符处。+(按着shift)到下一行第一个非空字符处
-	- C-u(upword),C-f(forword)上下翻页
+	- C-b,C-f(forword)上下翻页
+	- C-u(upword),C-d 半页
 	- gi跳转到最后一编辑位置并进入插入模式
-	- g_到最后一个不是空格的位置
+	- g_到最后一个不是空格的位置,可以代替$,
 	- ()在句子间移动。{}在段落间移动。（不用记，之后有easy-motion插件）
 
 - 搜索：
@@ -33,7 +34,7 @@
 	- C-v
 
 - 编辑
-	- i,a,I,A插入
+	- i,a,I,A插入。A可以代替$,I可以代替^
 	- o 在光标后插入一行，O在光标前插入一行
 	- x删除一个，X往左删除
 	- c删除后面指定范围并切到插入模式，cc从开头一直删除到行末并进入插入模式，C一直删到行末并切到插入模式(change)
@@ -192,6 +193,7 @@
 	- . 重复上次命令
 	- :help <command> 查看帮助
 	- :wq 存储退出(ZZ同样效果),:!q强制退出，:w保存
+	- :qa 退出所有窗口
 	- :saveas path/file 另存为
 
 - vim配置文件：
@@ -240,13 +242,15 @@
 
 # 3. vim插件
 
-## 插件
+## 3.1. 插件
+
+## 3.2. 插件安装示例：
 
 - 插件管理器：vim-plug
 	> 更多其实看github上的文档就行
 	- 下载vim文件
 	- 将文件放到autoload文件夹
-- 安装插件：
+- 安装插件vim-startify：
 	- 去vimrc中进行配置：
 		```vim
 		call plug#begin('~/vimfiles/plugin') " 这里写的是插件放的位置
@@ -256,5 +260,260 @@
 		call plug#end()
 		```
 	- 输入:PlugInstall
-	- 报错解决：
+	- windows报错解决：
 		- 将插件文件夹下的文件夹（仅文件夹）和vimfiles下的文件夹 合并 
+		- 不要替换tag，把所有插件的tag放到一个文件夹中
+
+## 3.3. 寻找插件：
+
+- 大多数插件都托管在github上，google关键词搜索
+- 使用网站： http://vimawesome.com/ (十分推荐)
+- 浏览网上开源的vimrc配置。
+
+
+## 3.4. 美化插件
+
+- 启动界面：vim-startify
+- 状态栏：vim-airline
+- 代码缩进线条：indentline
+
+- 配色：
+	- hybird 黑色，类似one dark
+	- solarized 对眼睛较好，亮暗两种主题
+	- gruvbox 两种主题
+
+- 配色安装：
+	- 方式和插件安装相同
+	- 要持久化的话要在配置中加上 colorscheme XXX
+	- 简单点也可以把hybird.vim下载后放到安装目录的colors下
+
+
+## 3.5. 实用插件
+
+- 文件树安装：
+	- 安装:Plug 'scrooloose/nerdtree'
+	- 配置
+	```vim
+	" auto turn on
+	" autocmd vimenter * NERDTree
+	" ctrl+n to toggle file tree
+	noremap <C-n> :NERDTreeToggle<CR>
+	" ignore file
+	let NERDTreeIgnore=[
+		\ '\.pyc$','\~$','\.swp','\.git$','\.pyo$','\.svn$','\.swp$','__pycache__'
+		\ ]
+	nnoremap ,v :NERDTreeFind<cr>
+	" and ctrl w p  to back
+	```
+- 模糊搜索：
+	- 安装：Plug 'ctrlpvim/ctrlp.vim'
+	- 配置
+		```
+		" ctrlp config 
+		let g:ctrlp_map = '<C-p>'
+		```
+- 快速跳转
+	- 目的：能够实现窗口任意区域的跳转
+	- 安装：Plug 'easymotion/vim-easymotion'
+	- 配置：
+		```
+		" easymotion config
+
+		nmap ss <Plug>(easymotion-s2)
+		" 使用ss时会调用s2查询
+
+		```
+- 成对编辑
+	- 安装：Plug `tpope/vim-surround`
+	- 使用：
+		- ds：delete a surrounding
+		- cs:change a surrounding
+		- ys:you add a surrounding
+	- 使用示例：ys iw " 为当前单词添加双引号  ys就是指令
+	- 配置：不用
+
+- 多个文件模糊搜索：
+	- 安装： 挑一个
+		- Ag.vim
+		- fzf.vim
+	- 完全可以提到 ctrlp
+	- 常用命令:
+		- Files
+		- Ag
+
+- 批量搜索替换
+	- 安装：Plug `brooth/far.vim`
+	- 使用：
+		- `Far AAA XXXX **/*.py`
+		- 展示预览，没问题的话；
+		- `Fardo`进行替换
+
+- golang插件
+	- 安装： `Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }`
+	- 教程看官方文档
+	- ctrl+] 查看定义
+	- 自动导入，重构，格式化，运行等功能都有集成
+	- 使用python和php的都转向go了，推荐学学
+
+- python-mode插件
+	- 安装： Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
+	- 注意：
+		- 安装时确保网络
+		- vim要支持python3
+
+- 大纲插件；
+	- 安装 Plug 'majutsushi/tagbar'
+	- 注意：查看文档，需要安装ctags生成tag文件
+	
+- 高亮指定单词：
+	- 安装：Plug 'lfv89/vim-interestingwords'
+	- 使用：
+		- 默认在指定单词处`<leader>k`开启高亮，
+		- 使用`<leader>K`清除所有高亮
+		- n和N进行跳转
+
+- 强大的代码补全插件
+	- deoplete.nvm
+		- 内容：通用补全，和之前的全家桶有区别
+		- 安装:查看github文档，有一些vimscript,项目名称为:shougo/deoplete.nvim
+		- 支持vim8异步和模糊补全
+		- 注意：注意文档提出的各种要求，比如neovim，python版本
+		- 配置：
+			```
+			" 补全时默认会有文档预览，设置这条关闭预览
+			set completeopt-=preview
+			```
+	- coc.vim
+		- 支持vim8异步。 主要特色是支持 LSP(Language Serve Propocol)
+		- 使vim像vscode一样！ 我个人更喜欢
+
+- 代码格式化和静态检查：
+	- 异步检查：vim8和neovim支持，在检查时也能进行编写，不会卡住
+	- 无论写哪种语言都要加上这两种，重要！！！
+	- 格式化：
+		- nsbdchd/neoformat
+			- 注意依赖,需要安装对应的库。插件本身就起调用作用
+				- 比如，python需要 pip install autopep8
+			- 使用：输入Neoformat命令,更多推荐查文档
+		- autoformat
+	- 静态检查；
+		- w0rp/ale
+			- 注意依赖,需要安装对应的库。插件本身就起调用作用
+				- python需要 pip install pylint
+			- 安装：Plug 'w0rp/ale'
+			- 一开始会有很多提示，可以根据需要配置忽略项
+			- 使用：自动就给你检查了
+		- neomake
+
+- 快速注释代码插件：
+	- 安装：Plug 'tpope/vim-commentary'
+	- 会根据不同语言使用不同注释
+	- 常用命令：
+		- gc 设置取消注释切换（后面来基本不怎么用）
+		- gcc:注释
+		- gcgc:取消注释
+
+- git结合
+	- tpope/Fugitive
+		- 安装：Plug `tpope/vim-fugitive`
+		- 作用：git的包装器,可以通过内置命令调用git
+		- 不喜欢看后面的tmux开一个窗口用git
+		- 使用：查文档，有具体命令
+	- airblade/vim-gitgutter
+		- 安装：Plug `airblade/vim-gitgutter`
+		- 作用：会在每行左侧显示每行是新增的，删除的，等等
+		- 使用：每行都会显示，不用主动调用
+	- gv.vim
+		- 注意：要安装了fugitive才行
+		- 安装：Plug 'junegunn/gv.vim'
+		- 作用：浏览代码提交变更,和git里面打 git log --ongline --graph --decorate 效果差不多基本相同
+		- 使用：GV
+
+# 4. 联合工具
+
+-  Tmux
+	- 功能：
+		- 复用终端
+		- 分屏
+		- 托管进程
+	- window上基本没法用，以后具体使用时看视频和文章吧
+	- 文章位置:https://zhuanlan.zhihu.com/p/43687973：
+
+- 嵌入开发工具
+	- vsc超牛
+		- 配置：
+			```json
+			// 按键快捷键配置
+			{
+				"key": "ctrl+s",
+				"command": "cursorEnd",
+				"when": "editorFocus && vim.mode == 'Insert'"
+			},
+			{
+				"key": "ctrl+j",
+				"command":"cursorLeft",
+				"when": "editorFocus && vim.mode == 'Insert'"
+			},
+			{
+				"key": "ctrl+k",
+				"command": "cursorDown",
+				"when": "editorFocus && vim.mode == 'Insert'"
+			}
+			,{
+				"key": "ctrl+i",
+				"command":"cursorUp",
+				"when": "editorFocus && vim.mode == 'Insert'"
+			},
+			{
+				"key": "ctrl+l",
+				"command": "cursorRight",
+				"when": "editorFocus && vim.mode == 'Insert'"
+			}
+			```
+			```json
+			// 设置配置
+			"editor.lineNumbers": "relative",
+			"vim.vimrc.path": "D:\\learn\\Microsoft VS code-workplace\\工作区\\vimrc",
+			"vim.vimrc.enable": true,
+			"vim.easymotion": true,
+			"vim.foldfix": true,
+			"vim.leader": "<space>",
+			"vim.surround": true,
+			"vim.easymotionDimBackground": false,
+			"vim.easymotionMarkerBackgroundColor": "#FF4826",
+			"vim.easymotionMarkerForegroundColorOneChar": "#FFFFFF",
+			"vim.easymotionMarkerForegroundColorTwoChar": "#FFFFFF"
+			"vim.hlsearch": true,
+			"vim.incsearch": true,
+			"vim.autoindent": true
+			```
+		```
+		快速定位到行首（注：<leader> 表示上面设置的空格键）
+		<leader> + <leader> j，定位光标以下的行首
+		<leader> + <leader> k，定位光标以上的行首
+		快速定位单词首
+		<leader> + <leader> w，定位光标后面的单词首
+		<leader> + <leader> b，定位光标前面的单词首
+		快速定位单词尾
+		<leader> + <leader> e，定位光标后面的单词尾
+		<leader> + <leader> ge，定位光标前面的单词尾
+		
+		设置了相对行后
+		往上跳转 n 行: n + k
+		往下跳转 n 行: n + j
+
+		surround-input：和插件一样
+		ys添加 ds删除 cs改变
+		```
+
+- neovim
+	- vim的一个分支
+	- 改掉vim老旧的代码
+	- 开发更活跃，更丰富的特性和扩展
+	- 可以嵌入到很多GUI中
+	- 基本上可以完全替代vim
+
+- 开源配置：
+	- SpaceVim/SpaceVim
+	- PegasusWang/vim-config(视频作者配置)
+	- 不建议新手直接用，越复杂成本越高。可以看一下SpaceVim，牛炸，用的时候就相当于黑盒
