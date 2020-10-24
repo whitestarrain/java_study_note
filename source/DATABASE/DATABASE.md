@@ -183,7 +183,7 @@
        age int
        score double(5,2)//最多有5位，小数点后保留两位
        riqi date 2000-12-12
-       jjutiriqi datetime //格式举例：2000-12-12 12:12:12
+       jutiriqi datetime //格式举例：2000-12-12 12:12:12
        shijianchuo timestamp //格式举例：2000-12-12 12:12:12
        //时间戳：如果不给这个字段赋值，那么默认使用当前系统时间赋值
        name varchar(20)
@@ -437,6 +437,7 @@
 - 非空约束 not null
 - 唯一约束 unique
 - 外键约束 foreign key
+- check约束
 
 ### 2.6.3. 非空约束
 
@@ -1178,3 +1179,7 @@ in
 
 - create view 视图名称(属性名称 1，属性名称 2) as 查询语句
   > 创建视图。小括号属性名称并不必要。
+
+## 2.13. 索引
+
+自动为为唯一键建立索引，不必须是主键（唯一且非空）

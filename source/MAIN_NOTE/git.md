@@ -26,6 +26,7 @@
   - 在某个项目根路径下面可以设置单独的 Email 与姓名.
     - git config user.name "tiemaocsdn"
     - git config user.email "tiemaocsdn@qq.com"
+  - git config --global -e 可以编辑git设置
 
 # 2. 查询
 
@@ -81,7 +82,28 @@
 - git checkout -b branch_name remote/remo_branch 或其他本地分支：以指定分支（本地分支或者 fetch 过来的远程分支，比如 origin/master）为起点建立新的分支，并进行跟踪。也就是 pull 时不指定会自动从指令中的远程分支拉取
 - git checkout --track remoteRep/remote_branch 和上一个分支效果相同，只不过本地和远程分支名称会相同
 - 另外，如果有远程分支比如 origin/abc ，执行 git checkout abc 时会自动创建本地 abc 分支并跟踪远程 abc 分支
-- git branch -u origin/serverfix 来设置跟踪分支 -u 时 --set-up-stream 缩写
+- 设置远程分支：
+  - 拉取分支
+    - git fetch -u origin[/branch_name] 设置**已经fetch过来**的分支作为跟踪分支 
+  - 设置分支
+    - git push -u remote_Rep remote_branch
+    - git branch -u remote_Rep/remote_branch local_branch
+  - 区别
+      ```
+      举个例子：我要把本地分支mybranch1与远程仓库origin里的分支mybranch1建立关联。(也就是新建立仓库时)
+
+      （如果使用下列途径1的话，首先，你要切换到mybranch1分支上（git checkout mybranch1））
+
+      1. git push -u origin mybranch1 (push 并且作为建立关联)
+      2. git branch --set-upstream-to=origin/mybranch1 mybranch1 (仅建立关联)
+
+      这两种方式都可以达到目的。但是1方法更通用，因为你的远程库有可能并没有mybranch1分支，
+      这种情况下你用2方法就不可行，连目标分支都不存在，怎么进行关联呢？
+      所以可以总结一下：
+      git push -u origin mybranch1 
+      相当于 
+      git push origin mybranch1 + git branch --set-upstream-to=origin/mybranch1 mybranch1
+      ```
 
 # 5. 拉取
 
@@ -159,12 +181,17 @@
   - git reset [--mixed] 版本 id 或 HARD~版本数
   - git reset --hard 版本 id 或 HARD~版本数 **慎用**
   > Git会将原先的Head保存为一个叫做 **ORIG_HEAD** 的标记不想查id可以用该标记返回
-- git reset filename ：取消指定文件暂存
-- git reset [--mixed] 版本 id filename ：将某文件回退到某一个版本
-- git checkout 版本 id filename ：效果与上面的差不多，区别看下图
-- git reset --soft 版本 id + git commit ：合并 commit
+- 一些使用：
+  - git reset [--mixed] . :取消暂存(不会修改文件)
+  - git checkout .  : 取消所有未暂存的修改（会修改文件）
+    > 小心使用
+  - git reset filename ：取消指定文件暂存
+  - git reset [--mixed] 版本 id filename ：将某文件回退到某一个版本
+  - git checkout 版本 id filename ：效果与上面的差不多，区别看下图
+  - git reset --soft 版本 id + git commit ：合并 commit
 
 ![](./image/git-1.jpg)
+
 
 # 10. 变基
 

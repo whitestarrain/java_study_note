@@ -1,3 +1,4 @@
 *.class
 markdown*.*
 lib/*
+*.swp
