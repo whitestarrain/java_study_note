@@ -4753,7 +4753,7 @@ public class 管道流{
 	public static void main(String[] args)throws IOException{
 		pipe1();
 	}
-	public static void pipe1()throws IOException{
+	public static void pipe1() throws IOException{
 		PipedInputStream in=new PipedInputStream();
 		PipedOutputStream out=new PipedOutputStream();
 		in.connect(out);
@@ -4761,8 +4761,6 @@ public class 管道流{
 		Write w=new Write(out);
 		new Thread(r).start();
 		new Thread(w).start();
-
-
 	}
 }
 

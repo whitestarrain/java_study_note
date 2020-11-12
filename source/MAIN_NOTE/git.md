@@ -175,22 +175,51 @@
 
 # 9. 重置
 
-- 三个深度
 
-  - git reset --soft 版本 id 或 HARD~版本数
-  - git reset [--mixed] 版本 id 或 HARD~版本数
-  - git reset --hard 版本 id 或 HARD~版本数 **慎用**
+- 三棵树：
+  > ![git-tree](./image/git-tree.png)
+  - HARD指针
+  - 暂存区
+  - 工作目录
+
+- 三个深度
+  > **reset 会修改HARD指向。soft mixed hard 三个深度，由浅入深，分别改动到 HARD指针，暂存区，工作目录层级** <br>
+  > **但如果指定了文件目录，就会跳过 移动HARD指针 一步。**
+  - git reset --soft version_id 或 HARD~版本数
+  - git reset [--mixed] version_id 或 HARD~版本数
+  - git reset --hard version_id 或 HARD~版本数 **慎用**
   > Git会将原先的Head保存为一个叫做 **ORIG_HEAD** 的标记不想查id可以用该标记返回
+
 - 一些使用：
   - git reset [--mixed] . :取消暂存(不会修改文件)
   - git checkout .  : 取消所有未暂存的修改（会修改文件）
     > 小心使用
   - git reset filename ：取消指定文件暂存
-  - git reset [--mixed] 版本 id filename ：将某文件回退到某一个版本
-  - git checkout 版本 id filename ：效果与上面的差不多，区别看下图
-  - git reset --soft 版本 id + git commit ：合并 commit
+  - git reset [--mixed] version_id filename ：将某文件回退到某一个版本
+    - 现在是修改工作目录，未add和commit的状态
+    - 如果想还原工作目录，要进行 get checkout filename
+  - git checkout version_id filename ：效果与上面的差不多，区别看下图
+  - git reset --soft version_id + git commit ：合并 commit，或者完成git commit --amend的操作
 
-![](./image/git-1.jpg)
+
+- reset 和 checkout：
+  - 不带路径： git checkout [branch] 与运行 git reset --hard [branch] 非常相似。
+    - 相同：
+      - 都会更新三棵树
+    - 区别：
+      - checkout是安全的
+      - reset是修改分支指向，而HARD跟着分支。而checkout是修改HARD本身指向
+        > ![checkout-diff](./image/checkout-diff.png)
+  - 带路径
+    - 相同：
+      - 像 带路径的reset 一样不会移动 HEAD
+      - 同 git reset 和 git add 一样，checkout 也接受一个 --patch 选项，允许你根据选择一块一块地恢复文件内容。
+    - 相当于:
+      - git reset --hard [branch] file（如果 reset 允许你这样运行的话）
+      - 当然，也是不安全的，会完全放弃修改
+
+- 规则速查表
+  > ![](./image/git-1.jpg)
 
 
 # 10. 变基
