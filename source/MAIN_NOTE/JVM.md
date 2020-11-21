@@ -350,23 +350,28 @@
     - 符号引用就是一组符号来描述所引用的目标。符号引用的字面量形式明确定义在《java虚拟机 规范》的class文件格式中。
     - 直接引用就是直接指向目标的指针、相对偏移量或一个间接定位 到目标的句柄。
   - 解析动作主要针对类或接口、字段、类方法、接口方法、方法类型等。对应常量池中的 CONSTANT_Class_info、CONSTANT_Fieldref_info、CONSTANT_Methodref_info等。
+  - 扩展
+    - 之后的**方法调用**一节 就涉及符号引用转化为直接引用（于 学到虚方法表时 添加）
+    - 在此阶段还会创建虚方法表（于 学到虚方法表时 添加）
+
 
 #### initial
 
 - 过程
-  - 初始化阶段就是执行类构造器方法<clinit>()的过程。
+  - 初始化阶段就是执行类构造器方法`<clinit>`()的过程。
+    > ![initial-1](./image/initial-1.png)
     - 此方法不需定义，
-    - 是javac编译器自动收集
+    - 是 javac 编译器自动收集
       - **类中的所有类变量的赋值动作**
       - **类中的所有静态代码块中的语句**
     - 然后合并
     - 如果没有静态变量和静态代码块，该方法就不会存在
   - 构造器方法中指令按语句在源文件中出现的顺序执行。
-  - <clinit>()不同于类的构造器。
-    - 构造器是<init>
-  - 若该类具有父类，JVM会保证子类的<clinit>()执行前，父类的<clinit>() 已经执行完毕。
-  - 虚拟机必须保证一个类的<clinit>()方法在多线程下被同步加锁。
-    - 一个类的<clinit>()只会被加载一次
+  - `<cinit>`()不同于类的构造器。
+    - 构造器是`<init>`
+  - 若该类具有父类，JVM 会保证子类的`<clinit>`()执行前，父类的`<clinit>`() 已经执行完毕。
+  - 虚拟机必须保证一个类的`<clinit>`()方法在多线程下被同步加锁。
+    - 一个类的`<clinit>`()只会被加载一次
     - 在加载过程中会加锁
     - 应该注意，避免导致死锁
 
@@ -393,7 +398,7 @@
       }
     }
     ```
-  - 左侧 Methods 下有 <clinit>，可以自行查看
+  - 左侧 Methods 下有 `<clinit>`，可以自行查看
     > ![classloader-init-1](./image/classloader-init-1.png) 
 
 ### 类加载器
@@ -894,15 +899,16 @@ public static void main(String[] args){
   - 当嵌套调用的所有方法对应所有栈帧的总大小加起来大于栈大小时，就会报stackoverflow异常
   - 这也是使用递归时常见的异常
 
-#### 栈帧内部结构
+#### 栈帧内部组成
 
 ![stack-4](./image/stack-4.png)
 
 - **局部变量表**（Local Variables)
 - **操作数栈**（operand stack)(或表达式栈）
-- 动态链接（Dynamic Linking)(或称为 指向运行时常量池的方法引用）
-- 方法返回地址（Return Address)(或称为 方法正常退出或者异常退出的定义）
-- 一些附加信息
+- 帧数据区(有些书将以下三个部分并称为帧数据区)
+  - 动态链接（Dynamic Linking)(或称为 指向运行时常量池的方法引用）
+  - 方法返回地址（Return Address)(或称为 方法正常退出或者异常退出的定义）
+  - 一些附加信息
 
 #### 栈帧内部-局部变量表
 
@@ -1046,18 +1052,359 @@ public static void main(String[] args){
   > 将操作数栈中的第一个数出栈，存放在局部变量表index为3的位置<br/>
 
 
+#### 栈顶缓存技术
 
-#### 栈帧--代码追踪
+> top of stack cashing<br/>
+> 该技术为hotspot设计者提出，还没有进行应用
 
-#### 栈顶--缓存技术
+- 背景
+  - 基于栈式架构的虚拟机所使用的**零地址**指令更加紧凑
+    > 上面的操作就只涉及出栈入栈，并没有涉及地址
+  - 但完 成一项操作的时候必然需要使用更多的入栈和出栈指令，
+  - 这同时也就意味着将需要更多的指令分派（instruction dispatch)次数和内存读/写次数。
+- 目的：为了解决以上问题
+- 说明：将**栈顶元素**全部缓存在**物理CPU**的**寄存器**中，以此降低对内存的读/写次数，提升执行引擎的 执行效率。
+
+
 
 #### 栈帧内部-动态链接
 
+- 帧数据区：附加信息，动态连接，方法返回地址
+  > 某些书上会有该概念
+
+- 补充知识
+  > 方法区在之后会细讲
+  - 编译后的字节码文件中会有常量池
+    > 常量池的作用就是提供一些符号和常量，便于指令识别<br />
+    > 同时也减小了文件大小，重复部分可以直接使用引用指向
+  - 加载到内存后为运行时常量池
+  - 存在于方法区
+  > ![dynamiclink-1](./image/dynamiclink-1.png) 
+
+- 说明：
+  - 在Java源文件被编译到字节码文件中时，所有的**变量**和**方法引用**都作为**符号引用（Symbolic Reference)**保存在class文件的**常量池**里。
+    > 每个方法的符号引用，通过其他的符号引用构成
+    > ![dynamiclink-3](./image/dynamiclink-3.png) 
+    > 比如这里的方法引用通过类符号引用.方法名称符号引用:返回值类型符号引用构成(// 后为解析完成后的结果)
+    - 这些符号引用一部分会在类加载阶段或者第一次使用的时候就被转化为直接引用，这种转化被称为**静态解析**。
+    - 另外一部分将在每一次运行期间都转化为直接引用，这部分就称为**动态链接**
+  - 每一个**栈帧内部**都包含一个**指向运行时常量池中该栈帧所属方法对应符号引用**的**引用**
+  - 比如：
+    - 描述一个方法调用了另外的其他方法时，就是通过常量池中指向方法的符号引用来表示的。
+    - 为了找到该方法，就会访问被调用方法栈帧中的  那个指向符号引用的引用
+    > ![dynamiclink-2](./image/dynamiclink-2.png) 
+  - 作用:就是为了将这些符号引用转换为调用方法的直接引用。
+
+- 原理：
+  - 包含这个引用的目的就是为了支持当前方法的代码能够实现动态链接 (Dynamic Linking)。比如：invokedynamic指令
+
 #### 方法的调用：解析和分派
+
+> 对动态链接进行深入讲解
+
+##### 绑定与链接
+
+- 绑定： 绑定是一个字段、方法或者类在符号引用被替换为 直接引用的过程，这仅仅发生一次。
+  - 早期绑定（Early Binding) 。对应指令 invokespecial, invokestatic
+    ```
+    早期绑定就是指被调用的目标方法如果在编译期可知，且运行期保持不变时，
+    即可将这个方法与所属的类型进行绑定，这样一来，由于明确了被调用的目
+    标方法究竟是哪一个，因此也就可以使用静态链接的方式将符号引用转换为
+    直接引用。
+    ```
+  - 晚期绑定 (Late Binding)。对应指令 invokevirtual，invokeinterface
+    ```
+    如果被调用的方法在编译期无法被确定下来，只能够在程序运行期根据实际
+    的类型绑定相关的方法，这种绑定方式也就被称之为晚期绑定。
+    ```
+- 链接：
+  > 分别对应上面的两个绑定
+  - 静态链接：在编译期间，被调用的方法就已经确定下来，并已经把符号引用转换为了调用方法的直接引用。
+  - 动态链接：被调用的方法在编译期间无法确定下来，只能在运行期间将调用方法的符号引用转换为直接引用
+
+- 示例：
+  - 示例1
+    ```java
+    // eat 是一个接口，有eat()方法
+    // animal 是一个类。
+    // cat,dog 两个类继承animal，实现该eat接口
+    class Cat{
+      public cat(){
+        super()  // 此处编译时就是调用animal的构造方法。为早期绑定
+      }
+    }
+    public class AnimalTest{
+      public void animalEat(eat e){
+        e.eat() // 此处编译时就无法得知调用哪一个实现类的方法。为晚期绑定
+      }
+    }
+    ```
+  - 示例2：用final修饰就是使用早期绑定
+
+##### 非虚方法与虚方法
+
+> 分别对应上面的早期绑定与晚期绑定。
+
+- 语言的发展与动态链接
+  ```
+  随着高级语言的横空出世，类似于Java一样的基于面向对象的编程语言如今
+  越来越多，尽管这类编程语言在语法风格上存在一定的差别，但是它们彼此
+  之间始终保持着一个共性，那就是都支持封装、继承和多态等面向对象特性，
+  既然这一类的编程语言具备多态特性，那么自然也就具备早期绑定和晚期绑
+  定两种绑定方式。
+
+  Java中任何一个普通的方法其实都具备虚函数的特征，它们相当于C++语言
+  中的虚函数（C++中则需要使用关键字virtual来显式定义）。如果在Java
+  程序中不希望某个方法拥有虚函数的特征时，则可以使用关键字final来标
+  记这个方法。
+  ```
+- 分类
+  - 非虚方法:
+    - 如果方法在编译期就确定了具体的调用版本，这个版本在运行时是不可变的。这样的方法称为非虚方法。
+    - **静态方法、私有方法、final方法、构造器、父类方法(使用super显式调用)**都是非虚方法。
+  - 虚方法:其他方法称为虚方法。
+    - Java中任何一个成员方法都是虚方法。在子类中可以重写父类方法。
+
+##### 相关指令
+
+> 下方前四条指令固化在虚拟机内部，方法的调用执行不可人为干预，而invokedynamic指令则支持由用户确定方法版本。
+> **其中invokestatic指令和invokespecial指令调用的方法称为： 虚方法，其余的（final修饰的除外）称为虚方法。**
+
+- 普通调用指令
+  - 调用非虚方法
+    - invokestatic:调用静态方法，解析阶段确定唯一方法版本
+    - invokespecial:调用`<init>`方法、私有及父类方法，解析阶段确定唯一方法版本
+  - 调用虚方法(final除外)
+    - invokevirtual:调用所有虚方法
+      - 注意：
+        - 如果隐式调用父类方法，不管父类方法有没有加final，**都会编译成invokevirtual**，
+          - **也就是说包含父类方法不为虚函数，调用时边编译出invokevirtual的情况**
+        - 只有显式调用父类方法`super.fatherMethod()`，才会编译成invokespecial。
+    - invokeinterface:调用接口方法
+- 动态调用指令：
+  - invokedynamic:动态解析出需要调用的方法，然后执行
+
+- 代码示例
+  ```java
+  package com.atguigu.java2;
+
+  /**
+  * 解析调用中非虚方法、虚方法的测试
+  *
+  * invokestatic指令和invokespecial指令调用的方法称为非虚方法
+  * @author shkstart
+  * @create 2020 下午 12:07
+  */
+  class Father {
+      public Father() {
+          System.out.println("father的构造器");
+      }
+
+      public static void showStatic(String str) {
+          System.out.println("father " + str);
+      }
+
+      public final void showFinal() {
+          System.out.println("father show final");
+      }
+
+      public void showCommon() {
+          System.out.println("father 普通方法");
+      }
+  }
+
+  public class Son extends Father {
+      public Son() {
+          //invokespecial
+          super();
+      }
+      public Son(int age) {
+          //invokespecial
+          this();
+      }
+      //不是重写的父类的静态方法，因为静态方法不能被重写！
+      public static void showStatic(String str) {
+          System.out.println("son " + str);
+      }
+      private void showPrivate(String str) {
+          System.out.println("son private" + str);
+      }
+
+      public void show() {
+          //invokestatic
+          showStatic("atguigu.com");
+          //invokestatic
+          super.showStatic("good!");
+          //invokespecial
+          showPrivate("hello!");
+          //invokespecial
+          super.showCommon();
+
+          //invokevirtual
+          showFinal();//因为此方法声明有final，不能被子类重写，所以也认为此方法是非虚方法。
+
+          // 虚方法
+          // 没有显示加super.，子类可能重写了该方法，也可能没有，分别对应调用子类和父类方法的情况 
+          //invokevirtual
+          showCommon();
+          info();
+
+          MethodInterface in = null;
+          // 虚方法
+          //invokeinterface，一定会调用实现类的方法
+          in.methodA();
+      }
+
+      public void info(){
+
+      }
+
+      public void display(Father f){
+          f.showCommon();
+      }
+
+      public static void main(String[] args) {
+          Son so = new Son();
+          so.show();
+      }
+  }
+
+  interface MethodInterface{
+      void methodA();
+  }
+  ```
+
+- invokedynamic详解
+  - 出现：jvm字节码指令集一直较为稳定，一直到java7中才添加了一个invokedynamic
+    ```
+    Java7中增加的动态语言类型支持的本质是对Java虚拟机规范的修改，而不
+    是对Java语言规则的修改，这一块相对来讲比较复杂，增加了虚拟机中的方
+    法调用，最直接的受益者就是运行在Java平台的动态语言(比如python,js)的编译器(第一张提到的，跨语言的平台)
+    ```
+  - 目的:**实现 动态类型语言支持**，保证了能在jvm上运行python，js等动态语言
+  - 生成：
+    - java7
+      - 但是在Java7中并没有提供直接生成invokedynamic指令的方法，需要借助ASM这种底层字节码工具来产生invokedynamic指令。直到Java8中lambda的出现
+    - java8
+      - 由于lambda的出现，java中有了invokedynamic的直接生成方式
+
+  - 示例代码
+  ```java
+  @FunctionalInterface
+  interface Func {
+      public boolean func(String str);
+  }
+
+  public class Lambda {
+      public void lambda(Func func) {
+          return;
+      }
+
+      public static void main(String[] args) {
+          Lambda lambda = new Lambda();
+
+          // 在此处就会调用invokedynamic指令
+          // Func就是一个接口，
+          // 接收右侧实现类。
+          // 类似于python中，通过等号右边判断左侧标识符的类型。
+          Func func = s -> {
+              return true;
+          };
+
+          lambda.lambda(func);
+
+          lambda.lambda(s -> {
+              return true;
+          });
+      }
+  }
+  ```
+
+##### 方法重写本质
+
+- 虚方法调用流程：
+  - 当调用一个对象的方法的时候，会将对象压入操作数栈。
+    - 再根据字节码指令（通常为为invokevirtual，即调用对象方法）调用方法。根据该指令会操作数栈顶寻找
+    - 找到操作数栈顶的第一个元素所执行的对象的实际类型，记作C。
+  - 再在类型C中寻找与常量中的描述符和简单名称都相符的方法
+    - 如果找到了
+      - 则进行**访问权限校验**，
+        - 如果通过则返回这个方法的直接引用，查找过程结束；
+        - 如果不通过，则返回java.lang.IllegalAccessError异常。
+          ```
+          程序试图访问或修改一个属性或调用一个方法，这个属性或方法，你没有权限访问。一般
+          的，这个会引起编译器异常。这个错误如果发生在运行时，就说明一个类发生了不兼容的
+          改变。
+
+          该Error比较难排错。
+          maven管理依赖时，jar包冲突就有可能引起该异常
+          ```
+    - 如果没找到，按照继承关系从下往上依次对C的各个父类进行第2步的搜索和验证过程。
+      - 如果始终没有找到合适的方法，则抛出java.lang.AbstractMethodError异常。
+        > 该异常也就是指调用的方法没被重写或实现过
+
+##### 虚方法表
+
+> virtual method table
+
+- 出现原因：每次调用虚方法都会重复上述过程，过于浪费时间，影响效率
+- 作用：存放虚方法，存放各个虚方法的实际入口。
+  > 非虚方法不会出现在表中，因为在编译期间已经确定下来，不需要花费时间寻找方法入口
+- 建立位置：方法区
+- 建立时期：
+  - 在链接阶段被创建并开始初始化，
+  - 类的变量初始值准备完成之后，JVM会把该类的方法表也初始化完毕
+
+- 示例：
+  - 例1：Father和Son两个类的虚方法表
+    > ![dynamiclink-4](./image/dynamiclink-4.png) 
+  - 例2：
+    > ![dynamiclink-5](./image/dynamiclink-5.png) <br />
+    > ![dynamiclink-6](./image/dynamiclink-6.png) <br />
+    > ![dynamiclink-7](./image/dynamiclink-7.png) <br />
+    > ![dynamiclink-8](./image/dynamiclink-8.png) 
+
+
+
+<br/> <br/> <br/>
+疑问：如何解释上转类型和下转类型的多态
 
 #### 栈帧内部-方法返回地址
 
-#### 其他信息
+- 该结构存储的数据：调用该方法时，pc寄存器（或者程序计数器）中的值
+
+
+- 过程讲解：
+  - 正常退出
+    - A调用B方法。此时程序计数器中值为3
+    - B方法对应栈帧入栈，此时该栈帧中 方法返回地址 的值为3
+    - B方法执行完，执行引擎读取B方法中的 方法返回地址 的值3,读取后B方法的栈帧出栈
+    - 执行引擎把3放入程序计数器，继续执行下一条指令
+  - 异常退出
+    - 返回地址要通过**异常表**来确定，栈帧中不会保存这部分信息。
+
+- 两种退出方式：
+  > 线程一节也有提到
+  - 正常退出
+    - 会执行方法返回的字节码指令（return），返回值会返回给上层调用者
+    - 根据不同的返回值类型会使用不同的返回指令
+      - ireturn:返回值为boolean,byte,char,short,int
+      - lreturn:返回值为long
+      - freturn:返回值为float
+      - dreturn:返回值为double
+      - areturn:返回值为引用
+      - return:返回值为void的方法，实例初始化方法，类和接口的初始化方法
+  - 异常退出
+    - 通过异常退出的不会给他的上层调用者产生任何的返回值
+    - 如果在抛出异常的地方使用try-catch捕获异常并进行处理，就会有一个**异常处理表**(和上面的异常表不同)
+      > ![return-address-1](./image/return-address-1.png) 
+      > 第一行：如果是字节码指令4-8行出现的java.io.IOException异常，就在字节码指令第11行进行处理
+
+#### 栈帧内部--附加信息
+
+栈帧中还允许携带与Java虚拟机实现相关的一些附加信息。例如， 对程序调试提供支持的信息。 
+
+并不一定有
 
 #### 面试题
 
