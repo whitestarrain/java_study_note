@@ -649,31 +649,27 @@
 
 - 经典布局
   > ![jvm-buju-1](./image/jvm-buju-1.png) 
-  - 红色：每个进程，或者每个虚拟机实例各自对应一份。线程间共享。包括堆和方法区
+  - 红色：**每个进程，或者每个虚拟机实例各自对应一份**。线程间共享。包括堆和方法区
     - 重点优化的就是堆和方法区
     - 95%垃圾回收在堆区
     - 5%垃圾回收在方法区
     - 其他区域没有垃圾回收
-  - 灰色：每个线程对应一份。包括程序计数器，栈，本地栈
-
-  ```
-  jdk8以后方法区改为元空间，使用本地内存，或者称为堆外内存
-
-  也有将 元空间+CodeCache 并称为 方法区
-  ```
-
+  - 灰色：**每个线程对应一份。包括程序计数器，栈，本地栈**
+  - java.lang.RunTime 对象
+    - 该对象的创建是单例模式
+    - 每个jvm都会有一个Runtime对象
+    - 该对象就对应一个运行时数据区
 - 详细布局(阿里手册)
   > ![jvm-buju-2](./image/jvm-buju-2.png) 
   - CodeCache，有的会将其归在元空间中，有的则单独放出来
   - 也有将 元空间+CodeCache 称为 方法区
   - 只要知道CodeCache是存放在堆内存之外即可
 
-- java.lang.RunTime 对象
-  - 单例模式
-  - 每个jvm都会有一个Runtime对象
-  - 该对象就对应一个运行时数据区
+  ```
+  jdk8以后方法区改为元空间，使用本地内存，或者称为堆外内存
 
-
+  也有将 元空间+CodeCache 并称为 方法区
+  ```
 #### 2.2.1.2. 线程
 
 - 线程是一个程序里的运行单元。JVM允许一个应用有多个线程并行的执行。
@@ -1619,8 +1615,433 @@ public static void main(String[] args){
 
 ### 2.2.6. 堆(重要)
 
-学习路线回顾
+#### 概述
 
+- 介绍：一个jvm实例只存在一个堆内存，堆也是java内存管理的核心区域
+- 创建时机：在jvm启动时被创建，创建后其内存大小也就确定了，时jvm管理的最大一块的内存空间 
+  > 堆的大小是可以调节的
+
+- 示例
+  - 参数
+    - -Xms 10m:设置堆起始为10m
+    - -Xmx 10m:设置堆最大为10m
+  - 代码
+    ```java
+    public class HeapDemo {
+        public static void main(String[] args) {
+            System.out.println("start...");
+            try {
+                Thread.sleep(1000000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("end...");
+        }
+    }
+    ```
+  - 监控：
+    - jdk自带工具：`jvisualvm`
+    - 可以查看**当前或远程操作系统**上运行的java进程（即jvm）的资源使用情况
+  - 结果
+    > ![heap-1](./image/heap-1.png)
+    - 加起来就是通过参数选项设置的堆的大小
+
+#### 核心概述
+
+- 堆是共有的
+  - 一个JVM实例只存在一个堆内存，堆也是Java内存管理的核心区域。
+  - 所有的线程共享Java堆，
+  - 注意：在这里还可以划分线程**私有**的缓冲区（Thread Local Allocation Buffer, TLAB)。
+    > 因为共享数据存在线程安全问题。如果通过并发进行处理的话，并发性又会下降<br />
+    > 为了加快速度，会在堆空间中给每个线程分一个缓冲区
+- 堆的创建：
+  - Java堆区在JVM启动的时候即被创建，其空间大小也就确定了。是JVM 管理的最大一块内存空间。
+  - 堆内存的大小是可以调节的。
+- 堆在内存中的分布：
+  - 堆可以处于**物理上不连续**的内存空间中，但在 **逻辑上它应该被视为连续的。**
+    ```
+    这点就像我们用磁盘空间去存储文件一样，并不要求每个文件都连续存放。但对于大
+    对象（典型的如数组对象），多数虚拟机实现出于实现简单、存储高效的考虑，很可能会要求连续的
+    内存空间。
+    ```
+- 对象示例的分配
+  - 所有的对象实例以及数组都应当在运行时全部分配在堆上。
+    > 注意：因为之后jvm也有了新的特性，在讲到后面的时候，**全部**应该替换为**几乎**<br />
+  - 数组和对象可能永远不会存储在栈上，因为栈帧中保存引用，这个引用指向对象或者数组在堆中的位置。
+    > ![heap-2](./image/heap-2.png) <br />
+    > 注意，这个到了后面也会被推翻
+  - 方法结束后，堆中的对象不会马上被移除，**仅仅在垃圾回收的时候才会被移除**
+  - 堆是垃圾回收的重点区域
+
+- 代码示例
+  > ![heap-3](./image/heap-3.png) 
+
+- 堆空间的细分
+  - 两个jdk,7和8是一个分水岭
+    - jdk7
+      > 新生区+养老区+永久区
+      - Young Generation Space 新生区/新生代/年轻代等等。
+        - Eden
+        - Survivor0(或称为from区)
+        - Survivor1(或称为to区)
+      - Tenure Generation Space 养老区
+      - Permanent Space 永久区
+    - jdk8
+      > 新生区+养老区+元空间
+      - Young Generation Space 新生区
+        - Eden
+        - Survivor0(或称为from区)
+        - Survivor1(或称为to区)
+      - Tenure Generation Space 养老区
+      - Meta Space 元空间
+  - 图解
+    > ![heap-10](./image/heap-10.png)<br />
+    > ![heap-4](./image/heap-4.png) <br />
+    > 可以发现-Xmx参数只可以设置前两个区域<br />
+    > 而永久代和元数据区都需要通过其他参数进行设置
+  - 动手
+    - 写个hellow world，添加参数`-Xms10m -Xmx10m -XX:+PrintGCDetails`，
+      - 在jdk7下运行查看输出
+      - 在jdk8下运行查看输出
+    - 写个一直sleep的程序，添加参数`-Xms10m -Xmx10m`，用JVisualVM查看垃圾回收情况
+      > 验证-Xmx参数只可以设置前两个区域<br />
+      > ![heap-5](./image/heap-5.png) 
+  - 面试题相关：
+    - jdk7到jdk8的虚拟机结构有那些变化
+      ```
+      永久区-->元空间
+      基于以上变化，还发生变化的有(后面会详细讲):
+        stringTable(字符串常量池)
+        静态的域
+      ```
+
+#### 设置堆的大小
+
+> 具体参数细节，参数构成会在调优篇重点介绍以及阅读 [参数文档](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/java.html)
+
+> （堆区的内存在jvm启动时就已经确定好了）
+
+- 默认情况
+  - 初始内存：物理内存大小的1/64
+  - 最大内存：物理内存大小的1/4
+
+- 设置堆区(年轻代+老年代)的起始内存:`-Xms`(默认单位为字节),或者`-XX::InitialHeapSize`
+  - -X:jvm的运行参数
+  - ms:memory start
+- 设置堆区(年轻代+老年代)的最大内存:`-Xmx`,或者`-XX:MaxHeapSize`
+  > **开发中建议将初始堆内存和最大的堆内存设置成相同的值。**<br />
+  > 否则会因为频繁的扩容和释放会造成不必要的系统的压力(GC释放内存，堆空间减小。运行占用内存，堆空间扩容。频繁进行)
+  - -X:jvm的运行参数
+  - mx:memory
+
+- 测试(重要)
+  ```java
+  /**
+  * 1. 设置堆空间大小的参数
+  * -Xms 用来设置堆空间（年轻代+老年代）的初始内存大小
+  *      -X 是jvm的运行参数
+  *      ms 是memory start
+  * -Xmx 用来设置堆空间（年轻代+老年代）的最大内存大小
+  *
+  * 2. 默认堆空间的大小
+  *    初始内存大小：物理电脑内存大小 / 64
+  *             最大内存大小：物理电脑内存大小 / 4
+  * 3. 手动设置：-Xms600m -Xmx600m
+  *     开发中建议将初始堆内存和最大的堆内存设置成相同的值。
+  *
+  * 4. 查看设置的参数：方式一： jps   /  jstat -gc 进程id
+  *                  方式二：-XX:+PrintGCDetails
+  */
+  public class HeapSpaceInitial {
+      public static void main(String[] args) {
+
+          //返回Java虚拟机中的堆内存总量
+          long initialMemory = Runtime.getRuntime().totalMemory() / 1024 / 1024;
+          //返回Java虚拟机试图使用的最大堆内存量
+          long maxMemory = Runtime.getRuntime().maxMemory() / 1024 / 1024;
+
+          System.out.println("-Xms : " + initialMemory + "M");// 575M
+          System.out.println("-Xmx : " + maxMemory + "M");// 575M
+          // 只有575M是因为Survivor0和Survivor1区只有一个区域(二选一)可以存放对象
+          // 设计垃圾回收的算法
+
+          // System.out.println("系统内存大小为：" + initialMemory * 64.0 / 1024 + "G");
+          // System.out.println("系统内存大小为：" + maxMemory * 4.0 / 1024 + "G");
+
+          try {
+              Thread.sleep(1000000);
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+      }
+  }
+  ```
+  - 查看堆的状态
+    - 方式一： `jps`   ,  `jstat -gc 进程id`
+      > ![heap-6](./image/heap-6.png) 
+    - 方式二：`-XX:+PrintGCDetails`
+      > ![heap-7](./image/heap-7.png) <br />
+      > 新生代的计算大小为：eden + from或to中的一个<br />
+      > 具体原因见代码中
+
+#### OOM
+
+> 注意面试时。狭义上的 ‘异常’(就要对Exception和Error进行区分)，和广义上的‘异常’（包括Exception和Error）<br  />
+> 面试官问内存方面的异常时，基本上都是OOM相关的，要答一些高级的OOM的Error。这里的异常时广义上的
+
+- 代码示例
+  > 打开jvisualvm，实际看看GC区的变化
+  ```java
+  /**
+  * -Xms600m -Xmx600m
+  */
+  public class OOMTest {
+      public static void main(String[] args) {
+          ArrayList<Picture> list = new ArrayList<>();
+          while(true){
+              try {
+                  Thread.sleep(20);// 为了降低程序执行速度，查看GC变化
+              } catch (InterruptedException e) {
+                  e.printStackTrace();
+              }
+              list.add(new Picture(new Random().nextInt(1024 * 1024)));
+          }
+      }
+  }
+
+  class Picture{
+      private byte[] pixels;
+
+      public Picture(int length) {
+          this.pixels = new byte[length];
+      }
+  }
+  ```
+- 结果
+  > ![heap-9](./image/heap-9.png) <br />
+  > old区满了，无法进行GC <br />
+  > ![heap-8](./image/heap-8.png) <br />
+  > 通过查看抽样器中的信息可以判断内存溢出的原因
+
+
+
+#### 年轻代和老年代
+
+- jvm中的对象分类
+  - 生命周期较短的瞬时对象，该类对象的创建和消亡都非常迅速
+  - 生命周期很长的对象（比如一些连接的对象），某些极端情况下还能够与jvm的声明周期保持一致。
+- 堆的结构回顾
+  > ![heap-10](./image/heap-10.png)<br />
+- 大致流程：
+  > 详细看下一节
+  - 对象创建在eden中
+  - 回收时，如果依旧存活，放入Survivor中（from 和 to 会来回交换。详细看下一节）
+  - 一定时间后还存活，就会放入old gen区
+- 内存占比
+  > ![heap-11](./image/heap-11.png) 
+  - 新生代和老年代在对结构的占比：
+    - 默认 -XX:NewRatio=2,表示新生代占1，老年代占2。也就是新生代占1/3
+    - -XX:NewRatio=4,表示新生代占1，老年代占4。也就是新生代占1/5
+    - **注意：一般不会调。如果很多对象生命周期较长的话，可以把老年代调大一些**
+  - Eden和两个Survivor区占比：
+    - 文档中写的默认是`-XX:SurvivorRatio`,即8:1:1
+      - **但是，实际操作下来时6:1:1**
+        > 面试的时候可以说下
+        > ![heap-13](./image/heap-13.png)>
+      - 尽管关闭自适应比例的情况下，即加上 `-XX:-UseAdaptiveSizePolicy`。也没有用
+      - **必须**要设置`-XX:SurvivorRatio=8`才能成为8:1:1的比例
+- 对象的创建： **几乎**所有对象都是在eden中创建的
+  ```
+  '几乎'是指从实现角度来看，随着Java语言的发展，
+  现在已经能看到些许迹象表明日后可能出现值类型的支持，即使只考虑现在，由于即时编
+  译技术的进步，尤其是逃逸分析技术的日渐强大，栈上分配、标量替换优化手段已经导致一些微妙
+  的变化悄然发生，所以说Java对象实例都分配在堆上也渐渐变得不是那么绝对了
+  ```
+- 对象的销毁:绝大多数对象的销毁都在新生代进行。
+  > IBM公司的专门 研究表表名，新生代中80%的对象都是'朝生夕死'的
+- 设置新生代的大小:`-Xmn`。该参数的优先级要大于`-XX:NewRatio`的优先级。**但一般不设置具体数值，而是设置比例**
+
+#### 对象分配过程
+
+> 重要！面试和垃圾回收算法都用得到
+
+```
+为新对象分配内存是一件非常严谨和复杂的任务，JVM的设计者们不仅需要考虑内存如何分
+配、在哪里分配等问题，并且由于内存分配算法与内存回收算法密切相关，所以还需要考
+虑GC执行完内存回收后是否会在内存空间中产生内存碎片。
+```
+- 具体流程
+  - new的对象先放伊甸园区。此区有内存大小
+  - 当伊甸园的空间填满时，程序又需要创建对象，JVM的垃圾回收器将对伊甸园区进行垃圾回收（Minor GC),将伊甸园区中和幸存者区中的不再被其他对象所引用的对象进行销毁。再加载新的对象放到伊甸园区
+    - **注意：会回收两个区，eden和survivor区。survivor区是被动回收**
+    - 回收后，eden就会被清空。垃圾被清理，非垃圾被放到survivor区
+  - 然后将伊甸园中的剩余没被垃圾回收的对象移动到幸存者0区。
+  - 如果再次触发垃圾回收，此时上次幸存下来的放到幸存者0区的对象如果还是没有回收，就会复制到幸存者1区。再将0区的对象删除
+  - 如果再次经历垃圾回收，此时会重新复制回幸存者0区，再将1区对象删除
+    > 空的survivor区为to区
+    - 不断迭代。迭代一次年龄加1。年龄到达阀值后就会移入到老年区
+    - 默认是15次。后去养老区。 通过设置参数调节：`-XX:MaxTenuringThreshold=<N>`进行设置。
+    - **注意：survivor区满了的话不会触发**。除了年龄到达阀值，也有特殊情况使Survivor区中的对象移入到老年区。具体看下面
+  - 在养老区，相对悠闲。当养老区内存不足时，再次触发GC:Major GC,进行养老区的内存清理。
+  - 若养老区执行了Major GC之后发现依然无法进行对象的保存，就会产生OOM异常
+
+- 图解
+  > ![heap-14](./image/heap-14.png)
+  - 针对幸存者se,s1区的总结：复制之后有交换，谁空谁是to.
+  - 关于垃圾回收：频繁在新生区收集，很少在养老区收集，几乎不在永久区/ 元空间收集。
+
+- 内存分配特殊情况
+  > ![heap-15](./image/heap-15.png) 
+  - new 的对象如果在eden中放不下，就会进行YGC
+    - 如果要放入survivor的to区时，survivor的to区也不够了，就会直接放到老年区(**特殊情况1**)
+  - 如果垃圾回收后，新new的对象eden区依旧放不下。就会直接放到old区(**特殊情况2**)
+  - 如果old区还是放不下，就会进行FGC(**特殊情况3**)
+    - FGC后放的下就会放
+    - FGC后放不下就是报OOM异常
+      > 不允许jvm动态调整新生代和老年代时
+  - 测试：
+    > 实际运行代码，通过jvisualvm进行查看
+    ```java
+    public class HeapInstanceTest {
+        byte[] buffer = new byte[new Random().nextInt(1024 * 200)];
+
+        public static void main(String[] args) {
+            ArrayList<HeapInstanceTest> list = new ArrayList<HeapInstanceTest>();
+            while (true) {
+                list.add(new HeapInstanceTest());
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    ```
+
+#### 常用调优工具
+
+> 列出现阶段学习过程中可能用到的工具。具体使用将放到调优篇
+
+- jdk命令行
+  - jps
+  - jinfo
+  - jstat
+  - javap
+  - jmap
+- jclasslib
+- Eclipse Analyzer Tool
+- Jconsole
+- JVisualVM
+- JProfiler
+- Java Flight Recorder
+- GCVierwer
+- GC Easy
+
+#### Minor GC,Major GC,Full GC
+
+> 该节主要是为了区分概念，详细的垃圾回收会放在后面<br />
+> 面试会问到 三个GC的区别
+
+- 线程分类：
+  - 用户线程：用来执行代码
+  - GC线程：用来进行垃圾回收
+    > 垃圾回收过程中会有Stop the World(STW)，也就是垃圾回收时用户线程会暂停。导致程序执行效率下降<br />
+
+
+- 针对 HotSpot VM的实现，它的GC按照回收区域分为两类：
+  > JVM 进行GC时，并非每次都对三个区域（新生代，老年代，方法区）一起回收，大多数回收的都是新生代。
+  - 部分收集（Partial GC）:不是完整得收集整个java堆的垃圾收集。其中可以分为：
+    - 新生代收集（Minor GC/Young GC）:只针对新生代的垃圾收集
+    - 老年代收集（Major GC/Old GC）:只针对老年代的垃圾收集
+      - 只有GMS垃圾回收器会有单独收集老年代的行为
+      - **注意：很多时候Major GC会和Fu11 GC混淆使用，需要具体分辨是老年代 回收还是整堆回收。**
+        > 原因是hotspot虚拟机发展时间很长，外界对它的解读有些混乱<br />
+        > 面试时可以向面试官主动提问下他问的到底是哪个<br />
+        > 准确地还是按照这里的分类较好
+    - 混合收集（Mixed GC）：收集整个新生代和老年代
+      - 目前只有G1回收器会有这种行为
+        > 原因是因为G1是按照region进行堆空间的划分(后面再详细说)
+  - 整堆收集（Full GC）:收集整个java堆(新生代+老年代)和方法区的垃圾收集
+
+- 触发机制
+  - 年轻代GC（Minor GC）
+    - 当年轻代空间不足时，就会触发Minor GC,这里的年轻代满指的是 Eden代满，**Survivor满不会引发GC**。（每次Minor GC会清理年轻 代的内存。）
+      > 上面说过，Survivor区满了的话会晋升到老年代。Survivor的回收是被动的，是由eden区触发回收时同时进行回收
+    - 因为 Java 对象大多都具备朝生夕灭的特性，所以 Minor GC 非常频繁，一般回收速度也比较快。这一定义既清晰又易于理解。
+    - Minor GC会引发STW,暂停其它用户的线程，等垃圾回收结束，用户线程才恢复运行。
+  - 老年代GC（Major GC/Full GC）
+    - 出现了Major GC,经常会伴随至少一次的Minor GC(但非绝对的，在Parallel Scavenge收集器的收集策略里就有直接进行Major GC的策略选择过程）。
+      > 也就是在老年代空间不足时，会先尝试触发Minor GC。如果之后空间还不足，则触发Major GC
+    - **Major GC的速度一般会比Minor GC慢10倍以上，STW的时间更长。**
+    - 如果Major GC后，内存还不足，就报OOM了。
+  - Full GC触发方式：
+    > 之后性能调优会更详细得说
+    - (1)调用System.gc()时，系统建议执行Fu11 GC,但是不必然执行
+    - (2)老年代空间不足
+    - (3)方法区空间不足
+    - (4)通过Minor GC后进入老年代的平均大小大于老年代的可用内存
+    - (5)由Eden区、survivor spacee(From Space)区向survivor space1(To Space)区复制时，对象大小大于To Space可用内存，则把该对象转存到老年代，且 老年代的可用内存小于该对象大小
+    > 开发和调优中应该尽量避免full GC，降低用户线程暂停时间(STW)
+
+- 代码测试：
+  > 也可以通过jvisualvm等实时监测。这里是添加参数输出GC日志
+  ```java
+  /**
+  * 测试MinorGC 、 MajorGC、FullGC
+  * -Xms9m -Xmx9m -XX:+PrintGCDetails
+  */
+  public class GCTest {
+      public static void main(String[] args) {
+          int i = 0;
+          try {
+              List<String> list = new ArrayList<>();
+              String a = "atguigu.com";
+              while (true) {
+                  list.add(a);
+                  a = a + a;
+                  i++;
+              }
+
+          } catch (Throwable t) {
+              t.printStackTrace();
+              System.out.println("遍历次数为：" + i);
+          }
+      }
+  }
+  ```
+  - from 和 to 区不同是因为自适应的原因。关闭自适应后就相同了
+    > ![heap-16](./image/heap-16.png) 
+  - 回收日志分析
+    > ![heap-17](./image/heap-17.png) 
+    - GC(第一行)：
+      - 前者为：回收前年轻代内存占用->回收后年轻代内存占用。
+      - 后者为：回收前整个堆的内存占用-> 回收后整个堆的内存占用(堆的全部内存大小)
+        > 因为是第一YGC，老年区还没有数据，所以年轻代的内存占用和整个堆的内存占用相同
+    - Full GC
+      - 分别是：年轻代回收情况，老年代回收情况，整个堆回收情况
+    - 在最后一个Full GC后，可以发现老年区内存没有回收多少，然后在下一次代码执行添加数据时导致堆空间不足，出现OOM
+
+#### 堆的分代思想
+
+- 分代原因：
+  - 不同的对象生命周期不同，70%-99%的对象都是临时对象
+  - 其实不分代依旧可以，分代的唯一理由就是**优化GC性能**。
+    - 不必对放入老年代的对象进行频繁的检测和回收
+      > 之前也提到了，Full GC 是Minor GC 花费时间的10倍
+
+#### 内存分配策略
+
+> 为对象分配过程的总结
+
+#### TLAB：为对象分配内存
+
+#### 堆空间的参数设置小结
+
+> 面试有。并且调优时肯定会用
+
+#### 堆是分配对象的唯一选择吗
 
 ### 2.2.7. 方法区(重要)
 
@@ -1636,6 +2057,8 @@ public static void main(String[] args){
 
 ### 2.3.3. 垃圾回收
 
+HotSpot里面也出 现了不采用分代设计的新垃圾收集器
+
 #### 2.3.3.1. 垃圾回收概述
 
 #### 2.3.3.2. 垃圾回收相关算法
@@ -1645,5 +2068,19 @@ public static void main(String[] args){
 #### 2.3.3.4. 垃圾回收器
 
 # 3. 字节码与类的加载
+
+
+#### 学习路线回顾
+
+![course-1](./image/course-1.png)
+- 最终目的是性能调优(下篇)
+- 所以学会使用性能监测工具(下篇)
+- 要想看得懂可视化工具显示的数据，就要懂内存的分配和回收(上篇)
+- 想懂内存的分配和回收，就要懂内存的结构(上篇)
+- 为了更好得理解内存结构，分配位置，内存中的数据是干什么的等等，要
+  - 学习类的加载器(上篇简单谈一下，中篇深入)
+  - 执行引擎(上篇)
+  - class文件结构和字节码指令(中篇)
+    > 在上篇也会简单涉及
 
 # 4. 性能监控与调优
