@@ -63,7 +63,7 @@
     - 下层：执行引擎
       > 解释执行(编译器)和即时编译(JIT编译器)并存
       - 解释器:保证响应时间，逐行对字节码指令进行解释执行
-      - JIT 编译器：针对人点代码，将热点代码编译为机器代码，并缓存起来
+      - JIT 编译器：针对热点代码，将热点代码编译为机器代码，并缓存起来
         - java-->class file:编译器前端
         - class 字节码-->机器指令:编译器后端
       - 垃圾回收器
@@ -257,7 +257,7 @@
       > 只有hotspot有
   - 执行引擎
     - 解释器:保证响应时间，逐行对字节码指令进行解释执行
-    - JIT 即时编译器：针对人点代码，将热点代码编译为机器代码，并缓存起来
+    - JIT 即时编译器：针对热点代码，将热点代码编译为机器代码，并缓存起来
     - 垃圾回收器
 
 ### 2.1.2. 作用
@@ -2150,6 +2150,8 @@ public static void main(String[] args){
 
 #### 2.2.6.13. 拓展：逃逸分析
 
+????到底分配到了栈上的哪里
+
 ```
 在《深入理解Java虚拟机》中关于Java堆内存有这样一段描述：
 随着JIT编译期的发展与逃逸分析技术逐渐成熟，栈上分配、标量替换优化技术将会导
@@ -2241,8 +2243,13 @@ public class EscapeAnalysis {
   ```
 - 开启：
   - 在JDK 6u23版本之后，HotSpot中默认就已经开启了逃逸分析。
+    - 注意：
+      - 要添加 -Server选项以服务端模式开启。
+      - 不过在64位电脑上默认启动的就是 Server VM。
+      - 倒不用添加 -Server 参数
   - 如果使用的是较早的版本，开发人员则可以通过：
     - 选项-XX:+DoEscapeAnalysis显式开启逃逸分析
+      > 通过选项-XX:-DoEscapeAnalysis显式关闭逃逸分析(对jdk 6u23之后的版本也有用)
     - 通过选项-XX:+PrintEscapeAnalysis查看逃逸分析的筛选结果。
 
 - 扩展：
@@ -2255,8 +2262,186 @@ public class EscapeAnalysis {
 
 **开发中能使用局部变量的，就不要使用在方法外定义。**
 
-#### 2.2.6.14. 逃逸分析-代码优化
+#### 2.2.6.14. 逃逸分析-代码优化(编译器做的)
 
+##### 栈上分配
+
+- 栈上分配
+  - 说明：将堆分配转化为栈分配。
+    - 如果一个对象在子程序中被分配，
+    - 要使指向该对象的指针永远不会逃逸，对象可能是栈分配的候选，而不是堆分配。
+  - 详解：
+    ```
+    JIT编译器在编译期间根据逃逸分析的结果，发现如果一个对象并没有逃
+    逸出方法的话，就可能被优化成栈上分配。分配完成后，继续在调用栈内
+    执行，最后线程结束，栈空间被回收，局部变量对象也被回收。这样就无
+    须进行垃圾回收了。
+    ```
+  - 常见的栈上分配的场景
+    - 给成员变量赋值
+    - 方法返回值
+    - 实例引用传递
+  - 实际：
+    - <p style="color:red">上面写的基本扯淡，那只是逃逸分析能带来的好处，了解一下即可</p>
+    - <p style="color:red">因为逃逸分析技术太不成熟,HotSpot虚拟机中就没用逃逸分析技术。(具体看下面小结)</p>
+    - <p style="color:red">下方示例代码之所以能变快，其实是因为 标量替换 </p>
+
+```java
+package com.atguigu.java2;
+
+/**
+ * 栈上分配测试
+ * -Xmx256m -Xms256m -XX:-DoEscapeAnalysis -XX:+PrintGCDetails 
+ * // 在关闭逃逸分析时，内存中会有1000万个对象(抽样器中查看)，会发生两次GC，耗时56ms
+ *
+ * -Xmx256m -Xms256m -XX:+DoEscapeAnalysis -XX:+PrintGCDetails 
+ * // 在开启逃逸分析时，内存中不会有1000万个对象，不会发生GC，耗时4ms
+ */
+public class StackAllocation {
+    public static void main(String[] args) {
+        long start = System.currentTimeMillis();
+
+        for (int i = 0; i < 10000000; i++) {
+            alloc();
+        }
+        // 查看执行时间
+        long end = System.currentTimeMillis();
+        System.out.println("花费的时间为： " + (end - start) + " ms");
+        // 为了方便查看堆内存中对象个数，线程sleep
+        try {
+            Thread.sleep(1000000);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private static void alloc() {
+        User user = new User();//未发生逃逸
+    }
+
+    static class User {
+
+    }
+}
+```
+
+##### 同步省略
+
+- 同步省略。
+  - 说明：
+    - 如果一个对象被发现只能从一个线程被访问到，
+    - 那么对于这 个对象的操作可以不考虑同步。
+      > 注意，字节码中依旧有同步的字节码指令，只是执行时JIT编译器进行优化
+  - 原因：
+    - 同步的代价是相当高的，
+    - 同步的后果是降低并发性和性能
+  - 详解：
+    - 在动态编译同步块的时候，JIT编译器可以借助逃逸分析来判断同步块所使用的锁对象是否只能够被一个线程访问而没有被发布到其他线程。
+    - 如果没有，那么JIT编译器在编译这个同步块的时候就会取消对这部分代码的同步。
+    - 这样就能大大提高并发性和性能。这个取消同步的过程就叫同步省略，也叫**锁消除**。
+
+```java
+public class SynchronizedTest {
+    public void f() {
+        Object hollis = new Object();
+        synchronized(hollis) {
+            System.out.println(hollis);
+        }
+    }
+}
+
+// 会被jvm优化成：
+
+public class SynchronizedTest {
+    public void f() {
+        Object hollis = new Object();
+        System.out.println(hollis);
+    }
+}
+
+```
+
+##### 标量替换
+
+- 相关概念：
+  - 标量（Scalar)：
+    - 标量（Scalar)是指一个无法再分解成更小的数据的数据。
+    - Java中的原始数据类型就是标量。
+  - 聚合量（Aggregate)
+    - 相对的，那些还可以分解的数据叫做聚合量（Aggregate),Java中的对象就是聚合量，因为他可以分解成其他聚合量和标量。
+
+- 分离对象或标量替换。
+  - 说明：
+    - 有的对象可能不需要作为一个连续的内存结构存在也可以被访问到，
+    - 那么对象的部分（或全部）可以不存储在内存，而是存储在CPU寄存器中。
+  - 详解：
+    - 在JIT阶段，如果经过逃逸分析，发现一个对象不会被外界访问的话，那么经过JIT优化，
+    - 就会把这个对象拆解成若干个其中包含的若干个成员变量来代替。这个过程就是标量替换。
+  - 好处：
+    - 大大减少了堆的占用
+    - 为栈上分配提供了良好的基础
+
+```java
+/**
+ * 标量替换测试
+ *  -Xmx100m -Xms100m -XX:-DoEscapeAnalysis -XX:+PrintGC -XX:-EliminateAllocations  
+ *  // 57ms。有多次GC
+ *  -Xmx100m -Xms100m -XX:+DoEscapeAnalysis -XX:+PrintGC -XX:-EliminateAllocations
+ *  // 4ms。没有GC
+ */
+public class ScalarReplace {
+    public static class User {
+        public int id;
+        public String name;
+    }
+
+    public static void alloc() {
+        User u = new User();//未发生逃逸
+        u.id = 5;
+        u.name = "www.atguigu.com";
+        // ----------------------------
+        // 会优化成
+        // int id = 5
+        // String name = "www.atguigu.com";
+    }
+
+    public static void main(String[] args) {
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < 10000000; i++) {
+            alloc();
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("花费的时间为： " + (end - start) + " ms");
+    }
+}
+```
+
+#### 逃逸分析小结
+
+- 关于逃逸分析的论文在1999年就已经发表了，但直到JDK1.6才有实现，而且这项技 术到如今也并不是十分成熟的:
+- 根本原因:
+  - 就是无法保证逃逸分析的性能消耗一定能高于他的消耗。
+  - 虽然经过逃逸分析可以做标量替换、栈上分配、和锁消除。
+  - 但是逃逸分析自身也是需要进行一系列复杂的分析的，这其实也是一个相对耗时的过程。
+    ```
+    一个极端的例子，就是经过逃逸分析之后，发现没有一个对象是不逃逸的。那这个逃
+    逸分析的过程就白白浪费掉了。
+    ``` 
+- 虽然这项技术并不十分成熟，但是它也是即时编译器优化技术中一个十分重要的手段。
+  - 注意到有一些观点，认为通过逃逸分析，JVM会在栈上分配那些不会逃逸的对象，这在理论上是可行的，但是取决于JVM设计者的选择。
+  - 但现在 Oracle Hotspot JVM中并未这么做，这一点在逃逸分析相关的文档里已经说明，**所以可以明确所有的对象实例都是创建在堆上**。
+- 其他
+  ```
+  目前很多书籍还是基于JDK7以前的版本，JDK已经发生了很大变化，intern字符串
+  的缓存和静态变量曾经都被分配在永久代上，而永久代已经被元数据区取代。但是，
+  intern字符串缓存和静态变量并不是被转移到元数据区，而是直接在堆上分配，所以
+  这一点同样符合前面一点的结论：对象实例都是分配在堆上。
+  ```
+
+#### 堆是分配对象的唯一选择吗？
+
+- 先否定。开始谈逃逸分析
+- 再肯定，拿jvm规范,逃逸分析的不成熟，以及字符串缓存和静态变量的存储转移 说事儿
 
 ### 2.2.7. 方法区(重要)
 
