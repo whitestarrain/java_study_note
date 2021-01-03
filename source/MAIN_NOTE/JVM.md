@@ -2445,7 +2445,7 @@ public class ScalarReplace {
 
 ### 2.2.7. 方法区(重要)
 
-#### 栈，堆，方法区 交互关系
+#### 2.2.7.1. 栈，堆，方法区 交互关系
 
 - 运行时数据区回顾：
   > ![method_area-1](./image/method_area-1.png) 
@@ -2460,7 +2460,7 @@ public class ScalarReplace {
     > ![method_area-4](./image/method_area-4.png) 
     - 复习：java栈中的slot
 
-#### 方法区基本理解
+#### 2.2.7.2. 方法区基本理解
 
 - 方法区与堆的关系：
     > 也就是虚拟机规范中，把方法区看成堆的逻辑部分，但具体实现上，可以把两个结构分开
@@ -2506,7 +2506,7 @@ public class ScalarReplace {
     > 详细放后面
   - 根据《Java虚拟机规范》的规定，如果方法区无法满足新的内存分配需求时，将抛出OOM异常。
 
-#### 设置方法区大小
+#### 2.2.7.3. 设置方法区大小
 
 - 种类：
   - 方法区大小可以是不固定的
@@ -2564,7 +2564,7 @@ public class ScalarReplace {
     }
     ```
 
-#### OOM
+#### 2.2.7.4. OOM
 
 ```java
 import com.sun.xml.internal.ws.org.objectweb.asm.ClassWriter;
@@ -2619,18 +2619,19 @@ public class OOMTest extends ClassLoader {
   运行期的内存消耗。
   ```
 
-#### 方法区的内部结构
+#### 2.2.7.5. 方法区的内部结构
 
 - 简图
   > ![method_area-8](./image/method_area-8.png) 
   - 类信息：就是类型信息，下面有详细说明
   - 《深入理解Java虚拟机》书中对方法区（Method Area)存储内容描述如下：
     - 它用于存储已被虚拟机加载的**类型信息、常量、静态变量、即时编译器编译后的代码缓存等**。
+      > ![method_area-15](./image/method_area-15.png) 
       > 这是经典版本<br />
       > 现在，静态变量和StringTable存放位置都有些变化<br />
       > 在后面细节演进会细说
 
-- 存储信息：
+- 存储信息说明：
   - 类型信息：
     > 对每个加载的类型（类class、接口interface、枚举enum、注解annotation),JVM必须在方法区中存储以下类型信息：
     - 这个类型的完整有效名称（全名=包名.类名）
@@ -2687,250 +2688,17 @@ public class OOMTest extends ClassLoader {
       }
   }
   ```
-  ```
-  Classfile /D:/workspace_idea5/JVMDemo/out/production/chapter09/com/atguigu/java/MethodInnerStrucTest.class
-    Last modified 2020-4-22; size 1626 bytes
-    MD5 checksum 69643a16925bb67a96f54050375c75d0
-    Compiled from "MethodInnerStrucTest.java"
-    //类型信息
-  public class com.atguigu.java.MethodInnerStrucTest extends java.lang.Object 
-  implements java.lang.Comparable<java.lang.String>, java.io.Serializable
 
-    minor version: 0
-    major version: 51
-    flags: ACC_PUBLIC, ACC_SUPER
-  Constant pool:
-    #1 = Methodref          #18.#52        // java/lang/Object."<init>":()V
-    #2 = Fieldref           #17.#53        // com/atguigu/java/MethodInnerStrucTest.num:I
-    #3 = Fieldref           #54.#55        // java/lang/System.out:Ljava/io/PrintStream;
-    #4 = Class              #56            // java/lang/StringBuilder
-    #5 = Methodref          #4.#52         // java/lang/StringBuilder."<init>":()V
-    #6 = String             #57            // count =
-    #7 = Methodref          #4.#58         // java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
-    #8 = Methodref          #4.#59         // java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
-    #9 = Methodref          #4.#60         // java/lang/StringBuilder.toString:()Ljava/lang/String;
-    #10 = Methodref          #61.#62        // java/io/PrintStream.println:(Ljava/lang/String;)V
-    #11 = Class              #63            // java/lang/Exception
-    #12 = Methodref          #11.#64        // java/lang/Exception.printStackTrace:()V
-    #13 = Class              #65            // java/lang/String
-    #14 = Methodref          #17.#66        // com/atguigu/java/MethodInnerStrucTest.compareTo:(Ljava/lang/String;)I
-    #15 = String             #67            // 测试方法的内部结构
-    #16 = Fieldref           #17.#68        // com/atguigu/java/MethodInnerStrucTest.str:Ljava/lang/String;
-    #17 = Class              #69            // com/atguigu/java/MethodInnerStrucTest
-    #18 = Class              #70            // java/lang/Object
-    #19 = Class              #71            // java/lang/Comparable
-    #20 = Class              #72            // java/io/Serializable
-    #21 = Utf8               num
-    #22 = Utf8               I
-    #23 = Utf8               str
-    #24 = Utf8               Ljava/lang/String;
-    #25 = Utf8               <init>
-    #26 = Utf8               ()V
-    #27 = Utf8               Code
-    #28 = Utf8               LineNumberTable
-    #29 = Utf8               LocalVariableTable
-    #30 = Utf8               this
-    #31 = Utf8               Lcom/atguigu/java/MethodInnerStrucTest;
-    #32 = Utf8               test1
-    #33 = Utf8               count
-    #34 = Utf8               test2
-    #35 = Utf8               (I)I
-    #36 = Utf8               value
-    #37 = Utf8               e
-    #38 = Utf8               Ljava/lang/Exception;
-    #39 = Utf8               cal
-    #40 = Utf8               result
-    #41 = Utf8               StackMapTable
-    #42 = Class              #63            // java/lang/Exception
-    #43 = Utf8               compareTo
-    #44 = Utf8               (Ljava/lang/String;)I
-    #45 = Utf8               o
-    #46 = Utf8               (Ljava/lang/Object;)I
-    #47 = Utf8               <clinit>
-    #48 = Utf8               Signature
-    #49 = Utf8               Ljava/lang/Object;Ljava/lang/Comparable<Ljava/lang/String;>;Ljava/io/Serializable;
-    #50 = Utf8               SourceFile
-    #51 = Utf8               MethodInnerStrucTest.java
-    #52 = NameAndType        #25:#26        // "<init>":()V
-    #53 = NameAndType        #21:#22        // num:I
-    #54 = Class              #73            // java/lang/System
-    #55 = NameAndType        #74:#75        // out:Ljava/io/PrintStream;
-    #56 = Utf8               java/lang/StringBuilder
-    #57 = Utf8               count =
-    #58 = NameAndType        #76:#77        // append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
-    #59 = NameAndType        #76:#78        // append:(I)Ljava/lang/StringBuilder;
-    #60 = NameAndType        #79:#80        // toString:()Ljava/lang/String;
-    #61 = Class              #81            // java/io/PrintStream
-    #62 = NameAndType        #82:#83        // println:(Ljava/lang/String;)V
-    #63 = Utf8               java/lang/Exception
-    #64 = NameAndType        #84:#26        // printStackTrace:()V
-    #65 = Utf8               java/lang/String
-    #66 = NameAndType        #43:#44        // compareTo:(Ljava/lang/String;)I
-    #67 = Utf8               测试方法的内部结构
-    #68 = NameAndType        #23:#24        // str:Ljava/lang/String;
-    #69 = Utf8               com/atguigu/java/MethodInnerStrucTest
-    #70 = Utf8               java/lang/Object
-    #71 = Utf8               java/lang/Comparable
-    #72 = Utf8               java/io/Serializable
-    #73 = Utf8               java/lang/System
-    #74 = Utf8               out
-    #75 = Utf8               Ljava/io/PrintStream;
-    #76 = Utf8               append
-    #77 = Utf8               (Ljava/lang/String;)Ljava/lang/StringBuilder;
-    #78 = Utf8               (I)Ljava/lang/StringBuilder;
-    #79 = Utf8               toString
-    #80 = Utf8               ()Ljava/lang/String;
-    #81 = Utf8               java/io/PrintStream
-    #82 = Utf8               println
-    #83 = Utf8               (Ljava/lang/String;)V
-    #84 = Utf8               printStackTrace
-  {
-    //域信息
-    public int num;
-      descriptor: I
-      flags: ACC_PUBLIC
+  [javap -v -p反编译输出](./external_file/jvm_out1.txt)
 
-    private static java.lang.String str;
-      descriptor: Ljava/lang/String;
-      flags: ACC_PRIVATE, ACC_STATIC
-
-    //方法信息
-    public com.atguigu.java.MethodInnerStrucTest();
-      descriptor: ()V
-      flags: ACC_PUBLIC
-      Code:
-        stack=2, locals=1, args_size=1
-          0: aload_0
-          1: invokespecial #1                  // Method java/lang/Object."<init>":()V
-          4: aload_0
-          5: bipush        10
-          7: putfield      #2                  // Field num:I
-          10: return
-        LineNumberTable:
-          line 10: 0
-          line 12: 4
-        LocalVariableTable:
-          Start  Length  Slot  Name   Signature
-              0      11     0  this   Lcom/atguigu/java/MethodInnerStrucTest;
-
-    public void test1();
-      descriptor: ()V
-      flags: ACC_PUBLIC
-      Code:
-        stack=3, locals=2, args_size=1
-          0: bipush        20
-          2: istore_1
-          3: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;
-          6: new           #4                  // class java/lang/StringBuilder
-          9: dup
-          10: invokespecial #5                  // Method java/lang/StringBuilder."<init>":()V
-          13: ldc           #6                  // String count =
-          15: invokevirtual #7                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
-          18: iload_1
-          19: invokevirtual #8                  // Method java/lang/StringBuilder.append:(I)Ljava/lang/StringBuilder;
-          22: invokevirtual #9                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
-          25: invokevirtual #10                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
-          28: return
-        LineNumberTable:
-          line 17: 0
-          line 18: 3
-          line 19: 28
-        LocalVariableTable:
-          Start  Length  Slot  Name   Signature
-              0      29     0  this   Lcom/atguigu/java/MethodInnerStrucTest;
-              3      26     1 count   I
-
-    public static int test2(int);
-      descriptor: (I)I
-      flags: ACC_PUBLIC, ACC_STATIC
-      Code:
-        stack=2, locals=3, args_size=1
-          0: iconst_0
-          1: istore_1
-          2: bipush        30
-          4: istore_2
-          5: iload_2
-          6: iload_0
-          7: idiv
-          8: istore_1
-          9: goto          17
-          12: astore_2
-          13: aload_2
-          14: invokevirtual #12                 // Method java/lang/Exception.printStackTrace:()V
-          17: iload_1
-          18: ireturn
-        Exception table:
-          from    to  target type
-              2     9    12   Class java/lang/Exception
-        LineNumberTable:
-          line 21: 0
-          line 23: 2
-          line 24: 5
-          line 27: 9
-          line 25: 12
-          line 26: 13
-          line 28: 17
-        LocalVariableTable:
-          Start  Length  Slot  Name   Signature
-              5       4     2 value   I
-            13       4     2     e   Ljava/lang/Exception;
-              0      19     0   cal   I
-              2      17     1 result   I
-        StackMapTable: number_of_entries = 2
-          frame_type = 255 /* full_frame */
-            offset_delta = 12
-            locals = [ int, int ]
-            stack = [ class java/lang/Exception ]
-          frame_type = 4 /* same */
-
-    public int compareTo(java.lang.String);
-      descriptor: (Ljava/lang/String;)I
-      flags: ACC_PUBLIC
-      Code:
-        stack=1, locals=2, args_size=2
-          0: iconst_0
-          1: ireturn
-        LineNumberTable:
-          line 33: 0
-        LocalVariableTable:
-          Start  Length  Slot  Name   Signature
-              0       2     0  this   Lcom/atguigu/java/MethodInnerStrucTest;
-              0       2     1     o   Ljava/lang/String;
-
-    public int compareTo(java.lang.Object);
-      descriptor: (Ljava/lang/Object;)I
-      flags: ACC_PUBLIC, ACC_BRIDGE, ACC_SYNTHETIC
-      Code:
-        stack=2, locals=2, args_size=2
-          0: aload_0
-          1: aload_1
-          2: checkcast     #13                 // class java/lang/String
-          5: invokevirtual #14                 // Method compareTo:(Ljava/lang/String;)I
-          8: ireturn
-        LineNumberTable:
-          line 10: 0
-        LocalVariableTable:
-          Start  Length  Slot  Name   Signature
-              0       9     0  this   Lcom/atguigu/java/MethodInnerStrucTest;
-
-    static {};
-      descriptor: ()V
-      flags: ACC_STATIC
-      Code:
-        stack=1, locals=0, args_size=0
-          0: ldc           #15                 // String 测试方法的内部结构
-          2: putstatic     #16                 // Field str:Ljava/lang/String;
-          5: return
-        LineNumberTable:
-          line 13: 0
-  }
-  Signature: #49                          // Ljava/lang/Object;Ljava/lang/Comparable<Ljava/lang/String;>;Ljava/io/Serializable;
-  SourceFile: "MethodInnerStrucTest.java"
-  ```
   - 注意：反编译出来的文件中不包含classloader中的信息
-  - 只有通过类加载子系统加载到内存后，，方法区中才会保存classloader的信息
+  - 只有通过类加载子系统加载到内存后，方法区中才会保存classloader的信息
 
-- 类变量：
+---
+
+额外扩展点：
+
+- non-final的类变量：
   - 说明：
     - 静态变量和类关联在一起，随着类的加载而加载，它们成为类数据在逻辑上的一部分。
     - 类变量被类的所有实例共享，即使没有类实例时你也可以访问它。
@@ -2956,6 +2724,9 @@ public class OOMTest extends ClassLoader {
         }
     }
     ```
+
+    [javap -v -p反编译输出](./external_file/jvm_out2.txt)
+
   - 对于non-final的类变量:
     - 在Prepare环节会进行一个默认初始化为0
     - 然后再Initiallization赋值为1
@@ -2965,15 +2736,85 @@ public class OOMTest extends ClassLoader {
     - 被声明为final的类变量的处理方法则不同，每个全局常量在编译的时候就会被分配了。
     > ![method_area-9](./image/method_area-9.png) 
 
-#### 方法区使用示例
 
-#### 方法区细节演进
+#### 2.2.7.6. 常量池与运行时常量池
 
-#### 方法区垃圾回收
+> 细节放到中篇来讲
 
-### 对象的实例化内存布局和访问定位(重要)
 
-### 2.2.8. 直接内存
+> 要弄清楚方法区，需要理解清楚ClassFile,因为加载类的信息都在方法区。<br />
+> 要弄清楚方法区的运行时常量池，需要理解清楚ClassFile中的常量池。
+
+- 常量池和运行时常量池：
+  - 常量池：
+    - 是字节码文件的一部分，
+    - **用于存放编译器生成的各种字面量与符号引用，这部分内容将在类加载后存放到方法区的运行时常量池中**
+  - 运行时常量池：
+    - 位置：方法区内部包含运行时常量池
+    - 创建时机：在加载类或接口到虚拟机后，就会创建对应的运行时常量池。
+    - 对应关系：JVM为每一个类，接口，注解，lambda表达式都维护一个运行时常量池。
+    - 访问方式：运行时常量池中的数据项和数组项一样，都是通过**索引访问**的
+    - 保存常量类型：
+      - 运行时常量池中包含多种不同的常量
+      - 包括编译期就已经明确的数值字面量，
+      - 也包括到**运行期解析后才能够获得**的方法或者字段引用。此时不再是常量池中的符号地址了，这里**转换为真实地址**。
+      > 运行时常量池，相对于class文件常量池的另一重要特征是：**具备动态性**
+    - 异常：当创建类或接口的运行时常量池时，如果构造运行时常量池所需的内存空间超过了方法 区所能提供的最大值，则JVM会抛OutOfMemoryError异常。
+
+- 字节码文件内容：
+  > ![method_area-11](./image/method_area-11.png) 
+  - 类的版本信息
+  - 字段、方法以及接口等描述信息
+  - 常量池表（Constant Pool Table),包括各种字面量和对类型、域和方法的符号引用。
+
+- 符号引用的作用
+  ```
+  一个java源文件中的类、接口，编译后产生一个字节码文件。而Java中的字节码需要数据
+  支持，通常这种数据会很大以至于不能直接存到字节码里，
+
+  换另一种方式，可以存到常量池，把这些通过符号引用的方式存储到常量池中
+  并非是真的类，比如应用String，就通过"java/lang/String"这个符号引用过去
+
+  在动态链接的时候会就到运行时常量池，之前有介绍，复习看看。
+  ```
+  ```java
+  public class SimpleClass{
+    public void hello(){
+      System.out.println("hello");
+    }
+  }
+  ```
+  - 上面一个类中有引用String, Printer等，
+  - 编译后，class文件中不会有String,Printer的类结构
+  - 而是使用一个符号引用，用来表名某处引用的Stiring，Printer
+  - 真正执行时，符号引用会转换为直接引用了
+
+- 示例：
+  > ![method_area-12](./image/method_area-12.png) 
+  > ![method_area-13](./image/method_area-13.png) 
+  - `#数字` 使用就是常量池中的数据
+  - **推荐查看上面javap的输出，自己对源码和反编译输出比对比对**
+
+- 几种在常量池内存储的数据类型包括：
+  > ![method_area-14](./image/method_area-14.png) <br />
+  > 自己拿jclasslib搞搞试试
+  - 数量值
+  - 字符串值
+  - 符号引用
+    - 类引用
+      > 包括类，接口，注解等
+    - 字段引用
+    - 方法引用
+
+#### 2.2.7.7. 方法区使用示例
+
+#### 2.2.7.8. 方法区细节演进
+
+#### 2.2.7.9. 方法区垃圾回收
+
+### 2.2.8. 对象的实例化内存布局和访问定位(重要)
+
+### 2.2.9. 直接内存
 
 ## 2.3. 下层 执行引擎
 
