@@ -1,4 +1,4 @@
-  Classfile /D:/workspace_idea5/JVMDemo/out/production/chapter09/com/atguigu/java/MethodInnerStrucTest.class
+﻿  Classfile /D:/workspace_idea5/JVMDemo/out/production/chapter09/com/atguigu/java/MethodInnerStrucTest.class
     Last modified 2020-4-22; size 1626 bytes
     MD5 checksum 69643a16925bb67a96f54050375c75d0
     Compiled from "MethodInnerStrucTest.java"
@@ -9,6 +9,8 @@
     minor version: 0
     major version: 51
     flags: ACC_PUBLIC, ACC_SUPER
+
+   // 常量池
   Constant pool:
     #1 = Methodref          #18.#52        // java/lang/Object."<init>":()V
     #2 = Fieldref           #17.#53        // com/atguigu/java/MethodInnerStrucTest.num:I

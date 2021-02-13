@@ -12,6 +12,8 @@
     - 不局限于编程语言
     - 只要提供编译器，可以编译为字节码文件，便可在虚拟机上运行
 
+---
+
 - 多语言混合编程趋势：
   - java 平台上多语言混合编程成为趋势
   - 通过特定领域的语言解决特定领域的问题
@@ -20,11 +22,14 @@
     - 中间层：java
   - 各语言间因为运行在同一个虚拟机上，交互十分方便
 
+---
 
 - 字节码：
   - 不同语言的不同编译器，可能编译出相同的字节码文件
   - jvm 和 java 语言没有必然联系，它只与特定二进制文件 Class 文件格式所关联
   - Class 文件中包含了 java 虚拟机指令集(或称为字节码，Bytecodes)和符号表，还有一些其他辅助信息
+
+---
 
 - java 历史事件
 
@@ -36,6 +41,8 @@
 - 虚拟机：
   - 系统虚拟机，比如 vmware。是对物理计算机的仿真，提供了一个可运行完整操作系统的平台
   - 程序虚拟机：比如 jvm。专门为执行单个计算机程序而设计。java 虚拟机中的指令为 java 字节码指令
+
+---
 
 - java 虚拟机
   - 说明：
@@ -68,8 +75,12 @@
         - class 字节码-->机器指令:编译器后端
       - 垃圾回收器
 
+---
+
 - java执行流程
   > ![java-flow](./image/java-flow.png)  
+
+---
 
 - jvm架构模型
   > Java编译器输入的指令流基本上是一种基于栈的指令集架构，另外一种指令集架构则 是基于寄存器的指令集架构。
@@ -408,6 +419,9 @@
   - BootStrap ClassLoader
   - Extension  ClassLoader
   - AppClassLoader  ClassLoader
+
+---
+
 - 但从java虚拟机规范上讲。JVM支持两种类加载器：
   - 引导类加载器（Bootstrap ClassLoader）
     - c/c++编写
@@ -417,6 +431,7 @@
     - 但是java规范上定义为：所有派生于抽象类ClassLoader的类加载器都为自定义类加载器
       > ![classloader-kind](./image/classloader-kind.png) 
 
+---
 
 - 一些类加载器的继承关系
   > ![classloader-kind-2](./image/classloader-kind-2.png) <br />
@@ -488,6 +503,8 @@
     - 加密字节码文件
     - 为了解密，就需要自定义类加载器
 
+---
+
 - 步骤简介
   > 具体过程在第二篇
   1. 开发人员可以通过继承抽象类java.lang.ClassLoader类的方式，实现 自己的类加载器，以满足一些特殊的需求
@@ -536,9 +553,13 @@
     - 即把请求交由父类处理
     - 是一种任务委派模式
 
+---
+
 - 问题引入：
   - 问题：在工程下创建`java.lang.String`类。 那么加载的是自定义的String，还是java自带的String。
   - 结果：java自带的String
+
+---
 
 - 解释：
   - 如果一个类加载器收到了类加载请求，
@@ -552,6 +573,8 @@
       - 就成功返回
     - 如果不能正常完成
       - 子加载器才会向下依次尝试自己加载
+
+---
 
 - 示例1：
   - 情景：
@@ -572,6 +595,8 @@
   - 引导类加载器会加载SPI核心类和接口
   - 接口的实现类会由引导类加载器反向委派到系统类加载器（getContextClassLoader()获取，一般就是系统类加载器）
   - 系统类加载器就会加载接口的实现类
+
+---
 
 - 例外：由三个打破双亲委派机制的案例。下一篇讲
 
@@ -2710,7 +2735,8 @@ public class OOMTest extends ClassLoader {
     public class MethodAreaTest {
         public static void main(String[] args) {
             Order order = null;
-            order.hello(); // 不会报错
+            order.hello(); // 不会报错。
+                           // 不过平时就很少用对象实例调用类方法
             System.out.println(order.count);
         }
     }
@@ -2727,14 +2753,17 @@ public class OOMTest extends ClassLoader {
 
     [javap -v -p反编译输出](./external_file/jvm_out2.txt)
 
-  - 对于non-final的类变量:
+  - non-final类变量的初始化:
+    > 查看反编译文件
     - 在Prepare环节会进行一个默认初始化为0
     - 然后再Initiallization赋值为1
     - 如果还在静态代码块中进行赋值，即就会在`<client>`中进行赋值。
     > ![method_area-10](./image/method_area-10.png) 
-  - 对于final static:
+  - final static的初始化:
+    > 查看反编译文件
     - 被声明为final的类变量的处理方法则不同，每个全局常量在编译的时候就会被分配了。
     > ![method_area-9](./image/method_area-9.png) 
+    > (可以看见编译文件中有 2 )
 
 
 #### 2.2.7.6. 常量池与运行时常量池
@@ -2758,14 +2787,18 @@ public class OOMTest extends ClassLoader {
       - 运行时常量池中包含多种不同的常量
       - 包括编译期就已经明确的数值字面量，
       - 也包括到**运行期解析后才能够获得**的方法或者字段引用。此时不再是常量池中的符号地址了，这里**转换为真实地址**。
-      > 运行时常量池，相对于class文件常量池的另一重要特征是：**具备动态性**
+    - 动态性：运行时常量池，相对于class文件常量池的另一重要特征是：**具备动态性**，
+      ```
+      在Java语言中，并不要求常量只能在编译期间产生，运行期间一样也可以让新常量入池，
+      像String类的intern()方法就能做到新常量入池的操作，这就是运行时常量池的动态性表现了。
+      ```
     - 异常：当创建类或接口的运行时常量池时，如果构造运行时常量池所需的内存空间超过了方法 区所能提供的最大值，则JVM会抛OutOfMemoryError异常。
 
 - 字节码文件内容：
   > ![method_area-11](./image/method_area-11.png) 
   - 类的版本信息
   - 字段、方法以及接口等描述信息
-  - 常量池表（Constant Pool Table),包括各种字面量和对类型、域和方法的符号引用。
+  - 常量池表（Constant Pool Table),包括各种字面量和对类型、域和方法的**符号引用**。
 
 - 符号引用的作用
   ```
@@ -2792,7 +2825,7 @@ public class OOMTest extends ClassLoader {
 - 示例：
   > ![method_area-12](./image/method_area-12.png) 
   > ![method_area-13](./image/method_area-13.png) 
-  - `#数字` 使用就是常量池中的数据
+  - `#数字` 就是指向常量池中的数据
   - **推荐查看上面javap的输出，自己对源码和反编译输出比对比对**
 
 - 几种在常量池内存储的数据类型包括：
@@ -2808,11 +2841,535 @@ public class OOMTest extends ClassLoader {
 
 #### 2.2.7.7. 方法区使用示例
 
-#### 2.2.7.8. 方法区细节演进
+- 代码
+  ```java
+  public class MethodAreaDemo{
+    public static void main(String[] args){
+      int x = 500;
+      int y = 100;
+      int a = x/y;
+      int b = 50;
+      System.out.println(a+b);
+    }
+  }
+  ```
+- 反编译结果； [javap -v -p反编译输出](./external_file/jvm_out3.txt)
+
+- 过程图解：
+  > 为了简单起见，这里没有new对象，所以没有堆。否则堆空间中的对象中部分信息还要指向方法区中的类型信息。对象实例化与内存布局讲
+  >
+  > 左侧为反编译后的指令
+  >
+  > **注意程序计数器中的地址**
+  - 将500压入操作数栈
+    > ![method_area-16](./image/method_area-16.png)
+  - 弹出操作数栈中的500，存入到本地变量表位置 index 为 1 的位置（复习：如果是非静态方法的话，index为0的地方放的是this）
+    > ![method_area-17](./image/method_area-17.png) 
+  - 把100压入操作数栈
+    > ![method_area-18](./image/method_area-18.png) 
+  - 弹出1操作数栈中的100，存入到本地变量表中
+    > ![method_area-19](./image/method_area-19.png) 
+  - 读取本地变量表中的500，压入操作数栈
+    > ![method_area-20](./image/method_area-20.png) 
+  - 读取本地变量表中的100，压入操作数栈
+    > ![method_area-21](./image/method_area-21.png) 
+  - 弹出操作数栈中的500和100，进行除法操作，然后把结果压入栈
+    > ![method_area-22](./image/method_area-22.png) 
+  - 将50压入操作数栈
+    > ![method_area-23](./image/method_area-23.png) 
+  - 弹出操作数栈中的50，存到本地变量表当中
+    > ![method_area-24](./image/method_area-24.png) 
+  - 对应`System.out.println(a+b)`。获取类或接口字段的值并将其推入操作数栈，**自己查一下**
+    > ![method_area-25](./image/method_area-25.png) 
+  - 将本地变量表索引位置为3的值压入操作数栈
+    > ![method_area-26](./image/method_area-26.png) 
+  - 将本地变量表索引位置为4的值压入操作数栈
+    > ![method_area-27](./image/method_area-27.png) 
+  - 进行相加运算，结果入栈
+    > ![method_area-28](./image/method_area-28.png) 
+  - 调用`System.out.println(a+b)`，输出结果
+    > ![method_area-29](./image/method_area-29.png) 
+  - return执行，main方法栈弹出
+
+#### 2.2.7.8. 方法区细节演进（重要）
+
+> 复习：堆的演进
+
+---
+
+- 关于永久代：
+  - 只有 HotSpot 才有永久代
+  - BEA,JRockit,IBM J9 等是不存在永久代的概念的。
+  - 就像之前说的那样，永久代只是虚拟机中方法区的一种实现，并不要求同一
+
+---
+
+- HotSpot 中方法区实现的变化：
+  - jdk6 及之前
+    > ![method_area-30](./image/method_area-30.png) 
+    - 有永久代（permanent generation)
+    - 静态变量存放在永久代上
+  - jdk7
+    > ![method_area-31](./image/method_area-31.png) 
+    - 有永久代，但已经逐步“去永久代”。（方法区用的依旧是虚拟机的内存，而不是本地内存。）
+    - 字符串常量池、静态变量移除，保存在堆中
+  - jdk8 及之后
+    > ![method_area-32](./image/method_area-32.png) 
+    - 无永久代。
+    - 类型信息、字段、方法、常量保存在本地内存的元空间
+    - 但 **字符串常量池、静态变量仍在堆**
+
+---
+
+- 为什么要移除永久代
+  ```
+  随着Java8 的到来，HotSpot VM中再也见不到永久代了。但是这并不意味着类
+  的元数据信息也消失了。这些数据被移到了一个与堆不相连的本地内存区域，这个
+  区域叫做元空间（Metaspace)。
+
+  由于类的元数据分配在本地内存中，元空间的最大可分配空间就是系统可用内存空
+  间
+  ```
+  - 官方解释原因： 
+    - [移除永久代的原因](http://openjdk.java.net/jeps/122)
+    - 简单总结就是为了HotSpot和JRockit进行融合，而JRockit没有永久代
+  - 深入理解原因：
+    - **为永久代设置大小是很难确定的**
+      ```
+      在某些场景下，如果动态加载类过多，容易产生永久代区的Full GC以及OOM。
+      比如某个实际Web工程中，因为功能点比较多，在运行过程中，要不断动态加载很多类，经常出现致命错误。
+      ``` 
+      ```
+      而元空间和永久代之间最大的区别在于：元空间并不在虚拟机中，而是使用本地内存。
+      因此，默认情况下，元空间的大小仅受本地内存限制。
+      ```
+    - **对永久代进行调优是很困难的**
+      ```
+      就是Full GC要回收永久代中的内容时， 判断是否要进行回收十分耗时
+      需要三个条件校验以及参数的控制。
+
+      具体看 方法区垃圾回收 一节
+      ``` 
+
+---
+
+- StringTable(字符串常量池)为什么放到堆中
+  > 后面会有单独一个章节进行说明
+  - jdk7中将stringTable放到了堆空间中。
+  - 因为永久代的回收效率很低，在full gc的时候才会触发。
+  - 而full gc是老年代的空间不足、永久代不足时才会触发。
+  - 这就导致stringTable回收效率不高。
+  - 而我们开发中会有大量的字符串被创建，回收效率低，导致永久代内存不足。放到堆里，能及时回收内存。
+
+---
+
+**接下来是通过代码查看静态变量和对象的位置**
+
+---
+
+- 静态变量位置
+  - 测试代码：
+    ```java
+    /**
+    * 结论：
+    * 静态引用对应的对象实体始终都存在堆空间
+    *
+    * jdk6和jdk7：
+    * -Xms200m -Xmx200m -XX:PermSize=300m -XX:MaxPermSize=300m -XX:+PrintGCDetails
+    * jdk 8：
+    * -Xms200m -Xmx200m -XX:MetaspaceSize=300m -XX:MaxMetaspaceSize=300m -XX:+PrintGCDetails
+    */
+    public class StaticFieldTest {
+        private static byte[] arr = new byte[1024 * 1024 * 100];//100MB
+        public static void main(String[] args) {
+            System.out.println(StaticFieldTest.arr);
+        }
+    }
+    ```
+  - 打印结果
+    - jdk6打印日志
+      > ![method_area-34](./image/method_area-34.png) 
+    - jdk7打印日志
+      > ![method_area-33](./image/method_area-33.png) 
+    - jdk8打印日志
+      > ![method_area-35](./image/method_area-35.png) 
+  - 结论： **静态引用对应的对象实体始终都存在堆空间**
+
+---
+
+- 对象位置：
+  > staticObj、instanceObj、localObj存放在哪里？
+  - 测试代码：
+    ```java
+    public class StaticObjTest {
+        static class Test {
+            static ObjectHolder staticObj = new ObjectHolder(); // 静态属性 staticObj
+            ObjectHolder instanceObj = new ObjectHolder();  // 非静态属性  instanceObj
+
+            void foo() {
+                ObjectHolder localObj = new ObjectHolder(); // 方法内局部变量 localObj
+                System.out.println("done");
+            }
+        }
+
+        private static class ObjectHolder {
+        }
+
+        public static void main(String[] args) {
+            Test test = new StaticObjTest.Test();
+            test.foo();
+        }
+    }
+    ```
+  - 分别对应的引用位置：
+    - staticobj随着Test的类型信息存放在方法区
+    - instanceobj随着Test的对象实例存放在Java堆
+    - localobject则是存放在foo()方法栈帧的局部变量表中。
+  - 查看工具：`jhsdb`
+    > jdk9出现的官方工具，具体使用在性能监控与调优时详细说，这里稍微用下
+  - 结果：
+    > ![method_area-36](./image/method_area-36.png) 
+    - 测试发现：三个对象的数据在内存中的地址都落在Eden区范围内
+    - 所以结论：只要是对象实例必然会在Java堆中分配。
+  - 深入
+    > ![method_area-37](./image/method_area-37.png) 
+    - 接着，找到了一个引用该staticobj对象的地方，是在一个java.lang.class的实例里，并且给出了这个实例的地址
+    - 通过Inspector查看该对象实例，可以清楚看到这确实是一个 java.lang.Class类型的对象实例，里面有一个名为staticobj的实例字段：
+    - 从《Java虚拟机规范》所定义的概念模型来看，所有class相关的信息都应该存放在方法区之中
+      > 但方法区该如何实现，《Java虚拟机规范》并未做出规定，这就成了一件允许不同虚拟机自己灵活把握的事情。
+    - 通过该实验可以证明： **JDK7及其以后版本的HotSpot虚拟机选择把静态变量与类型在Java语言一端的映射Class对象存放在一起，存储于Java堆之中**
+      > 通俗一点说，静态变量的对象实例和类的模版Class都存放在堆当中。（对象的引用该在哪在哪儿）
+      >
+      > 也可以参考这篇博客[JDK 1.8 下的 java.lang.Class 对象和 static 成员变量在堆还是方法区？](https://blog.csdn.net/Xu_JL1997/article/details/89433916)
 
 #### 2.2.7.9. 方法区垃圾回收
 
-### 2.2.8. 对象的实例化内存布局和访问定位(重要)
+- 方法区（包括永久代和元数据区）是否要垃圾回收
+  > 费力不讨好
+  - 《Java虚拟机规范》对方法区的约束是非常宽松的，提到过可以不要求虚拟机在方法区中实现垃圾收集。
+  - 事实上也确实有未实现或未能完整实现方法区类型卸载的收集器存在(如JDK11时期的ZGC收集器就不支持类卸载）。
+  - 一般来说这个区域的**回收效果比较难令人满意，尤其是类型的卸载，条件相当苛刻。**
+  - 但是这部分区域的回收**有时又确实是必要的**。以前Sun公司的Bug列表中，曾出现过的若干个严重的Bug就是由于低版本的HotSpot虚拟机对此区域未完全回收而导致内存泄漏。
+
+---
+
+- 方法区垃圾回收两部分：
+  - **常量池中废弃的常量**
+    - 常量主要构成：(方法区中主要存放两大类常量)：
+      - **字面量**:字面量比较接近Java语言层次的常量概念，如文本字符串、被声明为final的常量值等。
+      - **符号引用**:而符号引用则属于编译原理方面的概念，包括下面三类常量：
+        - 类和接口的全限定类名
+        - 字段的名称和描述符
+        - 方法的名称和描述符
+    - 回收策略：只要常量池中的常量没有被任何地方引用，就可以被回收
+      > 更为详细的在垃圾回收章节
+  - **不再使用的类**
+    - 判断不再使用需要满足条件：
+      - 该类**所有的实例都已经被回收**，也就是Java堆中不存在该类及其任何派生子类的实例。
+      - **加载该类的类加载器**已经被回收，这个条件除非是经过精心设计的可替换类加载器的场景，如OSGi、JSP的重加载等，否则通常是很难达成的。
+        > 复习：编译得到的.class文件中没有记录类加载器。把.class文件加载到内存后，
+        >
+        > 方法区中中会记录该类加载器
+        >
+        > 类加载器也记录了加载过哪个类
+        >
+        > > ![method_area-38](./image/method_area-38.png) 
+      - 该类对应的java.lang.Class对象没有在任何地方被引用，无法在任何地方通过反射访问该类的方法。
+
+#### 2.2.7.10. 面试题
+
+```
+百度
+三面：说一下JVM内存模型吧，有哪些区？分别干什么的？
+```
+
+---
+
+```
+Java8的内存分代改进
+JVM内存分哪几个区，每个区的作用是什么？
+一面：JVM内存分布/内存结构？栈和堆的区别？堆的结构？为什么两个survivor区？
+二面：Eden和Survior的比例分配
+```
+
+---
+
+```
+小米：
+jvm内存分区，为什么要有新生代和老年代
+字节跳动：
+二面：Java的内存分区
+二面：讲讲jvm运行时数据库区
+什么时候对象会进入老年代？
+```
+
+---
+
+```
+京东：
+JVM的内存结构，Eden和Survivor比例。
+JVM内存为什么要分成新生代，老年代，持久代。新生代中为什么要分为Eden和Survivor。
+```
+
+---
+
+```
+天猫：
+一面：Jvm内存模型以及分区，需要详细到每个区放什么。
+一面：JVM的内存模型，Java8做了什么修改
+```
+
+---
+
+```
+拼多多：
+JVM内存分哪几个区，每个区的作用是什么？
+```
+
+---
+
+```
+美团：
+java内存分配
+jvm的永久代中会发生垃圾回收吗？
+一面：jvm内存分区，为什么要有新生代和老年代？
+```
+
+### 2.2.8. 对象的实例化内存布局和访问定位(重要)※
+
+#### 2.2.8.1. 对象的实例化
+
+- 创建对象的方式
+  - new
+    - 最普通的形式
+    - 单例模式，调用静态方法
+    - 工厂模式，XxxBuilder/XxxFactory的静态方法
+  - Class的newInstance(Xxx):反射的方式，就只能调用空参的构造器，权限必须是public。jdk8中可以用，jdk9中就已经标注已过时。
+  - Constructor的newInstance(Xxx):反射的方式，可以调用空参和带参的构造器，权限没有要求。
+  - 使用clone():不会调用任何构造器，但要求当前类实现Cloneable接口，实现clone()方法，实现对象的复制
+  - 使用反序列化:从文件或网络中获取一个对象的二进制流
+  - 第三方库Objenesis：可以动态生成Constructor对象
+
+---
+
+- 创建对象的步骤（六步）
+  > 有些书或者帖子可能会合并几步。
+  - 判断对象对应的类是否加载，链接，初始化。（加载类元信息）
+    - 虚拟机遇到一条new指令，首先去检查这个指令的参数能否在Metaspace的常量池中定位到一个类的符号引用，
+    - 并且检查这个符号引用代表的类是否已经被加载、解析和初始化。（即判断类元信息是否存在）。
+    - 如果没有，那么在双亲委派模式下，使用当前类加载器以classLoader+包名+类名为Key进行查找对应的.class文件。
+      - 如果没有找到文件，则抛出ClassNotFoundException异常，
+      - 如果找到，则进行类加载，并生成对应的Class类对象
+  - 为对象分配内存：
+    ```
+    首先计算对象占用空间大小，接着在堆中划分一块内存给新对象。
+    如果实例成员变量是引用变量，仅分配引用变量空间即可，即4个字节大小。
+    ```
+    - 说明
+      ```
+      说明：选择哪种分配方式由Java堆是否规整决定，而Java堆是否规整又由所采用的垃圾收集
+      器是否带有压缩整理功能决定。
+      ```
+    - 如果内存规整--指针碰撞
+      - 如果内存是规整的，那么虚拟机将采用的是指针碰撞法（Bump The Pointer)来为对象分配内存
+        - 意思是所有用过的内存在一边，空闲的内存在另外一边，中间放着一个指针作为分界点的指示器，
+        - 分配内存就仅仅是把指针向空闲那边挪动一段与对象大小相等的距离罢了。
+          > ![method_area-39](./image/method_area-39.png) 
+      - 垃圾收集器对应算法：带有整理过程的算法，如Serial、ParNew算法
+        > 一般使用带有compact(整理）过程的收集器时，内存都是规整的，使用指针碰撞
+        - 基于压缩算法
+        - 会解决碎片化问题，使内存比较规整，因此虚拟机会采用指针碰撞方式分配内存
+    - 如果内存不规整,虚拟机需要维护一个列表,空闲列表分配
+      - 如果内存不是规整的，已使用的内存和未使用的内存相互交错，那么虚拟机将采用的是空闲列表法来为对象分配内存。
+        - 意思是虚拟机维护了一个列表，记录上哪些内存块是可用的，在分配的时候从列表中找到一块足够大的空间划分给对象实例，并更新列表上的内容。
+        - 这种分配方式成为“空闲列表（Free List)”。
+      - 垃圾回收器对应算法：标记清除算法，使用标记清楚算法的有CMS垃圾回收器
+  - 处理并发安全问题
+    ```
+    在分配内存空间时，另外一个问题是及时保证new对象时候的线程安全性：创建对象是非常
+    频繁的操作，虚拟机需要解决并发问题。虚拟机采用了两种方式解决并发问题：
+    ```  
+    - 采用CAS(Compare And Swap)，失败重试，区域加锁：保证指针更新操作的原子性
+    - 每个线程预先分配一块TLAB
+      ```
+      TLAB 把内存分配的动作按照线程划分在不同的空间之中进行，即每个线程在Java堆中
+      预先分配一小块内存，称为本地线程分配缓冲区，(TLAB,Thread Local
+      Allocation Buffer)虚拟机是否使用TLAB,可以通过-XX:+/-UseTLAB参数来设定。
+      ``` 
+  - 初始化分配到的空间
+    > 所有属性设置默认值，保证对象实例字段在不赋值时可以直接使用
+    >
+    > （复习）属性初始化方式：1.默认初始化；2.显式初始化；3.代码块中初始化；4.构造器中初始化
+    ```
+    内存分配结束，虚拟机将分配到的内存空间都初始化为零和null值（不包括对象头）。这一步保
+    证了对象的实例字段在Java代码中可以不用赋初始值就可以直接使用，程序能访问到这些
+    字段的数据类型所对应的零值。
+    ```
+  - 设置对象的对象头
+    ```
+    将对象的所属类（即类的元数据信息）、对象的HashCode和对象的GC信息、锁信息等数
+    据存储在对象的对象头中。这个过程的具体设置方式取决于JVM实现。
+
+    在下一节内存布局会详细说明对象头
+    ```
+  - 执行init方法进行初始化
+    > `<init>`方法中包括三种初始化： 2.显式初始化；3.代码块中初始化；4.构造器中初始化
+    > > ![method_area-40](./image/method_area-40.png) 
+    ```
+    在Java程序的视角看来，初始化才正式开始。初始化成员变量，执行实例化代码块，调
+    用类的构造方法，并把堆内对象的首地址赋值给引用变量。
+    因此一般来说（由字节码中是否跟随有invokespecial指令所决定）,new指令之后会接
+    着就是执行方法，把对象按照程序员的意愿进行初始化，这样一个真正可用的对象才算完
+    全创建出来。
+    ```
+
+---
+
+对象创建步骤实例：
+
+- 代码：
+  ```java
+  public class ObjectTest {
+      public static void main(String[] args) {
+          Object obj = new Object(); // 创建object对象
+      }
+  }
+  ```
+- 反编译得到的字节码：
+  ```
+  Classfile /D:/learn/jvm视频教程/jvm上篇/代码/JVMDemo/chapter10/ObjectTest.class
+    Last modified 2021-2-13; size 277 bytes
+    MD5 checksum 1fce2fdca026a982cb2f14013b964b59
+    Compiled from "ObjectTest.java"
+  public class ObjectTest
+    minor version: 0
+    major version: 52
+    flags: ACC_PUBLIC, ACC_SUPER
+  Constant pool:
+    #1 = Methodref          #2.#12         // java/lang/Object."<init>":()V
+    #2 = Class              #13            // java/lang/Object
+    #3 = Class              #14            // ObjectTest
+    #4 = Utf8               <init>
+    #5 = Utf8               ()V
+    #6 = Utf8               Code
+    #7 = Utf8               LineNumberTable
+    #8 = Utf8               main
+    #9 = Utf8               ([Ljava/lang/String;)V
+    #10 = Utf8               SourceFile
+    #11 = Utf8               ObjectTest.java
+    #12 = NameAndType        #4:#5          // "<init>":()V
+    #13 = Utf8               java/lang/Object
+    #14 = Utf8               ObjectTest
+  {
+    public ObjectTest();
+      descriptor: ()V
+      flags: ACC_PUBLIC
+      Code:
+        stack=1, locals=1, args_size=1
+          0: aload_0
+          1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+          4: return
+        LineNumberTable:
+          line 1: 0
+
+    public static void main(java.lang.String[]);
+      descriptor: ([Ljava/lang/String;)V
+      flags: ACC_PUBLIC, ACC_STATIC
+      Code:
+        stack=2, locals=2, args_size=1
+          0: new           #2                  // class java/lang/Object
+                                               // new操作符会判断对象对应的类是否加载，链接，初始化，再为对象分配内存，再对对象中的属性进行默认初始化
+          3: dup                               // 进行复制，当前生成的变量的引用会在操作数栈有一份，经过该命令后会再复制一份，栈底的用来复制，复制的那个作为句柄调用相关的一些方法
+                                               // 设计虚拟机指令设计原则，了解一下即可
+          4: invokespecial #1                  // Method java/lang/Object."<init>":()V
+                                               // 调用init方法
+          7: astore_1                          // 从操作数栈中取出对象变量引用，存到局部变量表中。也就是把obj放到索引为1的位置
+          8: return
+        LineNumberTable:
+          line 3: 0
+          line 4: 8
+  }
+  ```
+
+#### 2.2.8.2. 对象的内存布局
+
+> 对象存在于堆空间中
+
+- 组成：
+  > ![method_area-41](./image/method_area-41.png)
+- 图示
+  ```java
+  public class CustomerTest{
+    public static void main(String[] args){
+      Customer cust = new Customer();
+    }
+  }
+  ```
+  > ![method_area-42](./image/method_area-42.png)
+
+---
+
+- 对象头(Header)
+  - 说明：如果是数组，还要记录数组长度
+  - 组成：
+    - 运行时元数据
+      - 哈希值（HashCode）：即对象所在堆空间的地址，或者引用指向的地址
+      - GC分代年龄：通过年龄计数器，记录在Servivor区的年龄
+      - 锁状态标志：是否作为一个锁，锁的状态
+      - 线程持有的锁
+      - 偏向线程ID
+      - 偏向时间戳
+    - 类型指针：指向元数据InstanceKlass，确定该对象所属类型。getClass()能获取Class对象就是因为该指针。
+      > 不是所有的对象都会保留类型指针
+- 实例数据(Instance Data)
+  - 说明；
+    - 它是对象真正存储的有效信息，包括程序代码中定义的各种类型的字段
+    - 包括从父类继承下来的和本身拥有的字段
+  - 规则：
+    - 相同宽度的字段总是被分配到一起。比如int和引用类型都是4字节
+    - 父类中定义的变量会出现在子类之前。因为创建对象时都是先加载父类。
+    - 如果CompactField参数为true（默认为true），子类的窄变量可能插入到父类变量的空隙。节省空间
+- 对齐填充（Padding）
+  - 说明：不是必须的，也没有特殊含义，仅仅起到占位符的作用
+
+---
+
+拓展：[jvm底层-类加载与oop-klass模型](https://blog.csdn.net/qq_33873431/article/details/112851125)
+
+#### 2.2.8.3. 对象的访问定位
+
+- JVM是如何通过栈帧中的对象引用访问到其内部的对象实例？
+  - 图示
+    > ![method_area-43](./image/method_area-43.png) 
+  - 对象访问的两种方式；
+    > JVM虚拟机规范中并没有明确说必须采用哪种方式
+    - 句柄访问
+      - 图示
+        > ![method_area-44](./image/method_area-44.png) 
+      - 缺点：
+        - 需要访问两次，效率低
+      - 优点：
+        - reference中存储稳定句柄地址，对象被移动（垃圾回收器移动对象很普遍）时只改变句柄中实例数据指针即可，reference本身不需要被修改
+    - 直接指针（HotSpot使用）
+      - 图示
+        > ![method_area-45](./image/method_area-45.png) 
+      - 缺点：
+        - 对象被移动时需要修改引用地址
+      - 优点：
+        - 通过引用直接访问对象，效率高
+
+#### 面试题
+
+```
+美团：
+对象在JVM中是怎么存储的？
+对象头信息里面有哪些东西？
+```
+
+```
+蚂蚁金服：
+二面：java对象头里有什么
+```
 
 ### 2.2.9. 直接内存
 
