@@ -2955,11 +2955,13 @@ public class OOMTest extends ClassLoader {
 
 - StringTable(字符串常量池)为什么放到堆中
   > 后面会有单独一个章节进行说明
-  - jdk7中将stringTable放到了堆空间中。
-  - 因为永久代的回收效率很低，在full gc的时候才会触发。
-  - 而full gc是老年代的空间不足、永久代不足时才会触发。
-  - 这就导致stringTable回收效率不高。
-  - 而我们开发中会有大量的字符串被创建，回收效率低，导致永久代内存不足。放到堆里，能及时回收内存。
+  ```
+  jdk7中将stringTable放到了堆空间中。是因为：
+  我们开发中会有大量的字符串被创建，永久代小，回收效率低，导致永久代内存不足。放到堆里，能及时回收内存。
+  ```
+  - 永久代默认比较小
+  - 永久代的回收效率很低，
+    > 在full gc的时候才会触发永久代的回收。 而full gc是老年代的空间不足、永久代不足时才会触发。这就导致stringTable回收效率不高。
 
 ---
 
@@ -3049,7 +3051,7 @@ public class OOMTest extends ClassLoader {
   - 《Java虚拟机规范》对方法区的约束是非常宽松的，提到过可以不要求虚拟机在方法区中实现垃圾收集。
   - 事实上也确实有未实现或未能完整实现方法区类型卸载的收集器存在(如JDK11时期的ZGC收集器就不支持类卸载）。
   - 一般来说这个区域的**回收效果比较难令人满意，尤其是类型的卸载，条件相当苛刻。**
-  - 但是这部分区域的回收**有时又确实是必要的**。以前Sun公司的Bug列表中，曾出现过的若干个严重的Bug就是由于低版本的HotSpot虚拟机对此区域未完全回收而导致内存泄漏。
+  - 但是这部分区域的回收 **有时又确实是必要的**。以前Sun公司的Bug列表中，曾出现过的若干个严重的Bug就是由于低版本的HotSpot虚拟机对此区域未完全回收而导致内存泄漏。
 
 ---
 
@@ -3635,6 +3637,7 @@ jvm的永久代中会发生垃圾回收吗？
   不过无论如何，基于解释器的执行模式仍然为中间语言的发展做出了不可
   磨灭的贡献。
   ```
+
 #### 2.3.1.5. JIT即时编译器(重要)
 
 
@@ -3688,7 +3691,7 @@ jvm的永久代中会发生垃圾回收吗？
     - 注意：**主流JVM通常是以方法（或者笼统的说，函数）为单位来JIT编译的，但是OSR只编译方法里的某个循环，或者是从某个循环开始的代码**，
       > 与之后的回边计数器相关
 
-- 热点探测功能：
+- 热点代码的热点探测功能：
   - 采用基于计数器的热点探测
     ```
     目前HotSpot VM所采用的热点探测方式是基于计数器的热点探测
@@ -3731,7 +3734,7 @@ jvm的永久代中会发生垃圾回收吗？
       - 图示；
         > ![executor-10](./image/executor-10.png) 
 
-#### C1,C2编译器
+#### 2.3.1.6. C1,C2编译器
 
 ```
 64位jdk下JVM默认运行在Server模式下，也无法改为Client模式
@@ -3739,11 +3742,11 @@ jvm的永久代中会发生垃圾回收吗？
 
 - 在HotSpot VM中内嵌有两个JIT编译器，分别为
   ```
-  C2编译器启动比C2编译器慢，
+  C2编译器启动比C1编译器慢，
   系统稳定后，C2编译器执行速度远远快于C1编译器
   ``` 
   - Client Compiler，简称为C1编译器
-  - ServerCompiler，简称为C2编译器。C++编写
+  - Server Compiler，简称为C2编译器。C++编写
 
 - 设置JVM运行模式
   - `-client`:
@@ -3787,7 +3790,7 @@ Java 8默认开启了分层编译，无论开启还是关闭分层编译，原�
 
 ---
 
-#### 设置JVM执行方式
+#### 2.3.1.7. 设置JVM执行方式
 
 ```
 缺省情况下HotSpot VM是采用解释器与即时编译器并存的架构，当然开发人员可以根
@@ -3836,7 +3839,7 @@ public class IntCompTest {
 }
 ```
 
-#### 其他编译器
+#### 2.3.1.8. 其他编译器
 
 - 关于未来：
   - 自JDK10起，HotSpot又加入一个全新的即时编译器：Graa1编译器。
@@ -3861,7 +3864,593 @@ public class IntCompTest {
       - **降低了Java链接过程的动态性**，加载的代码在编译期就必须全部已知。
       - 还需要继续优化中，最初只支持Linux x64 java base
 
-### 2.3.2. String Table
+### 2.3.2. 中间插曲：String Table(非常重要)
+
+#### 2.3.2.1. String基本特性
+
+> String：字符串，使用一对`""`引起来表示
+
+- 创建；
+  - 字面量创建
+    > 该方法会把字符串存到StringTable中
+  - new创建
+    > 该方法会把String对象存到堆中,以及存放到常量池中。会有两个对象。请一直看本章的面试题
+- 修饰符：
+  - String声明为final，不可被继承
+- 实现接口：
+  - Serializable:可以序列化
+  - Comparable:可以比较大小
+
+- 底层存储结构：
+  - 变更：
+    - jdk8:`final char[] value`
+    - jdk9:`final byte[] value`+编码标记
+  - 变更原因：大多数字符串中存储的都是拉丁字符(4个字节)，使用char(8个字节)进行存储会浪费一半的空间
+    > jdk8到jdk9的具体说明：[Compact Strings](http://openjdk.java.net/jeps/254)
+  - 相关联：StringBuffer和StringBuilder也同样做了一些修改
+
+- 不可变性：String代表不可变的字符序列
+  - 当对字符串重新赋值时，需要重写指定内存区域赋值，不能使用原有的value进行赋值。
+    ```java
+    String s1 = "abc";//字面量定义的方式，"abc"存储在字符串常量池中
+    String s2 = "abc";
+    System.out.println(s1 == s2);//判断地址：true
+
+    s1 = "hello";
+    System.out.println(s1 == s2);//判断地址：false
+    ```
+  - 当对现有的字符串进行连接操作时，也需要重新指定内存区域赋值，不能使用原有的value进行赋值。
+    ```java
+    String s1 = "abc";
+    String s2 = "abc";
+    s2 += "def";
+    System.out.println(s2);//abcdef
+    System.out.println(s1);//abc
+    ```
+  - 当调用string的replace()方法修改指定字符或字符串时，也需要重新指定内存区域赋值，不能使用原有的value进行赋值。
+    ```java
+    String s1 = "abc";
+    String s2 = s1.replace('a', 'm');
+    System.out.println(s1);//abc
+    System.out.println(s2);//mbc
+    ```
+
+---
+
+- String Pool:
+  - 特性:字符串常量池中是不会存储相同的字符串的
+  - 说明：
+    - String的string Pool是一个固定大小的Hashtable,默认值大小长度是1009。
+    - 如果放进string Pool的string非常多，就会造成Hash冲突严重，从而导致链表会很长，
+    - 而链表长了后直接会造成的影响就是当调用string.intern时性能会大幅下降。
+  - 设置长度：使用`-XX:StringTableSize`可设置stringTable的长度
+  - 默认长度：
+    > 使用 `jinfo -flag StringTableSize pid 查看程序的字符串常量池长度`
+    - jdk6：
+      - stringTable是固定的，就是1009的长度，
+      - 所以如果常量池中的字符串过多就会导致效率下降很快。
+      - StringTableSize设置没有要求
+    - jdk7
+      - stringTable的长度默认值是60013
+      - StringTableSize设置没有要求
+    - jdk8
+      - stringTable的长度默认值是60013
+      - 限制设置StringTable的最小值为1009
+
+---
+
+代码测试：StringTableSize对性能的影响
+
+```java
+public class StringTest2 {
+    public static void main(String[] args) throws Exceptions {
+        BufferedReader br = null;
+        br = new BufferedReader(new FileReader("words.txt"));
+        long start = System.currentTimeMillis();
+        String data;
+        while((data = br.readLine()) != null){
+            data.intern(); //如果字符串常量池中没有对应data的字符串的话，则在常量池中生成
+        }
+
+        long end = System.currentTimeMillis();
+
+        System.out.println("花费的时间为：" + (end - start));//1009:143ms  100009:47ms
+    }
+}
+```
+
+#### 2.3.2.2. String内存分配
+
+- 常量池
+  ```
+  在Java语言中有8种基本数据类型和一种比较特殊的类型string。
+  这些类型为了使它们在运行过程中速度更快、更节省内存，都提供了一种常量池的概念。
+  常量池就类似一个Java系统级别提供的缓存。
+  8种基本数据类型的常量池都是系统协调的
+  String类型的常量池比较特殊。它的主要使用方法有两种。
+    直接使用双引号声明出来的String对象会直接存储在常量池中
+    如果不是双引号声明的String对象，可以使用String提供的`intern()`方法。
+  ```
+
+---
+
+> 复习：方法区的变迁，StringTable移到堆中的原因
+
+字符串常量池的变迁：
+
+- Java 6及以前:字符串常量池存放在永久代。
+- Java 7:将字符串常量池的位置调整到Java堆内。
+  - 所有的字符串都保存在堆（Heap)中，和其他普通对象一样，这样可以让你在进行调优应用时仅需要调整堆大小就可以了。
+  - 字符串常量池概念原本使用得比较多，但是这个改动使得我们有足够的理由让我们重新考虑在Java7中使用string.intern()。
+- Java8元空间，字符串常量在堆
+
+#### 2.3.2.3. String代码示例说明
+
+StringTable中不能存储相同的字符串：
+
+```java
+// 通过调试的方式查看StringTable中有多少字符串
+public class StringTest4 {
+    public static void main(String[] args) {
+        System.out.println();//2293
+        System.out.println("1");//2294
+        System.out.println("2");
+        System.out.println("3");
+        System.out.println("4");
+        System.out.println("5");
+        System.out.println("6");
+        System.out.println("7");
+        System.out.println("8");
+        System.out.println("9");
+        System.out.println("10");//2303
+        //如下的字符串"1" 到 "10"不会再次加载
+        System.out.println("1");//2304
+        System.out.println("2");//2304
+        System.out.println("3");
+        System.out.println("4");
+        System.out.println("5");
+        System.out.println("6");
+        System.out.println("7");
+        System.out.println("8");
+        System.out.println("9");
+        System.out.println("10");//2304
+    }
+}
+
+```
+
+---
+
+典型代码内存结构：
+
+![executor-13](./image/executor-13.png)
+
+```java
+class Memory {
+    public static void main(String[] args) {//line 1
+        int i = 1;//line 2
+        Object obj = new Object();//line 3
+        Memory mem = new Memory();//line 4
+        mem.foo(obj);//line 5
+    }//line 9
+
+    private void foo(Object param) {//line 6
+        String str = param.toString();//line 7
+        System.out.println(str);
+    }//line 8
+}
+```
+
+#### 2.3.2.4. String拼接操作
+
+字符串拼接一共有两种方式：
+
+- 编译器优化
+- StringBuilder
+
+---
+
+- 1.常量与常量的拼接结果在常量池，原理是编译期优化
+  ```java
+  String s1 = "a" + "b" + "c";//编译期优化：等同于"abc"。在idea中，使用反编译，也可以发现，这里是String s1 = "abc"
+  String s2 = "abc"; //"abc"一定是放在字符串常量池中，将此地址赋给s2
+  /*
+    * 最终.java编译成.class,再执行.class
+    * String s1 = "abc";
+    * String s2 = "abc"
+    */
+  System.out.println(s1 == s2); //true
+  System.out.println(s1.equals(s2)); //true
+  ``` 
+- 2.常量池中不会存在相同内容的常量。
+- 3.只要其中有一个是变量，结果就在堆中。变量拼接的原理是StringBuilder
+  ```java
+  String s1 = "javaEE";
+  String s2 = "hadoop";
+
+  String s3 = "javaEEhadoop";
+  String s4 = "javaEE" + "hadoop";//编译期优化
+  //如果拼接符号的前后出现了变量，则相当于在堆空间中new String()，
+  //具体的内容为拼接的结果：javaEEhadoop
+  //而new String()得到的字符串对象引用在堆中（非常量池区域），常量拼接得到的字符串在常量池中，所以两者引用不同
+  String s5 = s1 + "hadoop";
+  String s6 = "javaEE" + s2;
+  String s7 = s1 + s2;
+
+  System.out.println(s3 == s4);//true
+  System.out.println(s3 == s5);//false
+  System.out.println(s3 == s6);//false
+  System.out.println(s3 == s7);//false
+  System.out.println(s5 == s6);//false
+  System.out.println(s5 == s7);//false
+  System.out.println(s6 == s7);//false
+  //intern():判断字符串常量池中是否存在javaEEhadoop值，如果存在，则返回常量池中javaEEhadoop的地址；
+  //如果字符串常量池中不存在javaEEhadoop，则在常量池中加载一份javaEEhadoop，并返回次对象的地址。
+  String s8 = s6.intern();
+  System.out.println(s3 == s8);//true
+  ```
+  ```java
+  String s1 = "a";
+  String s2 = "b";
+  String s3 = "ab";
+  /*
+  如下的s1 + s2 的执行细节：(查看字节码，可以发现创建了一个StringBuilder)
+  ① StringBuilder s = new StringBuilder();
+  ② s.append("a")
+  ③ s.append("b")
+  ④ s.toString()  --> 约等于 new String("ab")
+
+  补充：在jdk5.0之后使用的是StringBuilder,在jdk5.0之前使用的是StringBuffer
+    */
+  String s4 = s1 + s2;
+  System.out.println(s3 == s4);//false
+  ```
+  ```java
+  /*
+    1. 字符串拼接操作不一定使用的是StringBuilder!
+       如果拼接符号左右两边都是字符串常量或常量引用，则仍然使用编译期优化，即非StringBuilder的方式。
+    2. 针对于final修饰类、方法、基本数据类型、引用数据类型的量的结构时，能使用上final的时候建议使用上。
+     */
+  final String s1 = "a";
+  final String s2 = "b";
+  String s3 = "ab";
+  String s4 = s1 + s2; // 与"a"+"b"相同
+  System.out.println(s3 == s4);//true
+  ```
+- 4.如果拼接的结果调用intern()方法，则主动将常量池中还没有的字符串对象放入池中，并返回此对象地址。
+
+---
+
+拼接操作和StringBuilder方式效率对比
+
+```java
+/*
+体会执行效率：通过StringBuilder的append()的方式添加字符串的效率要远高于使用String的字符串拼接方式！
+详情：① StringBuilder的append()的方式：自始至终中只创建过一个StringBuilder的对象
+      使用String的字符串拼接方式：创建过多个StringBuilder和String的对象
+      ② 使用String的字符串拼接方式：内存中由于创建了较多的StringBuilder和String的对象，内存占用更大；如果进行GC，需要花费额外的时间。
+
+  改进的空间：在实际开发中，如果基本确定要前前后后添加的字符串长度不高于某个限定值highLevel的情况下,建议使用构造器实例化：
+            StringBuilder s = new StringBuilder(highLevel);//new char[highLevel]
+  */
+public void test6(){
+    long start = System.currentTimeMillis();
+    method1(100000);//4014
+    method2(100000);//7
+    long end = System.currentTimeMillis();
+    System.out.println("花费的时间为：" + (end - start));
+}
+public void method1(int highLevel){
+    String src = "";
+    for(int i = 0;i < highLevel;i++){
+        src = src + "a";//每次循环都会创建一个StringBuilder、String
+    }
+}
+
+public void method2(int highLevel){
+    //只需要创建一个StringBuilder
+    StringBuilder src = new StringBuilder();
+    for (int i = 0; i < highLevel; i++) {
+        src.append("a");
+    }
+}
+```
+
+
+#### 2.3.2.5. intern()的使用(重要)
+
+```
+intern 的目的是确保字符串在内存中只有一份，
+且存在于字符串常量池中
+```
+
+- jdk1.6中，将这个字符串对象尝试放入串池。
+  - 如果串池中有，则并不会放入。返回已有的串池中的对象的地址
+  - 如果没有，会把此对象复制一份，放入串池，并返回串池中的对象地址
+- Jdk1.7起，将这个字符串对象尝试放入串池。
+  - 如果串池中有，则并不会放入。返回已有的串池中的对象的地址
+  - 如果没有，则会把对象的引用地址复制一份，放入串池，并返回串池中的引用地址
+
+**查看后面的面试题，重要，一定要看，intern的说明都在那里，上面的只是结论总结**
+
+看完面试题后看一下下面的练习：
+
+![executor-19](./image/executor-19.png)
+
+![executor-20](./image/executor-20.png)
+
+![executor-21](./image/executor-21.png)
+
+
+
+---
+
+如何确保指向常量池：
+
+- 使用String字面量
+- new出来后，使用intern。
+
+---
+
+intern效率测试
+
+所有字符串都为1-10
+
+```java
+/**
+ * 使用intern()测试执行效率：主要是空间使用上
+ */
+public class StringIntern2 {
+    static final int MAX_COUNT = 1000 * 10000;
+    static final String[] arr = new String[MAX_COUNT];
+
+    public static void main(String[] args) {
+        Integer[] data = new Integer[]{1,2,3,4,5,6,7,8,9,10};
+
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < MAX_COUNT; i++) {
+//            arr[i] = new String(String.valueOf(data[i % data.length]));
+            arr[i] = new String(String.valueOf(data[i % data.length])).intern();
+
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("花费的时间为：" + (end - start));
+
+        try {
+            Thread.sleep(1000000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.gc();
+    }
+}
+```
+
+- 不使用intern:花费的时间为7307
+  > ![executor-22](./image/executor-22.png)
+- 使用intern:花费的时间为1103
+  > ![executor-23](./image/executor-23.png)
+
+**结论：对于程序中大量存在存在的字符串，尤其其中存在很多重复字符串时，使用intern()可以节省内存空间。**
+
+#### 2.3.2.6. String创建方法总结
+
+> 应付面试题很有用
+
+- 字符串常量:该方法会把字符串存到StringTable中
+- new String(value):
+  - new String会创建两个String对象
+  - 一个是堆中,另一个在常量池中。
+  - 直接赋值的话，会让变量会赋值堆中的String对象的引用
+  - 使用intern后，会查找String Table，返回常量表中的字符串对象
+    ```java
+    String s1 = new String("a");
+    String s2 = new String("a");
+    System.out.println(s1==s2);// false
+    System.out.println(s1.intern()==s2.intern());//true
+    ```
+- StringBuilder和StringBuffer的toString
+  - 实现比较特殊
+  - 只会在堆中创建字符串对象
+  - 不会往常量池中存
+- new String("a")+new String("b")
+  - 该方式本质就是调用的StringBuilder的toString。
+    > 具体为什么看字节码
+  - 只会在堆中创建String对象
+  - 不会在常量池中创建
+
+#### 2.3.2.7. StringTable的垃圾回收
+
+GC时也会对StringTable进行垃圾回收，示例代码：
+
+```java
+/**
+ * String的垃圾回收:
+ * -Xms15m -Xmx15m -XX:+PrintStringTableStatistics -XX:+PrintGCDetails
+ *
+ * @author shkstart  shkstart@126.com
+ * @create 2020  21:27
+ */
+public class StringGCTest {
+    public static void main(String[] args) {
+        for (int j = 0; j < 100000; j++) {
+            String.valueOf(j).intern();
+        }
+    }
+}
+```
+
+#### 2.3.2.8. G1中的String去重操作(了解)
+
+> G1为默认垃圾回收器
+
+- 去重操作含义：
+  ```java
+  String s1 = new String("hello")
+  String s2 = new String("hello")
+  ```
+  - s2创建String对象时，不在内存中重新创建String对象
+  - 而直接指向s1指向的String。
+  - 核心就是char数组或者byte数组不重复创建
+  - (常量池没有去重那一说，常量池本身就不存储重复字符串)
+
+- 背景
+  - 堆存活数据集合里面string对象占了25%
+  - 堆存活数据集合里面重复的string对象有13.5%
+  - String对象的平均长度是45
+    ```
+    许多大规模的Java应用的瓶颈在于内存，测试表明，在这些类型的应用
+    里面，Java堆中存活的数据集合差不多25是是String对象。更进一步，
+    这里面差不多一半string对象是重复的，重复的意思是说：
+    string1.equals(string2)=true。堆上存在重复的string对象必
+    然是一种内存的浪费。这个项目将在G1垃圾收集器中实现自动持续对重
+    复的string对象进行去重，这样就能避免浪费内存。
+    ```
+
+- 实现
+  - 当垃圾收集器工作的时候，会访问堆上存活的对象。对每一个访问的对象都会检查是否是候选的要去重的string对象。
+  - 如果是，把这个对象的一个引用插入到队列中等待后续的处理。一个去重的线程在后台运行，处理这个队列。处理队列的一个元素意味着从队列删除这个元素，然后尝试去重它引用的string对象。
+  - 使用一个hashtable来记录所有的被string对象使用的不重复的char数组。当去重的时候，会查这个hashtable,来看堆上是否已经存在一个一模一样的char数组。
+  - 如果存在，string对象会被调整引用那个数组，释放对原来的数组的引用，最终会被垃圾收集器回收掉。
+  - 如果查找失败，char数组会被插入到hashtable,这样以后的时候就可以共享这个数组了。
+
+- 命令行选项
+  - UseStringDeduplication(bool):开启string去重，默认是不开启的，需要手动开启。
+  - PrintstringDeduplicationstatistics (bool):打印详细的去重统计信息
+  - stringDeduplicationAgeThreshold (uintx):达到这个年龄的string对象被认为是去重的候选对象
+
+#### 2.3.2.9. 面试题
+
+字符串不可变性
+
+```java
+public class StringExer {
+    String str = new String("good");
+    char[] ch = {'t', 'e', 's', 't'};
+
+    public void change(String str, char ch[]) {
+        str = "test ok";
+        ch[0] = 'b';
+    }
+
+    public static void main(String[] args) {
+        StringExer ex = new StringExer();
+        ex.change(ex.str, ex.ch);
+        System.out.println(ex.str);//good
+        System.out.println(ex.ch);//best
+    }
+
+}
+```
+
+---
+
+```
+`new String("ab")`会创建几个对象？
+```
+
+两个，一个对象通过new关键字在堆空间创建，另一个对象是存放到字符串常量池中的对象
+
+证明：查看字节码
+
+```
+ 0 new #2 <java/lang/String>
+ 3 dup
+ 4 ldc #3 <ab>
+ 6 invokespecial #4 <java/lang/String.<init>>
+ 9 astore_1
+10 return
+```
+
+- `new #2` 为在堆空间中创建字符串对象
+- `ldc #3` 为往常量池中放字符串
+
+<br /><br />
+
+```
+`new String("a")+new String("b")`会创建几个对象？
+```
+
+`new String("a")+new String("b")`的字节码：
+
+```
+ 0 new #2 <java/lang/StringBuilder>
+ 3 dup
+ 4 invokespecial #3 <java/lang/StringBuilder.<init>>
+ 7 new #4 <java/lang/String>
+10 dup
+11 ldc #5 <a>
+13 invokespecial #6 <java/lang/String.<init>>
+16 invokevirtual #7 <java/lang/StringBuilder.append>
+19 new #4 <java/lang/String>
+22 dup
+23 ldc #8 <b>
+25 invokespecial #6 <java/lang/String.<init>>
+28 invokevirtual #7 <java/lang/StringBuilder.append>
+31 invokevirtual #9 <java/lang/StringBuilder.toString>
+34 astore_1
+35 return
+```
+
+`StringBuilder.toString()`的字节码
+
+![executor-17](./image/executor-17.png)
+
+字节码分析：
+
+- 对象1：new StringBuilder()
+- 对象2： new String("a")
+- 对象3： 常量池中的"a"
+- 对象4： new String("b")
+- 对象5： 常量池中的"b"
+- **对象6** ：new String("ab")
+  > StringBuilder的toString()方法会new一个String,
+  >
+  > 强调一下，toString()的调用，在字符串常量池中，没有生成"ab"。如果想存入常量池中，必须使用intern方法
+
+---
+
+intern的使用
+
+```java
+public class StringIntern {
+    public static void main(String[] args) {
+        String s = new String("1"); // s 指向堆空间中的字符串对象
+        s.intern();//调用此方法之前，字符串常量池中已经存在了"1"，因此此方法在这里调用没任何作用
+        String s2 = "1"; // s1指向常量池中的"1"
+        System.out.println(s == s2);//jdk6：false   jdk7/8：false
+
+
+        String s3 = new String("1") + new String("1");//s3变量记录的地址为堆中的new String("11")。// 具体过程查看上面的一个面试题
+        //执行完上一行代码以后，字符串常量池中，不存在"11"！！。（因为StringBuilder的toString方法）
+        s3.intern();//在字符串常量池中生成"11"。
+                    // 如何理解：jdk6:创建了一个新的对象"11",放到了永久代中的字符串常量池中，也就有新的地址。
+                    //           jdk7及以后:此时常量中并没有创建"11",而是创建一个指向堆空间中new String("11")的地址，存到了常量池中
+        String s4 = "11";//s4变量记录的地址：使用的是上一行代码代码执行时，在常量池中生成的"11"的地址
+        System.out.println(s3 == s4);//jdk6：false  jdk7/8：true
+    }
+}
+```
+
+ - **也就是说，在jdk7及以后，因为字符串常量池在堆空间而不是方法区中，因此在"堆中有字符串对象，但是字符串常量池中没有相同值字符串对象时"，调用intern后会直接在常量池中创建一个指向堆中对象的引用，而不是复制对象**
+  > 注意，new String()，依旧是创建两个对象，往字符串常量池中添加引用只有在上述情况下才会出现
+ - **与之相对，jdk6的字符串常量池在方法区中，而对象在堆中，因此会采用复制到方法区中的方式**
+
+![executor-18](./image/executor-18.png)
+
+<br /><br />
+
+扩展：
+
+```java
+String s3 = new String("1") + new String("1");//相当于new String("11")，但只存在于堆中
+String s4 = "11"; //在字符串常量池中生成对象"11"。因为不是上面那种情况，所以不会创建引用，指向堆中的对象，而是直接往常量池中创建对象
+String s5 = s3.intern(); // 指向常量池中的"11"
+System.out.println(s3 == s4);//false
+System.out.println(s5 == s4);//true
+```
+
+
 
 ### 2.3.3. 垃圾回收
 
@@ -3869,18 +4458,100 @@ HotSpot里面也出 现了不采用分代设计的新垃圾收集器
 
 #### 2.3.3.1. 垃圾回收概述
 
+```
+第一门使用垃圾收集的语言时Lisp语言
+```
+
+- 为什么需要垃圾回收
+  - 对于高级语言来说，一个基本认知是如果不进行垃圾回收，内存迟早都会被消耗完
+- 什么是垃圾
+  - 垃圾是指 **运行程序中没有任何指针指向的对象**，这个对象就是要被回收的垃圾
+- GC作用
+  - 清除垃圾
+  - 清除内存里的记录碎片。碎片整理将所占用的堆内存移到堆的一端，以便JVM将整理出的内存分配给新的对象。
+
+---
+
+- 哪些内存需要回收
+- 什么时候回收
+- 如何回收
+
+---
+
+- 内存溢出：简单地说内存溢出就是指程序运行过程中申请的内存大于系统能够提供的内存，导致无法申请到足够的内存，于是就发生了内存溢出。
+  - 1、java.lang.OutOfMemoryError: PermGen space (持久带溢出)
+  - 2、java.lang.OutOfMemoryError: Java heap space (堆溢出)
+  - 3、虚拟机栈和本地方法栈溢出
+    - 如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出StackOverflowError。
+    - 如果虚拟机在扩展栈时无法申请到足够的内存空间，则抛出OutOfMemoryError。
+
+- 内存泄漏：内存泄漏指程序运行过程中分配内存给临时变量，用完之后却没有被GC回收，始终占用着内存，既不能被使用也不能分配给其他程序，于是就发生了内存泄漏。
+  - 1、常发性内存泄漏。发生内存泄漏的代码会被多次执行到，每次被执行的时候都会导致一块内存泄漏。
+  - 2、偶发性内存泄漏。发生内存泄漏的代码只有在某些特定环境或操作过程下才会发生。常发性和偶发性是相对的。对于特定的环境，偶发性的也许就变成了常发性的。所以测试环境和测试方法对检测内存泄漏至关重要。 
+  - 3、一次性内存泄漏。发生内存泄漏的代码只会被执行一次，或者由于算法上的缺陷，导致总会有一块仅且一块内存发生泄漏。比如，在类的构造函数中分配内存，在析构函数中却没有释放该内存，所以内存泄漏只会发生一次。 
+  - 4、隐式内存泄漏。程序在运行过程中不停的分配内存，但是直到结束的时候才释放内存。严格的说这里并没有发生内存泄漏，因为最终程序释放了所有申请的内存。但是对于一个服务器程序，需要运行几天，几周甚至几个月，不及时释放内存也可能导致最终耗尽系统的所有内存。所以，我们称这类内存泄漏为隐式内存泄漏。 
+
+---
+
+垃圾回收行为
+
+- c/c++时代，垃圾回收都是手动进行的，使用new关键字进行内存申请，使用delete关键字进行内存释放
+- 现在，java，C#，python，ruby等语言都使用了自动垃圾回收的思想。进行自动化的内存分配和；垃圾回收
+
+
 #### 2.3.3.2. 垃圾回收相关算法
 
 #### 2.3.3.3. 垃圾回收相关概念
 
 #### 2.3.3.4. 垃圾回收器
 
-# 3. 字节码与类的加载
+#### 面试题
 
+```
+蚂蚁金服：
+你知道哪几种垃圾回收器，各自的优缺点，重点讲一下cms和g1
+一面：JVMGC算法有哪些，目前的JDK版本采用什么回收算法
+一面：G1回收器讲下回收过程
+GC是什么？为什么要有GC?
+一面：GC的两种判定方法？CMS收集器与G1收集器的特点。
+
+百度：
+说一下GC算法，分代回收说下
+垃圾收集策略和算法
+
+天猫：
+一面：jvm GC原理，JVM怎么回收内存
+一面：CMS特点，垃圾回收算法有哪些？各自的优缺点，他们共同的缺点是什么？
+
+滴滴：
+一面：java的垃圾回收器都有哪些，说下g1的应用场景，平时你是如何搭配使用垃圾回
+收器的
+
+京东：
+你知道哪几种垃圾收集器，各自的优缺点，重点讲下cms和G1,包括原理，流程，优缺点。
+垃圾回收算法的实现原理。
+
+阿里：
+讲一讲垃圾回收算法。
+什么情况下触发垃圾回收？
+如何选择合适的垃圾收集算法？
+JVM有哪三种垃圾回收器？
+
+字节跳动：
+常见的垃圾回收器算法有哪些，各有什么优劣？
+system.gc()和runtime.gc()会做什么事情？
+一面：Java GC机制？GC Roots有哪些？
+二面：Java对象的回收方式，回收算法。
+CMS和G1了解么，CMS解决什么问题，说一下回收的过程。
+CMS回收停顿了几次，为什么要停顿两次。
+```
+
+# 3. 字节码与类的加载
 
 #### 3.0.3.5. 学习路线回顾
 
 ![course-1](./image/course-1.png)
+
 - 最终目的是性能调优(下篇)
 - 所以学会使用性能监测工具(下篇)
 - 要想看得懂可视化工具显示的数据，就要懂内存的分配和回收(上篇)
