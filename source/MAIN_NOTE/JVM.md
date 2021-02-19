@@ -4483,6 +4483,8 @@ HotSpot里面也出 现了不采用分代设计的新垃圾收集器
 
 ---
 
+> 下面的是从网上摘抄的，具体内存移除和内存泄漏的概念可以看下面的章节
+
 - 内存溢出：简单地说内存溢出就是指程序运行过程中申请的内存大于系统能够提供的内存，导致无法申请到足够的内存，于是就发生了内存溢出。
   - 1、java.lang.OutOfMemoryError: PermGen space (持久带溢出)
   - 2、java.lang.OutOfMemoryError: Java heap space (堆溢出)
@@ -4991,9 +4993,540 @@ dump文件生成：
 
 #### 2.3.3.3. 垃圾回收相关概念
 
+##### 2.3.3.3.1. System.gc()的理解
+
+- 作用:
+  - `System.gc()`和`Runtime.getRuntime().gc()`作用相同
+  - 都是**显示触发Full GC**
+- 注意：
+  - 该调用附带一个免责声明:
+  - 该方法仅仅是提醒JVM进行一次垃圾回收，但不一定会马上执行垃圾回收
+    > 原因可能是安全点与安全区域
+- 使用：
+  - 一般情况下，垃圾回收都是自动进行的，无须手动触发
+  - 在一些特殊情况下，如编写性能基准时，可以使用`System.gc()`
+- 强制垃圾回收：
+  - 调用方法`System.runFinalization()`
+  - 该方法会会强制调用失去引用的对象的`finalize()`方法
+
+---
+
+示例
+
+```java
+public class SystemGCTest {
+    public static void main(String[] args) {
+        new SystemGCTest();
+        System.gc();//提醒jvm的垃圾回收器执行gc,但是不确定是否马上执行gc
+        //与Runtime.getRuntime().gc();的作用一样。
+        System.runFinalization();//强制调用失去引用的对象的finalize()方法
+        // 如果把上面一行注释掉，那么下面的finalize方法可能调用，也可能不调用
+    }
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        System.out.println("SystemGCTest 重写了finalize()");
+    }
+}
+```
+
+##### 2.3.3.3.2. 内存溢出
+
+- 内存溢出(OOM):**没有空闲内存，并且垃圾收集器也无法提供更多内存**。
+  - 原因
+    - Java虚拟机的堆内存不够
+      ```
+      比如：可能存在内存泄漏问题；也很有可能就是堆的大小不合理，比如我们要处理比较可
+      观的数据量，但是没有显式指定JVM堆大小或者指定数值偏小。我们可以通过参数-Xms,
+      -Xmx来调整。
+      ``` 
+    - 代码中创建了大量大对象，并且长时间不能被垃圾回收器收集（存在被引用）
+      ```
+      对于老版本的oracle JDK,因为永久代的大小是有限的，并且JVM对永久代垃圾回收
+      (如，常量池回收、卸载不再需要的类型）非常不积极，所以当我们不断添加新类型的时
+      候，永久代出现OutOfMemoryError也非常多见，尤其是在运行时存在大量动态类型生
+      成的场合；类似intern字符串缓存占用太多空间，也会导致OOM问题。对应的异常信息
+      会标记出来和永久代相关：“java.lang.OutofMemoryError:PermGen space"。
+
+      随着元数据区的引入，方法区内存已经不再那么窘迫，所以相应的OOM有所改观，出现
+      OOM,异常信息则变成了："java.lang.OutOfMemoryError:Metaspace"。直接
+      内存不足，也会导致OOM。
+      ```
+  - 注意：
+    - 在抛出outofMemoryError之前，通常垃圾收集器会被触发，尽其所能去清理出空间。
+      > 例如：在引用机制分析中，涉及到JVM会去尝试回收软引用指向的对象等。
+    - 单也不是每次在抛出OOM前都要执行垃圾回收
+      > 比如，分配一个超大对象，超过堆的最大值，JVM可以判别出垃圾回收不能解决问题，所以直接抛出OOM
+
+
+##### 2.3.3.3.3. 内存泄漏
+
+- 内存泄漏：也称作“存储渗漏”。
+  - 严格来说，**只有对象不会再被程序用到了，但是GC又不能回收他们的情况，才叫内存泄漏。**
+    - 图示
+      > ![gc-13](./image/gc-13.png) 
+    - 例子
+      > 另外，因为java中没有使用引用计数算法，所以循环引用**并不会**导致JvM内存泄漏
+      - 1、单例模式
+        ```
+        单例的生命周期和应用程序是一样长的，所以单例程序中，
+        如果单例对象持有对外部对象的引用的话，
+        那么这个外部对象是不能被回收的，则会导致内存泄漏的产生。
+        ```
+      - 2、一些提供close的资源未关闭导致内存泄漏
+        ```
+        数据库连接（dataSourse.getconnection()),网络连接（socket)和
+        io连接必须手动close,否则是不能被回收的。
+        ```
+  - 宽泛意义上来说，**实际情况中很多时候一些疏忽导致对象生命周期变得很长甚至导致OOM，也可以交错内存泄漏**
+    - 例子
+      - 静态变量的生命周期很长，过多过大的无用静态变量可能导致内存的浪费甚至OOm
+      - web应用程序中，把一些不必要的对象或数据设置为会话级别
+
+- 影响
+  ```
+  尽管内存泄漏并不会立刻引起程序崩溃，但是一旦发生内存泄漏，程序中的
+  可用内存就会被逐步蚕食，直至耗尽所有内存，最终出现OutofMemory异常，
+  导致程序崩溃。
+
+  注意，这里的存储空间并不是指物理内存，而是指虚拟内存大小，这个虚拟
+  内存大小取决于磁盘交换区设定的大小。
+  ```
+
+##### 2.3.3.3.4. Stop the world
+
+- Stop-the-World
+  - 含义
+    - 简称STW,指的是GC事件发生过程中，会产生应用程序的停顿。
+    - 停顿产生时整个应用程序线程都会被暂停，没有任何响应，有点像卡死的感觉，这个停顿称为STW。
+  - 发生时机：STW是JVM在后台自动发起和自动完成的。在用户不可见的情况下，把用户正常的工作线程全部停掉。
+    > 开发中不要用`System.gc()`，会导致Stop-the-world的发生
+  - 应用：所有的垃圾回收器都有STM。只能说STW时间越来越短
+    ```
+    例：
+    可达性分析算法中枚举根节点（GC Roots)会导致所有Java执行线程停顿。
+        分析工作必须在一个能确保一致性的快照中进行
+        一致性指整个分析期间整个执行系统看起来像被冻结在某个时间点上
+        如果出现分析过程中对象引用关系还在不断变化，则分析结果的准确性无法保证
+    ```
+
+##### 2.3.3.3.5. 垃圾回收的并行与并发
+
+程序中的并发和并行:
+
+<br /><br />
+
+- 并发(Concurrent)
+  > ![gc-14](./image/gc-14.png) 
+  - 在操作系统中，是指**一个时间段**中有几个程序都处于已启动运行到运行完毕之间，且这几个程序都是在**同一个处理器**上运行。
+  - 并发不是真正意义上的“同时进行”，只是CPU把一个时间段划分成几个时间片段（时间区间）,然后在这几个时间区间之间来回切换，由于CPU处理的速度非常快，只要时间间隔处理得当，即可让用户感觉是多个应用程序同时在进行。
+
+- 并行(Parallel)
+  - 当系统有一个以上CPU时，当一个CPU执行一个进程时，另一个CPU可以执行另一个进程，两个进程互不抢占CPU资源，可以同时进行，我们称之为并行（Parallel)。
+  - 其实决定并行的因素不是CPU的数量，而是CPU的核心数量，比如一个CPU多个核也可以并行。
+  - 适合科学计算，后台处理等弱交互场景
+
+- 对比
+  - 时间
+    - 并发，指的是多个事情，在同一时间段内同时发生了。
+    - 并行，指的是多个事情，在同一时间点上同时发生了。I
+  - 资源抢占
+    - 并发的多个任务之间是互相抢占资源的。
+    - 并行的多个任务之间是不互相抢占资源的。
+  - 条件
+    - 只有在多CPU或者一个CPU多核的情况中，才会发生并行。
+    - 否则，看似同时发生的事情，其实都是并发执行的。
+
+---
+
+垃圾回收器中的并发和并行:
+
+<br /><br />
+
+![gc-15](./image/gc-15.png) 
+
+![gc-17](./image/gc-17.png)
+
+![gc-16](./image/gc-16.png) 
+
+- 并行（Parallel):
+  - 指**多条垃圾收集线程并行工作**，但此时用户线程仍处于等待状态。
+    > 如ParNew、Parallel Scavenge、Parallel old;
+- 串行（Serial)
+  - 相较于并行的概念，单线程执行。
+  - 如果内存不够，则程序暂停，启动JVM垃圾回收器进行垃圾回收。回收完，再启动程序的线程。
+- 并发
+  - 并发（Concurrent):指**用户线程与垃圾收集线程同时执行**（但不一定是并行的，可能会交替执行）,垃圾回收线程在执行时不会停顿用户程序的运行。
+    > 用户程序在继续运行，而垃圾收集程序线程运行于另一个CPU上；
+    > 如：CMS、G1
+
+
+##### 2.3.3.3.6. 安全点与安全区域
+
+> 面试会问
+
+- 安全点(SafePoint)：
+  - 概念：程序执行时并非在所有地方都能停顿下来开始GC,只有在特定的位置才能停顿下来开始GC,这些位置称为“安全点（SafePoint)”。
+  - 选择
+    - Safe Point的选择很重要，**如果太少可能导致GC等待的时间太长，如果太频繁可能导致运行时的性能问题**。
+    - 大部分指令的执行时间都非常短暂，通常会根据 **否具有让程序长时间执行的特征** 为标准。
+      > 比如：选择一些执行时间较长的指令作为Safe Point,如**方法调用、循环跳转和异常跳转**等。
+  - gc实际流程
+    - 抢先式中断(目前没有虚拟机采用了)
+      - 首先中断所有线程。如果还有线程不在安全点，就恢复线程，让线程跑到安全点。
+    - 主动式中断
+      - 设置一个中断标志，各个线程运行到Safe Point的时候主动轮询这个标志，如果中断标志为真，则将自己进行中断挂起。
+
+- 安全区域(Safe Region)
+  - safe point的局限
+    - Safepoint机制保证了程序执行时，在不太长的时间内就会遇到可进入GC的Safepoint。
+    - 但是，程序不执行的时候,例如线程处于Sleep状态或Blocked状态，
+    - 这时候线程无法响应JVM的中断请求，无法执行到到安全点去中断挂起，JVM也不太可能等待线程被唤醒。
+    - 对于这种情况，就需要安全区域（Safe Region)来解决。
+  - 概念：
+    - 安全区域是指在一段代码片段中，对象的引用关系不会发生变化，在这个区域中的任何位置开始GC都是安全的。
+    - 我们也可以把 Safe Region 看做是被扩展了的 Safepoint。
+  - gc实际流程
+    - 1、当线程运行到Safe Region的代码时，首先标识已经进入了Safe Region,如果这段时间内发生GC,JVM会停止执行标识为Safe Region状态的线程；
+    - 2、当线程即将离开Safe Region时，会检查JVM是否已经完成GC,
+      - 如果完成了，则继续运行，
+      - 否则线程必须等待直到收到可以安全离开Safe Region的信号为止；
+
+##### 2.3.3.3.7. java中的引用(偏门高频)
+
+```
+目的：
+我们希望能描述这样一类对象：当内存空间还足够时，则能保留在内存中；如果内存空间
+在进行垃圾收集后还是很紧张，则可以抛弃这些对象。
+
+出现：jdk1.2之后
+强引用(strong reference),软引用(soft reference),弱引用(soft reference),虚引用(weak reference)
+强度依次递减
+```
+
+![gc-18](./image/gc-18.png)
+
+---
+
+- 强引用(strong reference)
+  - 定义：最传统的“引用”的定义，是指在程序代码之中普遍存在的引用赋值，即类似“Object obj=new Object()”这种引用关系。**无论任何情况下，只要强引用关系还存在，垃圾收集器就永远不会回收掉被引用的对象**。
+  - 使用：
+    - 当在Java语言中使用new操作符创建一个新的对象，并将其赋值给一个变量的时候，这个变量就成为指向该对象的一个强引用。
+    - 在Java程序中，最常见的引用类型是强引用（普通系统99%以上都是强引用）,也就是我们最常见的普通对象引用，也是**默认的引用类型**。
+  - 垃圾回收
+    - 强引用的对象是可触及的，垃圾回收器就永远不会回收掉被引用的对象
+    - 对于一个普通的对象，如果没有其他的引用关系，只要超过了引用的作用域或者显式地将相应（强）引用赋值为null,就是可以当做垃圾被收集了，当然具体回收时机还是要看垃圾收集策略。
+  - 特点
+    - 强引用可以直接访问目标对象
+    - 强引用所指向的对象再任何时候都不会被系统回收，虚拟机宁愿抛出OOM异常，也不会回收强引用指向的对象
+    - 强引用可能导致内存泄漏
+
+---
+
+- 软引用(soft reference)
+  - 定义：在系统**将要发生内存溢出之前**，将会把这些对象列入回收范围之中进行第**二次回收**。如果这次回收后还没有足够的内存，才会抛出内存溢出异常
+  - 使用:
+    - 软引用通常用来实现内存敏感的缓存。
+    - 比如：高速缓存就有用到软引用。如果还有空闲内存，就可以暂时保留缓存，当内存不足时清理掉，这样就保证了使用缓存的同时，不会耗尽内存。
+  - 垃圾回收
+    - 软引用的对象是软可触及(软可达)的
+    - 垃圾回收器在某个时刻决定回收软可达的对象的时候，会清理软引用，并可选地把引用存放到一个引用队列（Reference Queue)。
+    - 类似弱引用，只不过Java虚拟机会尽量让软引用的存活时间长一些，迫不得已才清理。
+  - 使用示例
+    ```java
+    Object obj = new Object(); // 声明强引用
+    SoftReference<Object> sf = new SoftReference<Object>(obj); // 创建弱引用
+    obj = null; // 销毁强引用
+
+    // 或者写成下面一行
+    SoftReference<Object> sf = new SoftReference<Object>(new Object()); // 创建弱引用
+    ```
+    <details>
+      <summary>比较大的演示示例</summary>
+
+      ```java
+      /**
+      * -Xmx10m -Xms10m -XX:+PrintGCDetails
+      * 软引用的测试：内存不足即回收
+      */
+      public class SoftReferenceTest {
+          public static class User {
+              public User(int id, String name) {
+                  this.id = id;
+                  this.name = name;
+              }
+
+              public int id;
+              public String name;
+
+              @Override
+              public String toString() {
+                  return "[id=" + id + ", name=" + name + "] ";
+              }
+          }
+          public static void main(String[] args) {
+              //创建对象，建立软引用
+      //        SoftReference<User> userSoftRef = new SoftReference<User>(new User(1, "songhk"));
+              //上面的一行代码，等价于如下的三行代码
+              User u1 = new User(1,"songhk");
+              SoftReference<User> userSoftRef = new SoftReference<User>(u1);
+              u1 = null;//取消强引用
+
+              //从软引用中重新获得强引用对象
+              System.out.println(userSoftRef.get());
+
+              System.gc();
+              System.out.println("After GC:");
+      //        //垃圾回收之后获得软引用中的对象
+              System.out.println(userSoftRef.get());//由于堆空间内存足够，所有不会回收软引用的可达对象。
+      //
+              try {
+                  //让系统认为内存资源紧张、不够。
+      //            byte[] b = new byte[1024 * 1024 * 7];
+                  byte[] b = new byte[1024 * 7168 - 635 * 1024];
+              } catch (Throwable e) {
+                  e.printStackTrace();
+              } finally {
+                  //再次从软引用中获取数据
+                  System.out.println(userSoftRef.get());//在报OOM之前，垃圾回收器会回收软引用的可达对象。
+              }
+          }
+      }
+      ```
+    </details>
+---
+
+- 弱引用(soft reference)
+  - 定义：只被弱引用关联的对象只能生存到下一次垃圾收集之前。**当垃圾收集器工作时，无论内存空间是否足够，都会回收掉只被弱引用关联的对象**。
+  - 使用
+    - **软引用、弱引用都非常适合来保存那些可有可无的缓存数据**。
+    - 如果这么做，当系统内存不足时，这些缓存数据会被回收，不会导致内存溢出。
+    - 而当内存资源充足时，这些缓存数据又可以存在相当长的时间，从而起到加速系统的作用。
+  - 垃圾回收
+    - 弱引用的对象是弱可触及的
+    - 但是，由于垃圾回收器的线程通常优先级很低，因此，并不一定能很快地发现持有弱引用的对象。在这种情况下，**弱引用对象可以存在较长的时间**。
+    - 弱引用和软引用一样，在构造弱引用时，也可以指定一个引用队列，当弱引用对象被回收时，就会加入指定的引用队列，通过这个队列可以跟踪对象的回收情况。
+  - 与软引用的区别：
+    ```
+    弱引用对象与软引用对象的最大不同就在于，当GC在进行回收时，需要通过
+    算法检查是否回收软引用对象，而对于弱引用对象，GC总是进行回收。弱引
+    用对象更容易、更快被GC回收。
+    ```
+  - 使用示例
+    ```java
+    Object obj = new Object();//声明强引用
+    WeakReference<Object> wr = new WeakReference<0bject>(obj);
+    obj=null;//销毁强引用
+    ```
+    <details>
+    <summary>大一些的使用示例</summary>
+
+    ```java
+    /**
+    * 弱引用的测试
+    */
+    public class WeakReferenceTest {
+        public static class User {
+            public User(int id, String name) {
+                this.id = id;
+                this.name = name;
+            }
+
+            public int id;
+            public String name;
+
+            @Override
+            public String toString() {
+                return "[id=" + id + ", name=" + name + "] ";
+            }
+        }
+
+        public static void main(String[] args) {
+            //构造了弱引用
+            WeakReference<User> userWeakRef = new WeakReference<User>(new User(1, "songhk"));
+            //从弱引用中重新获取对象
+            System.out.println(userWeakRef.get());
+
+            System.gc();
+            // 不管当前内存空间足够与否，都会回收它的内存
+            System.out.println("After GC:");
+            //重新尝试从弱引用中获取对象
+            System.out.println(userWeakRef.get());
+        }
+    }
+    ```
+    </details>
+
+
+---
+
+- 虚引用(weak reference)
+  - 定义：(也称为幻影引用或者幽灵引用)一个对象是否有虚引用的存在，完全不会对其生存时间构成影响，也无法通过虚引用来获得一个对象的实例。如果一个对象仅持有虚引用，那么它和没有引用几乎是一样的，随时可能被垃圾回收器回收
+  - 使用
+    - 不能单独使用，也无法通过虚引用来获取被引用的对象，当试图通过虚引用的get()方法获取对象时，结果总为null
+    - 为一个对象设置虚引用关联的**唯一目的在于跟踪垃圾回收过程**。比如：能在这个对象被收集器回收时收到一个系统通知。
+    - 虚引用必须和引用队列一起使用。虚引用在创建时必须提供一个引用队列作为参数。当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会在回收对象后，将这个虚引用加入引用队列，以通知应用程序对象的回收情况。
+    - 由于虚引用可以跟踪对象的回收时间，因此，也可以将一些资源释放操作放置在虚引用中执行和记录。
+  - 垃圾回收
+    - 虚引用的对象是虚可触及的
+  - 使用示例
+    ```java
+    object obj = new object();
+    ReferenceQueue phantomQueue = new ReferenceQueue();
+    PhantomReference<0bject> pf = new PhantomReference<0bject>(obj, phantomQueue);
+    obj=null;
+    ```
+    <details>
+    <summary>大一些的使用示例</summary>
+
+    ```java
+    import java.lang.ref.PhantomReference;
+    import java.lang.ref.ReferenceQueue;
+
+    /**
+    * 虚引用的测试
+    */
+    public class PhantomReferenceTest {
+        public static PhantomReferenceTest obj;//当前类对象的声明
+        static ReferenceQueue<PhantomReferenceTest> phantomQueue = null;//引用队列
+
+        public static class CheckRefQueue extends Thread {
+            @Override
+            public void run() {
+                while (true) {
+                    if (phantomQueue != null) {
+                        PhantomReference<PhantomReferenceTest> objt = null;
+                        try {
+                            objt = (PhantomReference<PhantomReferenceTest>) phantomQueue.remove();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (objt != null) {
+                            System.out.println("追踪垃圾回收过程：PhantomReferenceTest实例被GC了");
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void finalize() throws Throwable { //finalize()方法只能被调用一次！复活一次
+            super.finalize();
+            System.out.println("调用当前类的finalize()方法");
+            obj = this;
+        }
+
+        public static void main(String[] args) {
+            Thread t = new CheckRefQueue();
+            t.setDaemon(true);//设置为守护线程：当程序中没有非守护线程时，守护线程也就执行结束。
+            t.start();
+
+            phantomQueue = new ReferenceQueue<PhantomReferenceTest>();
+            obj = new PhantomReferenceTest();
+            //构造了 PhantomReferenceTest 对象的虚引用，并指定了引用队列
+            PhantomReference<PhantomReferenceTest> phantomRef = new PhantomReference<PhantomReferenceTest>(obj, phantomQueue);
+
+            try {
+                //不可获取虚引用中的对象
+                System.out.println(phantomRef.get());
+
+                //将强引用去除
+                obj = null;
+                //第一次进行GC,由于对象可复活，GC无法回收该对象
+                System.gc();
+                Thread.sleep(1000);
+                if (obj == null) {
+                    System.out.println("obj 是 null");
+                } else {
+                    System.out.println("obj 可用");
+                }
+                System.out.println("第 2 次 gc");
+                obj = null;
+                System.gc(); //一旦将obj对象回收，就会将此虚引用存放到引用队列中。
+                Thread.sleep(1000);
+                if (obj == null) {
+                    System.out.println("obj 是 null");
+                } else {
+                    System.out.println("obj 可用");
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    ```
+    </details>
+
+
+---
+
+- 终结器引用
+  > 了解
+  - 它用以实现对象的finalize()方法，也可以称为终结器引用。
+  - 无需手动编码，其内部配合引用队列使用。
+  - 在GC时，终结器引用入队。由Finalizer线程通过终结器引用找到被引用对象并调用它的finalize()方法，第二次GC时才能回收被引用对象。
+
+##### 2.3.3.3.8. 面试题
+
+```java
+public void localvarGC3() {
+    {
+        byte[] buffer = new byte[10 * 1024 * 1024];
+    }
+    // 不会被回收
+    // 查看字节码可以发现，局部变量表长度为2，一个为this，一个为buffer
+    System.gc();
+}
+
+public void localvarGC4() {
+    {
+        byte[] buffer = new byte[10 * 1024 * 1024];
+    }
+    int value = 10;
+    // 会被回收
+    // 查看字节码可以发现，局部变量表长度为2，一个为this，一个为value(把buffer替了下来)
+    System.gc();
+}
+```
+
+原因????????
+
+---
+
+偏门高频：强引用，弱引用，虚引用有什么区别，具体使用场景是什么?
+
+偏门：百分之99都适用强引用，工作中很少遇到这方面问题。
+
+高频：用来考察基础概念的理解，以及底层对象声明周期，垃圾回收机制等等方面
+
+---
+
+```
+是否用过WeakHashMap
+```
 
 
 #### 2.3.3.4. 垃圾回收器
+
+##### 2.3.3.4.1. GC 分类与性能指标
+
+##### 2.3.3.4.2. 不同的垃圾回收期概述
+
+##### 2.3.3.4.3. Serial 回收器：串行回收
+
+##### 2.3.3.4.4. ParNew 回收器：并行回收
+
+##### 2.3.3.4.5. Parallel 回收器：吞吐量优先
+
+##### 2.3.3.4.6. CMS回收器：低延迟
+
+##### 2.3.3.4.7. G1回收器：区域化分布式
+
+##### 2.3.3.4.8. 垃圾回收器总结
+
+##### 2.3.3.4.9. GC日志分析
+
+##### 2.3.3.4.10. 垃圾回收器新发展
 
 #### 2.3.3.5. 面试题
 
@@ -5053,3 +5586,6 @@ CMS回收停顿了几次，为什么要停顿两次。
     > 在上篇也会简单涉及
 
 # 4. 性能监控与调优
+
+
+
