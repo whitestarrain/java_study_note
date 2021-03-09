@@ -695,6 +695,7 @@
 
   也有将 元空间+CodeCache 并称为 方法区
   ```
+
 #### 2.2.1.2. 线程
 
 - 线程是一个程序里的运行单元。JVM允许一个应用有多个线程并行的执行。
@@ -3206,7 +3207,7 @@ jvm的永久代中会发生垃圾回收吗？
   - 初始化分配到的空间
     > 所有属性设置默认值，保证对象实例字段在不赋值时可以直接使用
     >
-    > （复习）属性初始化方式：1.默认初始化；2.显式初始化；3.代码块中初始化；4.构造器中初始化
+    > （复习）属性初始化方式：1.默认初始化；2.显式初始化；3.代码块中初始化；4.构造器中初始化；5.对象.属性 初始化
     ```
     内存分配结束，虚拟机将分配到的内存空间都初始化为零和null值（不包括对象头）。这一步保
     证了对象的实例字段在Java代码中可以不用赋初始值就可以直接使用，程序能访问到这些
@@ -5242,7 +5243,7 @@ public class SystemGCTest {
     SoftReference<Object> sf = new SoftReference<Object>(new Object()); // 创建弱引用
     ```
     <details>
-      <summary>比较大的演示示例</summary>
+      <summary style="color:red;">比较大的演示示例</summary>
 
       ```java
       /**
@@ -5319,7 +5320,7 @@ public class SystemGCTest {
     obj=null;//销毁强引用
     ```
     <details>
-    <summary>大一些的使用示例</summary>
+    <summary style="color:red;">大一些的使用示例</summary>
 
     ```java
     /**
@@ -5377,7 +5378,7 @@ public class SystemGCTest {
     obj=null;
     ```
     <details>
-    <summary>大一些的使用示例</summary>
+    <summary style="color:red;">大一些的使用示例</summary>
 
     ```java
     import java.lang.ref.PhantomReference;
@@ -5627,7 +5628,7 @@ java不同版本新特性角度
   > ![gc-23](./image/gc-23.png) 
   > > 除G1外，垃圾回收器只能收集老年代和新生代中的一个
   > > <details>
-  > > <summary>图片说明</summary>
+  > > <summary style="color:red;">图片说明</summary>
   > > <img src="./image/gc-25.png" alt="gc-25" />
   > > </details>
   - jdk8之前（不包括8）
@@ -5656,7 +5657,7 @@ java不同版本新特性角度
 
 - `-XX:+PrintCommandLineFlags`:查看命令行相关参数（包含使用的垃圾收集器）
   <details>
-  <summary>示例代码（下面的章节都可以使用该例子来设置回收器）</summary>
+  <summary style="color:red;">示例代码（下面的章节都可以使用该例子来设置回收器）</summary>
 
   ```java
   /**
@@ -6141,7 +6142,7 @@ G1垃圾回收过程储备知识：**Remember Set**
 - 问题引入：所有对象不可能都是孤立的，不同region中的对象可能相互引用
 
   > <details>
-  > <summary>直接复制过来的解释</summary>
+  > <summary style="color:red;">直接复制过来的解释</summary>
   > 一个Region不可能是孤立的，一个Region中的对象可能被其他任意Region中对象引用，<br />
   > 判断对象存活时，是否需要扫描整个Java堆才能保证准确？<br />
   > 在其他的分代收集器，也存在这样的问题（而G1更突出）<br />
@@ -6192,7 +6193,7 @@ G1垃圾回收过程储备知识：**Remember Set**
       映老年代对所在的内存分段中对象的引用。
       ```
       <details>
-      <summary>dirty card queue说明</summary>
+      <summary style="color:red;">dirty card queue说明</summary>
 
       ```
       对于应用程序的引用赋值语句object.field=object,JVM会在之前和之后执行特殊的操作以在dirty card queue中入队一个保存了对象引用信息的card。
@@ -6222,7 +6223,7 @@ G1垃圾回收过程储备知识：**Remember Set**
       ```
   - 收集结果图示：
     > <details>
-    > <summary>收集结果图示</summary>
+    > <summary style="color:red;">收集结果图示</summary>
     > <img src="./image/gc-38.png"/>
     > </details>
 
@@ -6261,7 +6262,7 @@ G1垃圾回收过程储备知识：**Remember Set**
     - 混合回收并不一定要进行8次。有一个阙值`-XX:G1HeapWastePercent`,默认值为10%,意思是允许整个堆内存中有10%的空间被浪费，意味着如果发现可以回收的垃圾占堆内存的比例低于10%,则不再进行混合回收。因为GC会花费很多的时间但是回收到的内存却很少。
   - 收集结果图示
     > <details>
-    > <summary>结果示例</summary>
+    > <summary style="color:red;">结果示例</summary>
     > <img src="./image/gc-39.png" />
     > </details>
 
@@ -6328,12 +6329,12 @@ G1补充
 - 显示GC日志的参数
   - `-XX:+PrintGC`:输出GC日志。类似：`-verbose:gc`
     > <details>
-    > <summary>结果与解析</summary>
+    > <summary style="color:red;">结果与解析</summary>
     > <img src="./image/gc-42.png" />
     > </details>
   - `-XX:+PrintGCDetails`:输出GC的详细日志
     > <details>
-    > <summary>结果与解析</summary>
+    > <summary style="color:red;">结果与解析</summary>
     > <img src="./image/gc-43.png" />
     >
     > <img src="./image/gc-45.png" />
@@ -6343,7 +6344,7 @@ G1补充
   - `-XX:+PrintGCTimeStamps`:输出GC的时间戳（以基准时间的形式）
   - `-XX:+PrintGCDateStamps`:输出GC的时间戳（以日期的形式，如2013-05-04T21:53:59.234+0800)
     > <details>
-    > <summary>结果与解析</summary>
+    > <summary style="color:red;">结果与解析</summary>
     > <img src="./image/gc-44.png" />
     > </details>
   - `-XX:+PrintHeapAtGC`:在进行GC的前后打印出堆的信息
@@ -6382,7 +6383,7 @@ public class GCLogTest1 {
   > ![gc-51](./image/gc-51.png)  
 
   <details>
-  <summary>分析答案（展开查看）</summary>
+  <summary style="color:red;">分析答案（展开查看）</summary>
 
   ![gc-49](./image/gc-49.png)
   ![gc-50](./image/gc-50.png) 
@@ -6406,14 +6407,14 @@ public class GCLogTest1 {
 - 日志工具
   - GCViewer()
     <details>
-    <summary>结果示例</summary>
+    <summary style="color:red;">结果示例</summary>
 
     ![gc-53](./image/gc-53.png)
     </details>
 
   - GCEasy(在线)
     <details>
-    <summary>结果示例</summary>
+    <summary style="color:red;">结果示例</summary>
 
     ![gc-54](./image/gc-54.png)
     </details>
@@ -6504,7 +6505,7 @@ Red Hat研发Shenandoah团队对外宣称，
   - 强项：低延迟时间
 - 工作过程：9个阶段，这里不再赘述
 
-##### 其他垃圾回收期
+##### 2.3.3.4.16. 其他垃圾回收期
 
 AliGC
 
@@ -6516,7 +6517,7 @@ AliGC
 Zing (https://www.infoq.com/articles/azul_gc_in_detail),有兴
 趣可以参考提供的链接。
 
-##### 2.3.3.4.16. 面试题
+##### 2.3.3.4.17. 面试题
 
 ```
 java中常见的垃圾回收期有哪些? 
@@ -6578,7 +6579,7 @@ CMS回收停顿了几次，为什么要停顿两次。
 
 # 3. 字节码与类的加载
 
-## 学习路线回顾
+## 3.1. 学习路线回顾
 
 ![course-2](./image/course-2.png)
 
@@ -6594,11 +6595,290 @@ CMS回收停顿了几次，为什么要停顿两次。
   - class文件结构和字节码指令(中篇)
     > 在上篇也会简单涉及
 
+## 3.2. class文件结构
+
+### 3.2.1. 概述
+
+#### 3.2.1.1. 字节码文件的跨平台性
+
+> 前面就有讲过，`跨平台的语言，跨语言的平台`，此处不再重复说明
+
+#### 3.2.1.2. java前端编译器
+
+Java源代码的编译结果是字节码，那么肯定需要有一种编译器能够将Java源码编译为字节码，承担这个重要责任的就是配置在path环境变量中的**javac编译器**
+
+javac是一种能够将Java源码编译为字节码的**前端编译器**。
+
+HotSpot VM并没有强制要求前端编译器只能使用javac来编译字节码，其实只要编译结果符合JVM规范都可以被JVM所识别即可。在Java的前端编译器领域，除了javac之外，还有一种被大家经常用到的前端编译器，那就是内置在Eclipse中的**ECJ （EclipseCompiler for Java）编译器**。和Javac的全量式编译不同，ECJ是一种增量式编译器。
+
+在Eclipse中，当开发人员编写完代码后，使用“Ctrl+S”快捷键时，ECJ编译器所采取的编译方案是把未编译部分的源码逐行进行编译，而非每次都全量编译。因此ECJ的编译效率会比javac更加迅速和高效，当然编译质量和javac相比大致还是一样的。
+
+ECJ不仅是Eclipse的默认内置前端编译器，在Tomcat中同样也是使用ECJ编译器来编译jsp文件。由于ECJ编译器是采用
+GPLv2的开源协议进行源代码公开，所以，大家可以登录eclipse官网下载EC]编译器的源码进行二次开发。
+
+默认情况下， IntelliJ IDEA 使用 javac编译器。（还可以自己设置为AspectJ编译器ajc）
+
+前端编译器并不会直接涉及编译优化等方面的技术，而是将这些具体优化细节移交给HotSpot的JIT编译器负责。
 
 
-## Class文件结构
+<br /><br />
+
+复习：AOT
+
+#### 3.2.1.3. 示例：透过字节码查看代码细节
+
+##### 面试题
+
+下面的面试题学完之后再答
+
+```
+BAT 面试题
+
+类文件结构有几个部分
+
+知道字节码吗？Integer x=5;int y = 5;比较x==y都经过哪些步骤
+```
+
+##### 示例1--Integer间的==
+
+通过字节码查看代码细节示例：
+
+```java
+Integer i1 = 10;
+Integer i2 = 10;
+System.out.println(i1==i2);//true
+
+Integer i1 = 128;
+Integer i2 = 128;
+System.out.println(i1==i2);//false
+```
+
+<details>
+<summary style="color:red;">解析</summary>
+
+```
+invokestatic #2 <java/lang/Integer.valueOf>
+```
+
+查看字节码可以发现调用了Integer的valueOf方法。如果是-128~127之间，就会存在与IntegerCache中，不会创建新的Integer，因此引用相同。
+
+```java
+public static Integer valueOf(int i) {
+    if (i >= IntegerCache.low && i <= IntegerCache.high)
+        return IntegerCache.cache[i + (-IntegerCache.low)];
+    return new Integer(i);
+}
+```
+</details>
+
+##### 示例2--String间的==
+
+该示例在上面面试题中已经说明过，不再重复说明。涉及
+
+- `new String()+new String()`实现原理
+- `StringBuilder` 的 `toString()`方法
+
+```java
+String str = new String("hello") + new String("world");
+String str1 = "helloworld";
+System.out.println(str == str1);
+```
+
+##### 示例3(难)--继承
+
+下面代码的输出是什么
+
+```java
+class Father {
+    int x = 10;
+
+    public Father() {
+        this.print();
+        x = 20;
+    }
+    public void print() {
+        System.out.println("Father.x = " + x);
+    }
+}
+
+class Son extends Father {
+    int x = 30;
+//    float x = 30.1F;
+    public Son() {
+        this.print();
+        x = 40;
+    }
+    @Override
+    public void print() {
+        System.out.println("Son.x = " + x);
+    }
+}
+
+public class SonTest {
+    public static void main(String[] args) {
+        Father f = new Son();
+        System.out.println(f.x);
+    }
+}
+```
+
+
+<details>
+<summary style="color:red;">答案与解析</summary>
+
+结果：
+
+```
+Son.x = 0
+Son.x = 30
+20  // 属性不存在多态性
+```
+
+<br /><br />
+
+Son类的字节码：
+
+```
+ 0 aload_0 // 把this放到局部变量表中
+ 1 invokespecial #1 <com/atguigu/java/Father.<init>> // 调用父类的init方法，init方法中调用了print,但是因为子类重写了父类的print方法，
+                                                     // 所以执行子类的print方法。因为在下面才给Son里面的x赋值为30，因此此处打印为0
+ 4 aload_0 
+ 5 bipush 30  // 对应 int x=30
+ 7 putfield #2 <com/atguigu/java/Son.x>  // 对应this.print()
+10 aload_0
+11 invokevirtual #3 <com/atguigu/java/Son.print>
+14 aload_0
+15 bipush 40
+17 putfield #2 <com/atguigu/java/Son.x>
+20 return
+```
+
+</details>
+
+> （复习）属性初始化方式：1.默认初始化；2.显式初始化；3.代码块中初始化；4.构造器中初始化；5.对象.属性 初始化
+
+### 3.2.2. 虚拟机的基石：Class文件
+
+- 字节码文件里是什么?/字节码定义
+  - 源代码经过编译器编译之后便会生成一个字节码文件
+  - 字节码是一种二进制的类文件,它的内容是JVM的指令,而不像C、C++经由编译器直接生成机器码。
+
+- 什么是字节码指令( byte code)/字节码指令构成
+  - Java虚拟机的指令由一个字节长度的、代表着某种特定操作含义的**操作码( opcode)**，
+  - 以及跟随其后的零至多个代表此操作所需参数的**操作数(operand)**所构成。
+  - 虚拟机中许多指令并不包含操作数,只有一个操作码。
+
+- 解读字节码方式
+  - jclasslib
+  - javap反编译
+  - Notepad++搭配HEX-Editor插件。或者Binary Viewer
+
+### 3.2.3. class文件结构
+
+- Class类的本质
+  - 任何一个C1ass文件都对应着唯一一个类或接口的定义信息,
+  - 但反过来说,C1ass文件实际上它并不一定以磁盘文件的形式存在
+  - Class文件是一组以8位字节为基础单位的**二进制流**
+
+- Class文件格式
+  - 要求
+    - Class的结构不像ⅩML等描述语言
+    - 由于它没有任何分隔符号，所以在其中的数据项,无论是字节顺序还是数量,都是被严格限定的
+    - 哪个字节代表什么含义,长度是多少,先后顺序如何,都不允许改变
+  - 组成: Class文件格式采用一种类似于C语言结构体的方式进行数据存储,这种结构中只有两种数据类型:**无符号数**和**表**
+    - 无符号数:
+      - 属于基本的数据类型
+      - 以u1、u2、u4、u8来分别代表1个字节、2个字节、4个字节和8个字节的无符号数
+      - 无符号数可以用来描述数字、索引引用、数量值或者按照UTF-8编码构成字符串值
+    - 表:
+      - 是由多个无符号数或者其他表作为数据项构成的复合数据类型
+      - 所有表都习惯性地以"_info"结尾。
+      - 表用于描述有层次关系的复合结构的数据,整个C1ass文件本质上就是一张表。
+      - 由于表没有固定长度,所以通常会在其前面加上个数说明
+
+- class文件结构
+   <details>
+   <summary style="color:red;">官网定义</summary>
+
+   ```
+    ClassFile {
+        u4             magic;
+        u2             minor_version;
+        u2             major_version;
+        u2             constant_pool_count;
+        cp_info        constant_pool[constant_pool_count-1];
+        u2             access_flags;
+        u2             this_class;
+        u2             super_class;
+        u2             interfaces_count;
+        u2             interfaces[interfaces_count];
+        u2             fields_count;
+        field_info     fields[fields_count];
+        u2             methods_count;
+        method_info    methods[methods_count];
+        u2             attributes_count;
+        attribute_info attributes[attributes_count];
+    }
+   ```
+   </details>
+
+  <details>
+  <summary style="color:red;">详细说明</summary>
+
+    | 类型           | 名称                | 说明                   | 长度    | 数量                  |
+    | -------------- | ------------------- | ---------------------- | ------- | --------------------- |
+    | u4             | magic               | 魔数,识别Class文件格式 | 4个字节 | 1                     |
+    | u2             | minor_version       | 副版本号(小版本)       | 2个字节 | 1                     |
+    | u2             | major_version       | 主版本号(大版本)       | 2个字节 | 1                     |
+    | u2             | constant_pool_count | 常量池计数器           | 2个字节 | 1                     |
+    | cp_info        | constant_pool       | 常量池表               | n个字节 | constant_pool_count-1 |
+    | u2             | access_flags        | 访问标识               | 2个字节 | 1                     |
+    | u2             | this_class          | 类索引                 | 2个字节 | 1                     |
+    | u2             | super_class         | 父类索引               | 2个字节 | 1                     |
+    | u2             | interfaces_count    | 接口计数器             | 2个字节 | 1                     |
+    | u2             | interfaces          | 接口索引集合           | 2个字节 | interfaces_count      |
+    | u2             | fields_count        | 字段计数器             | 2个字节 | 1                     |
+    | field_info     | fields              | 字段表                 | n个字节 | fields_count          |
+    | u2             | methods_count       | 方法计数器             | 2个字节 | 1                     |
+    | method_info    | methods             | 方法表                 | n个字节 | methods_count         |
+    | u2             | attributes_count    | 属性计数器             | 2个字节 | 1                     |
+    | attribute_info | attributes          | 属性表                 | n个字节 | attributes_count      |
+
+  </details>
+
+
+  - 魔数:
+    - magic
+    - 用来识别为一个class文件的标识
+  - C1ass文件版本
+    - minor_version
+    - major_version
+  - 常量池
+    - constant_pool_count
+      > 由于表没有固定长度,所以通常会在其前面加上个数说明
+    - constant_pool。首索引没有分配，所以长度为constant_pool_count-1
+  - 访问标志
+    - access_flags
+    - 是类，还是接口，权限是什么等
+  - 类索引,父类索引,接口索引集合
+    - this_class：当前类是什么
+    - super_class：父类是什么
+    - interfaces_count + interfaces: 接口数组
+      > 由于表没有固定长度,所以通常会在其前面加上个数说明
+  - 字段表集合
+    - fields_count;
+      > 由于表没有固定长度,所以通常会在其前面加上个数说明
+    - fields[fields_count];
+  - 方法表集合
+    - methods[methods_count];
+    - attributes_count;
+  - 属性表集合
+    > 注意，field和attribute不同。日常总是称类中的字段为属性，但是JVM中属性有其他含义。比如
+    - attributes_count;
+    - attributes[attributes_count];
+
+
+### 3.2.4. 使用javap指令解析Class文件
 
 # 4. 性能监控与调优
-
-
 
