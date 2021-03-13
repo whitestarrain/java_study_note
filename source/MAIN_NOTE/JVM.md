@@ -3320,6 +3320,12 @@ jvm的永久代中会发生垃圾回收吗？
 - 对象头(Header)
   - 说明：如果是数组，还要记录数组长度
   - 组成：
+    <details>
+    <summary style="color:red;">拓展：不同所状态的锁对象的对象头组成</summary>
+
+    ![method_area-50](./image/method_area-50.png)
+    </details>
+
     - 运行时元数据
       - 哈希值（HashCode）：即对象所在堆空间的地址，或者引用指向的地址
       - GC分代年龄：通过年龄计数器，记录在Servivor区的年龄
@@ -3329,6 +3335,7 @@ jvm的永久代中会发生垃圾回收吗？
       - 偏向时间戳
     - 类型指针：指向元数据InstanceKlass，确定该对象所属类型。getClass()能获取Class对象就是因为该指针。
       > 不是所有的对象都会保留类型指针
+    - 【数组的长度】(如果该对象是数组)
 - 实例数据(Instance Data)
   - 说明；
     - 它是对象真正存储的有效信息，包括程序代码中定义的各种类型的字段
@@ -5201,7 +5208,7 @@ public class SystemGCTest {
 在进行垃圾收集后还是很紧张，则可以抛弃这些对象。
 
 出现：jdk1.2之后
-强引用(strong reference),软引用(soft reference),弱引用(soft reference),虚引用(weak reference)
+强引用(strong reference),软引用(soft reference),弱引用(weak reference),虚引用(phantom reference)
 强度依次递减
 ```
 
@@ -5297,7 +5304,7 @@ public class SystemGCTest {
     </details>
 ---
 
-- 弱引用(soft reference)
+- 弱引用(weak reference)
   - 定义：只被弱引用关联的对象只能生存到下一次垃圾收集之前。**当垃圾收集器工作时，无论内存空间是否足够，都会回收掉只被弱引用关联的对象**。
   - 使用
     - **软引用、弱引用都非常适合来保存那些可有可无的缓存数据**。
@@ -5361,7 +5368,7 @@ public class SystemGCTest {
 
 ---
 
-- 虚引用(weak reference)
+- 虚引用(phantom reference)
   - 定义：(也称为幻影引用或者幽灵引用)一个对象是否有虚引用的存在，完全不会对其生存时间构成影响，也无法通过虚引用来获得一个对象的实例。如果一个对象仅持有虚引用，那么它和没有引用几乎是一样的，随时可能被垃圾回收器回收
   - 使用
     - 不能单独使用，也无法通过虚引用来获取被引用的对象，当试图通过虚引用的get()方法获取对象时，结果总为null
@@ -6881,4 +6888,5 @@ Son类的字节码：
 ### 3.2.4. 使用javap指令解析Class文件
 
 # 4. 性能监控与调优
+
 
