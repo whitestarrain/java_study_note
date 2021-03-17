@@ -539,6 +539,168 @@ Java默认的线程优先级为5，线程的执行顺序由调度程序来决定
 
 ## AQS
 
+- ReentrantLock流程
+  > ![key_points-16](./image/key_points-16.png)
+
+## 线程池
+
+```
+Executors中提供了四种创建的线程池的实现。比如Executors.newFixedThreadPool(5)。（当然，Executors底层使用的也是ThreadPoolExecutor）
+
+四种常见的线程池基本够我们使用了，但是《阿里把把开发手册》不建议我们直接使用Executors类中的线程池，
+而是通过ThreadPoolExecutor的方式，这样的处理方式让写的同学需要更加明确线程池的运行规则，规避资源耗尽的风险。
+
+但如果你及团队本身对线程池非常熟悉，又确定业务规模不会大到资源耗尽的程度
+（比如线程数量或任务队列长度可能达到Integer.MAX_VALUE）时，
+其实是可以使用JDK提供的这几个接口的，它能让我们的代码具有更强的可读性。
+```
+
+- 种类：
+  - ThreadPoolExecutor（最基本）
+    - 组成：可以设置核心线程数，最大线程数，超时时间等。
+    - 执行规则：
+      > <details>
+      > <summary style="color:red;">图示</summary>
+
+      > ![key_points-15](./image/key_points-15.png)
+      > </details
+
+      - 如果线程未达到核心线程数量，那么直接启动一个核心线程。
+      - 如果线程达到核心线程的数量，任务会被插入到任务队列（workQueue）排队。
+      - 如果任务队列已满导致步骤2无法插入到任务队列，那么开启一个非核心线程执行。
+      - 如果步骤3的线程数量达到线程池规定数目（maxmumPoolSize），那么拒绝执行此任务。
+  - FixedThreadPool（可重用固定线程数）
+    - 组成：只有核心线程，无非核心线程，无超时机制，阻塞队列无界。
+    - 使用：
+      - 当线程处于空闲状态时，只要线程池不被关闭它们就并不会被回收。
+      - 当所有线程都处于活动状态，新任务就会处于等待状态，直到有线程空闲出来。
+      - 适用于执行长期任务。
+    - 底层实现
+      ```java
+      public static ExecutorService newFixedThreadPool(int nThreads) {
+              return new ThreadPoolExecutor(nThreads, nThreads,
+                                            0L, TimeUnit.MILLISECONDS,
+                                            new LinkedBlockingQueue<Runnable>());
+      }
+      ```
+  - CachedThreadPool (按需创建)
+    - 组成：线程数量不定，没有核心线程，只有非核心线程，每个线程空闲等待的时间为60s，采用SynchronousQueue队列。
+    - 使用：
+      - 当线程都处于活动状态时，线程池会创建新线程来执行任务，否则就会复用空闲的线程。
+      - 当所有线程都处于闲置状态，线程会逐渐因为超时被停止，线程池中就没有线程，几乎不占系统资源。
+      - 这种线程池适用于大量耗时少的任务
+    - 底层实现
+      ```java
+      public static ExecutorService newCachedThreadPool() {
+          return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                        60L, TimeUnit.SECONDS,
+                                        new SynchronousQueue<Runnable>());
+      }
+      ```
+  - ScheduledThreadPool(定时延时执行)
+    - 组成：核心线程数固定，非核心线程数没有限制，非核心线程闲置时会被立即回收。
+    - 使用：
+      - 主要用于执行定时任务和周期性重复任务。
+    - 底层实现
+      ```java
+      public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
+          return new ScheduledThreadPoolExecutor(corePoolSize);
+      }
+
+      //ScheduledThreadPoolExecutor():
+      public ScheduledThreadPoolExecutor(int corePoolSize) {
+          super(corePoolSize, Integer.MAX_VALUE,
+                DEFAULT_KEEPALIVE_MILLIS, MILLISECONDS,
+                new DelayedWorkQueue());
+      }
+      ```
+  - SingleThreadExecutor（单核fixed）
+    - 组成：只有一个核心线程，存活时间无限
+    - 底层实现
+      ```java
+      public static ExecutorService newSingleThreadExecutor() {
+          return new FinalizableDelegatedExecutorService
+              (new ThreadPoolExecutor(1, 1,
+                                      0L, TimeUnit.MILLISECONDS,
+                                      new LinkedBlockingQueue<Runnable>()));
+      }
+      ```
+
+- 常用方法：
+  - 1.shutDown()  关闭线程池，不影响已经提交的任务
+  - 2.shutDownNow() 关闭线程池，并尝试去终止正在执行的线程
+  - 3.allowCoreThreadTimeOut(boolean value) 允许核心线程闲置超时时被回收
+  - 4.submit 一般情况下我们使用execute来提交任务，但是有时候可能也会用到submit，使用submit的好处是submit有返回值。
+  - 5.beforeExecute()  任务执行前执行的方法
+  - 6.afterExecute() 任务执行结束后执行的方法
+  - 7.terminated()  线程池关闭后执行的方法
+
+- 线程池状态
+  - RUNNING
+  - SHUTDOWN
+  - STOP
+  - TIDYING 
+  - TERMINATED
+
+## 锁的分类
+
+- 锁的有无
+  - 乐观锁:
+    - 乐观锁又称为“无锁”，顾名思义，它是乐观派。
+    - 乐观锁总是假设对共享资源的访问没有冲突，线程可以不停地执行，无需加锁也无需等待。
+    - 而一旦多个线程发生冲突，乐观锁通常是使用一种称为CAS的技术来保证线程执行的安全性。
+  - 悲观锁
+    - 悲观锁就是我们常说的锁。
+    - 对于悲观锁来说，它总是认为每次访问共享资源时会发生冲突，
+    - 所以必须对每次数据操作加上锁，以保证临界区的程序同一时间只能有一个线程在执行。
+
+- synchronized与锁
+  - 偏向锁
+  - 轻量锁
+  - 重量锁
+
+- 锁的整体分类
+  - 可重入锁和非可重入锁
+  - 公平锁与非公平锁
+    > synchronized是公平锁
+  - 读写锁和排它锁
+
+## LockSupport
+
+LockSupport很类似于二元信号量(只有1个许可证可供使用)，如果这个许可还没有被占用，当前线程获取许可并继续执行；如果许可已经被占用，当前线程阻塞，等待获取许可。
+
+- **许可默认是被占用的**，一开始就调用park()的话，无法获取到许可，进入阻塞状态。 先释放许可，再获取许可，才能正常运行
+  > LockSupport许可的获取和释放，一般来说是对应的，如果多次unpark，只有一次park也不会出现什么问题，结果是许可处于可用状态。
+  ```java
+  LockSupport.park();
+  System.out.println("block.");
+  // 主线程一直处于阻塞状态
+  ```
+
+- **LockSupport是不可重入的**，如果一个线程连续2次调用LockSupport.park()，那么该线程一定会一直阻塞下去。
+  ```java
+  Thread thread = Thread.currentThread();
+  
+  LockSupport.unpark(thread);
+  
+  System.out.println("a");
+  LockSupport.park();
+  System.out.println("b");
+  LockSupport.park();
+  System.out.println("c");
+  // 这段代码打印出a和b，不会打印c，因为第二次调用park的时候，线程无法获取许可出现死锁。
+  ```
+- **线程如果因为调用park而阻塞的话，能够响应中断请求(中断状态被设置成true)，但是不会抛出InterruptedException。仅仅会isInterrupted()返回true**
+
+## java同步方式
+
+- synchronized
+- volatile
+- ReentrantLock
+- ThreadLocal
+- 阻塞队列，LinkedBlockingQueue 
+- 原子变量AtomicInteger 等
+
 # 野生面试题
 
 - String,StringBuffer,StringBuilder区别
@@ -547,7 +709,14 @@ Java默认的线程优先级为5，线程的执行顺序由调度程序来决定
 - 单机环境并发控制，java有哪些手段
 - 多线程创建方式有哪几种
 - 防止表单重复提交
+  - 通过JavaScript屏蔽提交按钮（不推荐）
+  - 给数据库增加唯一键约束（简单粗暴）
+  - 利用Session防止表单重复提交（推荐）
+  - 使用AOP自定义切入实现
 - SpringAOP原理
 - mysql中批量导入1000万条数据的思路
 - 项目中打印日志的框架,错误日志具体怎么配置
+
+
+
 

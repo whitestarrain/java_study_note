@@ -228,6 +228,15 @@ start()方法，而不是直接调用run()方法呢？
 
 ![concorrence-1](./image/concorrence-1.png)
 
+---
+
+<details>
+<summary style="color:red;">操作系统线程状态对比</summary>
+
+![concorrence-5](./image/concorrence-5.png)
+</details>
+
+
 ### 1.4.3. 阻塞状态
 
 一般习惯而言，Blocked，Waiting，Timed Waiting三种情况都被称为阻塞状态

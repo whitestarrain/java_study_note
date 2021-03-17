@@ -112,6 +112,8 @@
 
 ## 4.12. 模板模式（Template Pattern）
 
+- 最经典的JDK应用的就是AQS
+
 ## 4.13. 访问者模式（Visitor Pattern）
 
 # 5. J2EE 模式
