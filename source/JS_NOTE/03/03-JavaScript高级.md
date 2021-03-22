@@ -1,12 +1,3 @@
----
-学习目标:
-  - 理解面向对象开发思想
-  - 掌握 JavaScript 面向对象开发相关模式
-  - 掌握在 JavaScript 中使用正则表达式
-  
-typora-copy-images-to media
----
-
 # 1. JavaScript 高级
 
 <img src="./media/Unofficial_JavaScript_logo_2.svg.png" width="400" alt="">

@@ -7,8 +7,6 @@ typora-copy-images-to: media
 
 # 1. JavaScript基础
 
-HTML和CSS   京东
-
 ## 1.1. 网页、网站和应用程序
 
 网页：单独的一个页面

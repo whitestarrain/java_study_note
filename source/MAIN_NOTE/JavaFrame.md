@@ -4079,7 +4079,7 @@ SpringMVC 已经成为目前最主流的 MVC 框架之一，并且随着 Spring3
 RESTful 编程风格的请求。
 ```
 
-## 3.2. pdf上没写的（或在随堂笔记中的）
+## 3.2. 其他
 
 - 原理图解：
     > ![](./image/springmbc-start-line.jpg)

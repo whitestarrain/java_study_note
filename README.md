@@ -1,4 +1,71 @@
-# 文档总览
+# 笔记总览(source目录)
+
+> 跳转：<br />
+> [python与机器学习笔记](https://github.com/whitestarrain/python_learn)
+> [大数据与深度学习笔记](https://github.com/whitestarrain/big_data) <br />
+
+- Java 笔记
+  - [Java 基础笔记](./source/OLD_JAVA_NOTE/oldnote.md)
+    > 基础 java 知识点，基本全是代码+注释
+  - [Java 笔记](./source/MAIN_NOTE/Note.md)
+    > 反射，注解，jdbc,javaweb,redis基本使用
+  - [Java 并发](./source/MAIN_NOTE/java并发.md)
+    > java并发基础，完善中
+  - [Java 常见问题](./source/MAIN_NOTE/java重点.md)
+    > 杂项，日常学习中遇见的一些问题，进行简单记录。未来会详细整理到[博客](https://whitestarrain.github.io/blog/)
+  - [Java NIO](./source/MAIN_NOTE/javaNIO.md)
+    > javaNIO基础
+- 前端笔记
+  - [HTML](./source/HTML_NOTE/01-HTML.md)
+    > 网上搜集。
+  - [CSS](./source/CSS_NOTE/CSS.md)
+    > 网上搜集
+  - [BFC](./source/BFC_JD/BFC.md)
+    > 网上搜集
+  - [Bootstrap](./source/CSS_NOTE/Bootstrap.md)
+    > 停止更新，还是官方文档好用
+  - [JavaScript 基础](./source/JS_NOTE/00/01-JavaScript基础.md)
+    > 网上搜集基础上进行补充整理
+  - [WebAPI](./source/JS_NOTE/02/02-Web-API.md)
+    > 网上搜集基础上进行补充整理
+  - [JavaScript 高级](./source/JS_NOTE/03/03-JavaScript高级.md)
+    > 网上搜集基础上进行补充整理
+  - [jQuery](./source/JS_NOTE/04_jquery/jQuery.pdf)
+    > 网上搜集
+  - [Vue](#)
+    > 待整理
+  - [Node.js](./source/JS_NOTE/05_Node.js/Node.js.md)
+    > 进行中
+- 数据库笔记
+  - [Mysql](./source/DATABASE/DATABASE.md)
+    > msyql笔记。mysql相关基本概念以及基本使用。
+  - [oracle](./source/DATABASE/oracle.md)
+    > 进行中
+- 设计模式
+  - [设计模式](./source/DESIGN_PATTERNS/main.md)
+    > 进行中
+- JVM
+  - [JVM](./source/MAIN_NOTE/JVM.md)
+    > 根据宋红康老师视频完成。正在学习中篇
+  - [JVM 指令手册](./source/MAIN_NOTE/JVM指令手册.md)
+- Java 框架
+  - [JavaFrame(SSM)](./source/MAIN_NOTE/JavaFrame.md)
+    > SSM笔记。SpringMVC未整理完成
+  - [Spring Boot](./source/MAIN_NOTE/SpringBoot基础.md)
+    > springBoot基础使用
+- Maven
+  - [多模块构建笔记](./source/MAIN_NOTE/Maven.md)
+    > 并不是maven的详细笔记。
+- 常用工具
+  - [git](./source/MAIN_NOTE/git.md)
+    > git常用命令
+  - [docker](#)
+    > 待整理
+- [操作系统常见问题](./source/OS/os.md)
+  > 根据操作系统概念第9版整理<br />
+  > 待进一步完善
+
+# 结构总览
 
 - 工程目录
   - src:包含各种学习笔记（.java 文件）
@@ -26,35 +93,3 @@
     - spring-tx-5.1.10.RELEASE.jar
       > 为减小项目大小，此处并没有提供 jar 包
 
-# 笔记总览(source目录)
-
-- Java 笔记
-  - [Java 基础笔记](.\source\OLD_JAVA_NOTE\oldnote.md)(基础 java 知识点，基本全是代码+注释)
-  - [Java 笔记](./source/MAIN_NOTE/Note.md)
-  - [Java 并发](./source/MAIN_NOTE/java并发.md)
-  - [Java 常见问题](./source/MAIN_NOTE/java重点.md)
-- 前端笔记
-  - [HTML](./source/HTML_NOTE/01-HTML.md)
-  - [CSS](./source/CSS_NOTE/CSS.md)
-  - [BFC](./source/BFC_JD/BFC.md)
-  - [Bootstrap](./source/CSS_NOTE/Bootstrap.md)
-  - [JavaScript 基础](./source/JS_NOTE/00/01-JavaScript基础.md)
-  - [WebAPI](./source/JS_NOTE/02/02-Web-API.md)
-  - [JavaScript 高级](./source/JS_NOTE/03/03-JavaScript高级.md)
-  - [jQuery](./source/JS_NOTE/04_jquery/jQuery.pdf)
-  - [Node.js](.\source\JS_NOTE\05_Node.js\Node.js.md)
-- 数据库笔记
-  - [Mysql](./source/DATABASE/DATABASE.md)
-  - [oracle](./source/DATABASE/oracle.md)
-- 设计模式
-  - [设计模式](./source/DESIGN_PATTERNS/main.md)
-- JVM
-  - [JVM](./source/MAIN_NOTE/JVM.md)
-  - [JVM 指令手册](./source/MAIN_NOTE/JVM指令手册.md)
-- Java 框架
-  - [JavaFrame(SSM)](./source/MAIN_NOTE/JavaFrame.md)
-  - [Spring Boot](./source/MAIN_NOTE/SpringBoot.md)
-- Maven
-  - [多模块构建笔记](./source/MAIN_NOTE/Maven.md)
-- 常用工具
-  - [git](./source/MAIN_NOTE/git.md)
