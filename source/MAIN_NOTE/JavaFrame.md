@@ -745,33 +745,33 @@ public class UserDaoImpl implements IUserDao {
 - 也可以使用外部文件
     - resource:直接用类路径就好（注意，是按照编译后的路径。）
     - url：
-        - http，https协议
-        - file协议
-        ```properties
-        jdbc.driver=com.mysql.jdbc.Driver
-        jdbc.url=jdbc:mysql://localhost:3306/eesy_mybatis
-        jdbc.username=root
-        jdbc.password=1234
-        ```
-        ```xml
-        <!-- 配置properties
-            可以在标签内部配置连接数据库的信息。也可以通过属性引用外部配置文件信息
-            resource属性： 常用的
-                用于指定配置文件的位置，是按照类路径的写法来写，并且必须存在于类路径下。
-            url属性：
-                是要求按照Url的写法来写地址
-                URL：Uniform Resource Locator 统一资源定位符。它是可以唯一标识一个资源的位置。
-                它的写法：
-                    http://localhost:8080/mybatisserver/demo1Servlet
-                    协议      主机     端口       URI
+      - http，https协议
+      - file协议
+      ```properties
+      jdbc.driver=com.mysql.jdbc.Driver
+      jdbc.url=jdbc:mysql://localhost:3306/eesy_mybatis
+      jdbc.username=root
+      jdbc.password=1234
+      ```
+      ```xml
+      <!-- 配置properties
+          可以在标签内部配置连接数据库的信息。也可以通过属性引用外部配置文件信息
+          resource属性： 常用的
+              用于指定配置文件的位置，是按照类路径的写法来写，并且必须存在于类路径下。
+          url属性：
+              是要求按照Url的写法来写地址
+              URL：Uniform Resource Locator 统一资源定位符。它是可以唯一标识一个资源的位置。
+              它的写法：
+                  http://localhost:8080/mybatisserver/demo1Servlet
+                  协议      主机     端口       URI
 
-                URI:Uniform Resource Identifier 统一资源标识符。它是在应用中可以唯一定位一个资源的。
-         -->
-        <properties url="file:///D:/IdeaProjects/day02_eesy_01mybatisCRUD/src/main/resources/jdbcConfig.properties">
-        </properties>
+              URI:Uniform Resource Identifier 统一资源标识符。它是在应用中可以唯一定位一个资源的。
+        -->
+      <properties url="file:///D:/IdeaProjects/day02_eesy_01mybatisCRUD/src/main/resources/jdbcConfig.properties">
+      </properties>
 
-            <!-- 在下方进行调用 -->
-        ```
+          <!-- 在下方进行调用 -->
+      ```
 
 #### 1.2.4.2. typeAliases
 
@@ -810,7 +810,7 @@ public class UserDaoImpl implements IUserDao {
 
 > 自己去分析源码
 - 连接池复习：
-    > ![]("./image/连接池复习.png")
+    > ![](./image/连接池复习.png)
 - mybatis连接池配置方式：
     - SqlMapConfig中的dataSource标签，type属性
         - 取值：
@@ -879,7 +879,7 @@ public class UserDaoImpl implements IUserDao {
 
 - if标签：选择性连接
     ```xml
-        <select id="findUserByCondition" resultMap="userMap" parameterType="user">
+    <select id="findUserByCondition" resultMap="userMap" parameterType="user">
         select * from user where 1=1
                 
                 <!-- 这里test中要与对象属性名相同，大小写敏感 -->
@@ -2009,7 +2009,7 @@ public interface IUserDao {
         - 作用：用于注入基本类型和String类型数据
         - 属性：
             - value：用于指定数据的值，同时可以使用spring的el表达式（SpEL）
-                > jsp中，$从四个域中获取数据。mybatis中，$从上面设置的properties中获取。Spring中，看下面@PropertySource注解
+                > jsp中，\$从四个域中获取数据。mybatis中，\$从上面设置的properties中获取。Spring中，看下面@PropertySource注解
 - 用于改变作用范围
     - @Scope
         - 作用：用于指定bean作用范围
@@ -2266,8 +2266,8 @@ public class JdbcConfig {
 
 <a id="ConnectionUtils"></a>
 
-- 问题：多个连接无法开一个事务
-- 解决：使用ThreadLocal。
+- 问题：比如在进行转账操作时，开启一个连接减少用户1的钱，开启另一个连接增加用户2的钱。不同连接是无法放在一个事务中的。
+- 解决：使用ThreadLocal，每一个线程只对应一个连接。
     ```java
     /**
     * 连接的工具类，它用于从数据源中获取一个连接，并且实现和线程的绑定
@@ -3383,10 +3383,11 @@ public class TransactionManager {
     ds.setPassword("1234");
     ```
 - 两个查询方法区别：
-    > ![]("./image/查询所需的方法.png")
+    > ![](./image/查询所需的方法.png)
 
-#### 2.4.2.2. 两种dao的方式
+#### 2.4.2.2. 两种dao中使用jdbcTemplate
 
+- 使用spring注入
 - 继承`JdbcDaoSupport`类（Spring提供）
     - 目的：抽取前面的代码：
         ```java
@@ -3704,8 +3705,8 @@ public class AccountDaoImpl implements IAccountDao {
 2. 配置事务的通知
   - 此时我们需要导入事务的约束 tx名称空间和约束，同时也需要aop的
   - 使用tx:advice标签配置事务通知
-        - 属性：
-            - id：给事务通知起一个唯一标识
+    - 属性：
+      - id：给事务通知起一个唯一标识
       - transaction-manager：给事务通知提供一个事务管理器引用
 3. 配置AOP中的通用切入点表达式
 4. 建立事务通知和切入点表达式的对应关系
