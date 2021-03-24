@@ -49,7 +49,7 @@
     > 根据宋红康老师视频完成。正在学习中篇
   - [JVM 指令手册](./source/MAIN_NOTE/JVM指令手册.md)
 - Java 框架
-  - [JavaFrame(SSM)](./source/MAIN_NOTE/JavaFrame.md)
+  - [JavaFrame(SSM)](./source/MAIN_NOTE/JavaFrame(SSM).md)
     > SSM笔记。SpringMVC未整理完成
   - [Spring Boot](./source/MAIN_NOTE/SpringBoot基础.md)
     > springBoot基础使用

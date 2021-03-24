@@ -33,7 +33,7 @@ Plug 'yuttie/comfortable-motion.vim'
 "---------------------
 
 " 优化搜索，移动光标后清除高亮
-Plug 'junegunn/vim-slash'
+" Plug 'junegunn/vim-slash'
 
 "---------------------
 
@@ -575,6 +575,8 @@ noremap <C-l> <C-w>l
 
 " 输出两个换行符
 nnoremap <leader>o o<br /><br /><cr><esc>
+
+nnoremap <leader>zd o <details><cr><summary style="color:red;"></summary><cr></details><cr><esc>kkwf>a
 
 " 设置缓冲区跳转
 noremap <M-h> :bf<cr>

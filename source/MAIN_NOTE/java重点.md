@@ -1,8 +1,16 @@
 # 基础
 
-## fail-last 机制
+## fail-fast 机制
 
 [博客](https://juejin.cn/post/6879291161274482695)
+
+fail-fast机制是为了防止 **迭代** 过程中，集合 **结构** 发生变化。
+
+- 在创建迭代器的时候，迭代器中都会有一个expectedModCount，用来记录集合更改次数。
+- 如果集合此时进行了增删等结构变化，modCount就会加一，与expectedModCount不同，抛出异常
+  > 稍微想一下就知道，正在迭代遍历，不能乱改。
+- 如果调用迭代器的remove方法(内部就是调用ArrayList的方法)，modCount也会发生变化，但是此时会有一个`expectedModCount = modCount`，确保expectedModCount也更新。
+  > 如果是迭代器自己去改的话，改就改吧。
 
 ## 枚举
 
@@ -119,25 +127,69 @@ bio(jdk1.0) -> nio(jdk1.4) -> aio(jdk1.7)
 
 ## 集合
 
-- 区别
-  - Arraylist 和 Vector 的区别?
-  - Arraylist 与 LinkedList 区别?
-  - ConcurrentHashMap 和 Hashtable 的区别
-  - 比较 HashSet、LinkedHashSet 和 TreeSet 三者的异同
-  - HashMap和HashTable区别
-  - HashMap与HashSet区别（HashSet底层基于HashMap）
-  - HashMap和TreeMap区别
+### 常见集合区别
 
-- 线程安全(不安全--安全)
-  - ArrayList--vector
-  - LinkedList--SynchronizedList
-  - HashMap--ConcurrentHashMap/HashTable
+- Arraylist 和 Vector 的区别?
+- Arraylist 与 LinkedList 区别?
+- ConcurrentHashMap 和 Hashtable 的区别
+- 比较 HashSet、LinkedHashSet 和 TreeSet 三者的异同
+- HashMap和HashTable区别
+- HashMap与HashSet区别（HashSet底层基于HashMap）
+- HashMap和TreeMap区别
+
+### 线程安全(不安全--安全)
+
+- ArrayList--vector
+- LinkedList--SynchronizedList
+- HashMap--ConcurrentHashMap/HashTable/Collections.synchronizedMap
+  <details>
+  <summary style="color:red;">说明</summary>
+
+  Hashtable 源码中是使用 synchronized 来保证线程安全的
+
+  ConcurrentHashMap沿用了与它同时期的HashMap版本的思想，底层依然由“数组”+链表+红黑树的方式思想，但是为了做到并发，又增加了很多辅助的类，例如TreeBin，Traverser等对象内部类。
+  且与hashtable不同的是：
+  ConcurrentHashMap没有对整个hash表进行锁定，而是采用了分离锁（segment）的方式进行局部锁定。具体体现在，它在代码中维护着一个segment数组。
+
+  SynchronizedMap是Collectionis的内部类。
+  在 SynchronizedMap 类中使用了 synchronized 同步关键字来保证对 Map 的操作是线程安全的。
+
+  ---
+
+  ConcurrentHashMap明显优于Hashtable和SynchronizedMap 。
+  </details>
+
+
+### 扩容机制
 
 - ArrayList扩容机制
+- HashMap扩容机制
+  - put的时候导致的多线程数据不一致
+   <details>
+   <summary style="color:red;">说明</summary>
+
+    - 比如有两个线程A和B，
+    - 首先A希望插入一个key-value对到HashMap中，首先计算记录所要落到的 hash桶的索引坐标，然后获取到该桶里面的链表头结点，
+    - 此时线程A的时间片用完了，而此时线程B被调度得以执行，和线程A一样执行，只不过线程B成功将记录插到了桶里面，
+    - 假设线程A插入的记录计算出来的 hash桶索引和线程B要插入的记录计算出来的 hash桶索引是一样的，
+    - 那么当线程B成功插入之后，线程A再次被调度运行时，它依然持有过期的链表头但是它对此一无所知，以至于它认为它应该这样做，如此一来就覆盖了线程B插入的记录，这样线程B插入的记录就凭空消失了，造成了数据不一致的行为。
+
+    不论1.8的尾插还是1.7的头插都会有这个问题。
+   </details>
+
+  - 1.7中resize死循环
+    > [详解博客](https://juejin.cn/post/6844903554264596487)
+
+
+### 其他
 
 - HashMap拉链法，以及链表-->红黑树的条件
 - HashMap 的长度为什么是 2 的幂次方
-- HashMap多线程死循环问题
+  - 高效
+  - 充分碰撞
+- HashMap 1.7多线程死循环问题
+
+
 
 ## Java内存模型（简称JMM）
 
@@ -403,7 +455,7 @@ volatile变量规则：这是一条比较重要的规则，它标志着volatile�
 
 ## 代理
 
-- 动态代理
+- 静态态代理
 - 动态代理
 - cglib代理
 
@@ -490,34 +542,35 @@ Java默认的线程优先级为5，线程的执行顺序由调度程序来决定
 
 **在Java中，使用的是共享内存并发模型。**
 
-## synchronized与锁
+## 锁的演进
 
-- 偏向锁
-  - 出现原因：大多数情况下**锁不仅不存在多线程竞争，而且总是由同一线程多次获得**
-  - 作用：
-    ```
-    大白话就是对锁置个变量，如果发现为true，代表资源无竞争，则无需再走各种加锁/解锁流程。
-    如果为false，代表存在其他线程竞争资源，那么就会走后面的流程。
-    ```
-    - 偏向锁会偏向于第一个访问锁的线程，
-    - 如果在接下来的运行过程中，该锁没有被其他的线程访问，则持有偏向锁的线程将永远不需要触发同步。
-    - 也就是说，**偏向锁在资源无竞争情况下消除了同步语句，连CAS操作都不做了，提高了程序的运行性能**。
-  - 实现原理
+### java1.6之前的synchronized锁
 
-- 轻量锁
+就是重量锁，使用OS底层的互斥量机制。
 
-- 重量锁
+相关内容都放到后面整体讲解那里。
 
----
+### java1.5中的新锁
 
-- 锁记录
-  - 位置：JVM会为每个线程在**当前线程的栈帧中**创建用于存储**锁记录**的空间，我们称为Displaced Mark Word
-  - 作用：对于轻量锁对象，如果锁
+#### 目的
 
-# synchronized内部原理
+**目的是JVM自身解决问题，不需要调用操作系统**
 
+#### 原理
 
-## CAS
+##### Atomic
+
+- 概念：
+  - 原子更新，两个线程对一个数字做递增，如果不上锁的话，会导致结果错误。
+- 使用：
+  - 在JDK1.5的时候，出现的乐观锁，也就是无锁
+  - 不加锁，也能保证结果正确。
+
+- 原理：
+  - 使用的是`CompareAndSwap`，即比较和交换
+  - CAS能够保证原子性。
+
+##### CAS
 
 - 概念：
   <details>
@@ -530,22 +583,127 @@ Java默认的线程优先级为5，线程的执行顺序由调度程序来决定
   </details>
 
   - V ar
+    > 可以理解成本地内存中变量的值
   - E xpected
-    > 预期值E本质上指的是“旧值”。
+    > 预期值E本质上指的是“旧值”。也就是主内存中的值
   - N ew
+    > 要赋的新值。
+
+- 保障：
+  - 比较与修改是两个操作
+  - 通过硬件底层保障CAS操作的原子性。
 
 - Java实现CAS的原理 - Unsafe类
 - CAS实现原子操作的三大问题
   - ABA问题
+    - 概念：所谓ABA问题，就是一个值原来是A，变成了B，又变回了A。这个时候使用CAS是检查不出变化的，但实际上却被更新了两次。
+    - 解决:
+      - ABA问题的解决思路是在变量前面追加上版本号或者时间戳。从JDK 1.5开始，JDK的atomic包里提供了一个类AtomicStampedReference类来解决ABA问题。
+      - 还有一个是AtomicMarkableReference，也可以解决ABA问题，不过不是加记录版本号，而是通过一个false记录是否有改动过
   - 循环时间长开销大。（轻量锁+自旋）
   - 只能保证一个共享变量的原子操作
 
-## AQS
+##### AQS
 
 - ReentrantLock流程
   > ![key_points-16](./image/key_points-16.png)
 
+#### CAS+AQS+volatile的产物
+
+
+##### ReentrantLock
+
+##### Latch
+
+##### Semaphore
+
+##### CycliBarrier
+
+##### Phaser
+
+##### LockSupport
+
+LockSupport很类似于二元信号量(只有1个许可证可供使用)，如果这个许可还没有被占用，当前线程获取许可并继续执行；如果许可已经被占用，当前线程阻塞，等待获取许可。
+
+- **许可默认是被占用的**，一开始就调用park()的话，无法获取到许可，进入阻塞状态。 先释放许可，再获取许可，才能正常运行
+  > LockSupport许可的获取和释放，一般来说是对应的，如果多次unpark，只有一次park也不会出现什么问题，结果是许可处于可用状态。
+  ```java
+  LockSupport.park();
+  System.out.println("block.");
+  // 主线程一直处于阻塞状态
+  ```
+
+- **LockSupport是不可重入的**，如果一个线程连续2次调用LockSupport.park()，那么该线程一定会一直阻塞下去。
+  ```java
+  Thread thread = Thread.currentThread();
+  
+  LockSupport.unpark(thread);
+  
+  System.out.println("a");
+  LockSupport.park();
+  System.out.println("b");
+  LockSupport.park();
+  System.out.println("c");
+  // 这段代码打印出a和b，不会打印c，因为第二次调用park的时候，线程无法获取许可出现死锁。
+  ```
+- **线程如果因为调用park而阻塞的话，能够响应中断请求(中断状态被设置成true)，但是不会抛出InterruptedException。仅仅会isInterrupted()返回true**
+
+#### Exchanger
+
+### java1.6及之后的synchronized与锁
+
+#### 优化内容
+
+增加了锁的种类和锁的升级（不可逆，无法降级）
+
+#### 具体内容
+
+> 推荐看深入浅出Java多线程
+
+- 偏向锁
+  - 原理：CAS
+  - 出现原因：大多数情况下**锁不仅不存在多线程竞争，而且总是由同一线程多次获得**
+  - 作用：
+    ```
+    大白话就是对锁置个变量，如果发现为true，代表资源无竞争，则无需再走各种加锁/解锁流程。
+    如果为false，代表存在其他线程竞争资源，那么就会走后面的流程。
+    ```
+    - 偏向锁会偏向于第一个访问锁的线程，
+    - 如果在接下来的运行过程中，该锁没有被其他的线程访问，则持有偏向锁的线程将永远不需要触发同步。
+    - 也就是说，**偏向锁在资源无竞争情况下消除了同步语句，连CAS操作都不做了，提高了程序的运行性能**。
+  - 实现原理
+
+- 轻量锁
+  - 原理：CAS
+
+- 重量锁
+  - 原理：重量级锁依赖于操作系统的互斥量（mutex） 实现的
+  - 效率：操作系统中线程间状态的转换需要相对比较长的时间，所以重量级锁效率很低，但被阻塞的线程**不会消耗CPU**。
+    > 相对CAS不会调用操作系统，但会自旋CAS会消耗CPU
+  - 实现原理：各种队列
+    - Wait Set：那些 **调用wait方法** 被阻塞的线程被放置到Wait Set
+    - Contention List：所有请求锁的线程将被首先放置到该竞争队列。调用 **notify** 后会放到竞争队列。
+    - Entry List：Contention List中那些有资格成为候选人的线程被移到Entry List
+    - OnDeck：任何时刻最多只能有一个线程正在竞争锁，该线程称为OnDeck
+    - Owner：获得锁的线程称为Owner
+    - !Owner：释放锁的线程
+
+---
+
+- 锁记录
+  - 位置：JVM会为每个线程在**当前线程的栈帧中**创建用于存储**锁记录**的空间，我们称为Displaced Mark Word
+  - 作用：对于轻量锁对象，如果锁
+
+---
+
+- synchronized是非公平锁
+  - notify方法调用后，会根据操作系统的调度机制
+
+#### 效率
+
 ## 线程池
+
+### 基本说明
 
 ```
 Executors中提供了四种创建的线程池的实现。比如Executors.newFixedThreadPool(5)。（当然，Executors底层使用的也是ThreadPoolExecutor）
@@ -564,7 +722,7 @@ Executors中提供了四种创建的线程池的实现。比如Executors.newFixe
     - 执行规则：
       > <details>
       > <summary style="color:red;">图示</summary>
-
+      >
       > ![key_points-15](./image/key_points-15.png)
       > </details
 
@@ -645,6 +803,31 @@ Executors中提供了四种创建的线程池的实现。比如Executors.newFixe
   - TIDYING 
   - TERMINATED
 
+
+
+<details>
+<summary style="color:red;">基础思考题</summary>
+
+```
+了解JDK Executors线程池吗?
+
+知道JDK提供了哪些默认的实现吗？ 
+
+看过阿里巴巴java开发手册吗？知道为啥不允许使用默认的实现吗？ 
+
+你们没有用默认的吧?那来介绍一下你们自定义线程池的几个常用参数呗？ 
+
+你这个几个参数的值是怎么得来的呀？算出来的？怎么算出来的？ 
+
+好，现在我们有一个自定义线程池了，来说一下你这个线程池的工作流程呗？ 
+
+那你这个线程池满了怎么办呀？拒绝？咋拒绝？有哪些拒绝策略呢？ 
+
+别紧张,随便说两个就行。
+```
+</details>
+
+
 ## 锁的分类
 
 - 锁的有无
@@ -667,33 +850,6 @@ Executors中提供了四种创建的线程池的实现。比如Executors.newFixe
   - 公平锁与非公平锁
     > synchronized是公平锁
   - 读写锁和排它锁
-
-## LockSupport
-
-LockSupport很类似于二元信号量(只有1个许可证可供使用)，如果这个许可还没有被占用，当前线程获取许可并继续执行；如果许可已经被占用，当前线程阻塞，等待获取许可。
-
-- **许可默认是被占用的**，一开始就调用park()的话，无法获取到许可，进入阻塞状态。 先释放许可，再获取许可，才能正常运行
-  > LockSupport许可的获取和释放，一般来说是对应的，如果多次unpark，只有一次park也不会出现什么问题，结果是许可处于可用状态。
-  ```java
-  LockSupport.park();
-  System.out.println("block.");
-  // 主线程一直处于阻塞状态
-  ```
-
-- **LockSupport是不可重入的**，如果一个线程连续2次调用LockSupport.park()，那么该线程一定会一直阻塞下去。
-  ```java
-  Thread thread = Thread.currentThread();
-  
-  LockSupport.unpark(thread);
-  
-  System.out.println("a");
-  LockSupport.park();
-  System.out.println("b");
-  LockSupport.park();
-  System.out.println("c");
-  // 这段代码打印出a和b，不会打印c，因为第二次调用park的时候，线程无法获取许可出现死锁。
-  ```
-- **线程如果因为调用park而阻塞的话，能够响应中断请求(中断状态被设置成true)，但是不会抛出InterruptedException。仅仅会isInterrupted()返回true**
 
 ## java同步方式
 
@@ -719,7 +875,3 @@ LockSupport很类似于二元信号量(只有1个许可证可供使用)，如果
 - SpringAOP原理
 - mysql中批量导入1000万条数据的思路
 - 项目中打印日志的框架,错误日志具体怎么配置
-
-
-
-

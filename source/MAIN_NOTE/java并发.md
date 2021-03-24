@@ -843,4 +843,343 @@ public class WaitNotifyPrintOddEveWait {
 
 # 5. 常见问题
 
+# 线程池
+
+## 概述
+
+- 线程池优势
+  - 1:线程和任务分离,提升线程重用性;
+  - 2:控制线程并发数量,降低服务器压力,统一管理所有线程;
+  - 3:提升系统响应速度,假如创建线程用的时间为T1，执行任务用的时间为T2,销毁线程用的时间为T3，那么使用线程池就免去了T1和T3的时间；
+
+- 基本构造方法
+  ```java
+  public ThreadPoolExecutor(int corePoolSize, //核心线程数量
+                                int maximumPoolSize,//     最大线程数
+                                long keepAliveTime, //       最大空闲时间
+                                TimeUnit unit,         //        时间单位
+                                BlockingQueue<Runnable> workQueue,   //   任务队列
+                                ThreadFactory threadFactory,    // 线程工厂
+                                RejectedExecutionHandler handler  //  饱和处理机制
+  ) 
+  ```
+- 执行流程
+  ![concorrence-6](./image/concorrence-6.png)
+
+
+
+- 4个参数的设计:
+  - 1:核心线程数(corePoolSize)
+    - 核心线程数的设计需要依据任务的处理时间和每秒产生的任务数量来确定,
+    - 例如:执行一个任务需要0.1秒,系统百分之80的时间每秒都会产生100个任务,那么要想在1秒内处理完这100个任务,就需要10个线程,此时我们就可以设计核心线程数为10;
+    - 当然实际情况不可能这么平均,所以我们一般按照8020原则设计即可,既按照百分之80的情况设计核心线程数,剩下的百分之20可以利用最大线程数处理;
+  - 2:任务队列长度(workQueue)
+    - 任务队列长度一般设计为: **核心线程数/单个任务执行时间*2** 即可;
+    - 例如上面的场景中,核心线程数设计为10,单个任务执行时间为0.1秒,则队列长度可以设计为200;
+  - 3:最大线程数(maximumPoolSize)
+    - 最大线程数的设计除了需要参照核心线程数的条件外,还需要参照系统每秒产生的最大任务数决定:例如:上述环境中
+    - 如果系统每秒最大产生的任务是1000个,那么, **最大线程数=(最大任务数-任务队列长度)*单个任务执行时间** 
+    - 既: 最大线程数=(1000-200)*0.1=80个;
+  - 4:最大空闲时间(keepAliveTime)
+    - 这个参数的设计完全参考系统运行环境和硬件压力设定,没有固定的参考值
+    - 用户可以根据经验和系统产生任务的时间间隔合理设置一个值即可;
+
+
+## 自定义线程池
+
+- 任务类
+  <details>
+  <summary style="color:red;">代码</summary>
+
+  ```java
+  /*
+      需求:
+          自定义线程池练习,这是任务类,需要实现Runnable;
+          包含任务编号,每一个任务执行时间设计为0.2秒
+  */
+  public class MyTask implements Runnable{
+      private int id;
+      //由于run方法是重写接口中的方法,因此id这个属性初始化可以利用构造方法完成
+
+      public MyTask(int id) {
+          this.id = id;
+      }
+
+      @Override
+      public void run() {
+          String name = Thread.currentThread().getName();
+          System.out.println("线程:"+name+" 即将执行任务:"+id);
+          try {
+              Thread.sleep(200);
+          } catch (InterruptedException e) {
+              e.printStackTrace();
+          }
+          System.out.println("线程:"+name+" 完成了任务:"+id);
+      }
+
+      @Override
+      public String toString() {
+          return "MyTask{" +
+                  "id=" + id +
+                  '}';
+      }
+  }
+  ```
+  </details>
+
+- 线程类
+  <details>
+  <summary style="color:red;">代码</summary>
+
+  ```java
+  import java.util.List;
+
+  /*
+      需求:
+          编写一个线程类,需要继承Thread类,设计一个属性,用于保存线程的名字;
+          设计一个集合,用于保存所有的任务;
+  */
+  public class MyWorker extends Thread{
+      private String name;//保存线程的名字
+      private List<Runnable> tasks;
+      //利用构造方法,给成员变量赋值
+
+      public MyWorker(String name, List<Runnable> tasks) {
+          super(name);
+          this.tasks = tasks;
+      }
+
+      @Override
+      public void run() {
+        //判断集合中是否有任务,只要有,就一直执行任务
+          while (tasks.size()>0){
+              Runnable r = tasks.remove(0);
+              r.run();
+          }
+      }
+  }
+  ```
+  </details>
+
+- 线程池类
+  <details>
+  <summary style="color:red;">代码</summary>
+
+  ```java
+  import java.util.Collections;
+  import java.util.LinkedList;
+  import java.util.List;
+
+  /*
+      这是自定义的线程池类;
+
+      成员变量:
+          1:任务队列   集合  需要控制线程安全问题
+          2:当前线程数量
+          3:核心线程数量
+          4:最大线程数量
+          5:任务队列的长度
+      成员方法
+          1:提交任务;
+              将任务添加到集合中,需要判断是否超出了任务总长度
+          2:执行任务;
+              判断当前线程的数量,决定创建核心线程还是非核心线程
+  */
+  public class MyThreadPool {
+      // 1:任务队列   集合  需要控制线程安全问题
+      private List<Runnable> tasks = Collections.synchronizedList(new LinkedList<>());
+      //2:当前线程数量
+      private int num;
+      //3:核心线程数量
+      private int corePoolSize;
+      //4:最大线程数量
+      private int maxSize;
+      //5:任务队列的长度
+      private int workSize;
+
+      public MyThreadPool(int corePoolSize, int maxSize, int workSize) {
+          this.corePoolSize = corePoolSize;
+          this.maxSize = maxSize;
+          this.workSize = workSize;
+      }
+
+      //1:提交任务;
+      public void submit(Runnable r){
+          //判断当前集合中任务的数量,是否超出了最大任务数量
+          if(tasks.size()>=workSize){
+              System.out.println("任务:"+r+"被丢弃了...");
+          }else {
+              tasks.add(r);
+              //执行任务
+              execTask(r);
+          }
+      }
+      //2:执行任务;
+      private void execTask(Runnable r) {
+          //判断当前线程池中的线程总数量,是否超出了核心数,
+          if(num < corePoolSize){
+              new MyWorker("核心线程:"+num,tasks).start();
+              num++;
+          }else if(num < maxSize){
+              new MyWorker("非核心线程:"+num,tasks).start();
+              num++;
+          }else {
+              System.out.println("任务:"+r+" 被缓存了...");
+          }
+      }
+
+  }
+  ```
+  </details>
+
+- 执行测试类
+  <details>
+  <summary style="color:red;">代码</summary>
+
+  ```java
+  /*
+      测试类:
+          1: 创建线程池类对象;
+          2: 提交多个任务
+  */
+  public class MyTest {
+      public static void main(String[] args) {
+          //1:创建线程池类对象;
+          MyThreadPool pool = new MyThreadPool(2,4,20);
+          //2: 提交多个任务
+          for (int i = 0; i <30 ; i++) {
+              //3:创建任务对象,并提交给线程池
+              MyTask my = new MyTask(i);
+              pool.submit(my);
+          }
+      }
+  }
+  ```
+  </details>
+
+
+## ExecutorService接口
+
+- ExecutorService接口是java内置的线程池接口,通过学习接口中的方法,可以快速的掌握java内置线程池的基本使用
+- **常用方法**:
+  - `void shutdown()`   启动一次顺序关闭，执行以前提交的任务，但不接受新任务。 
+  - `List<Runnable> shutdownNow()` 停止所有正在执行的任务，暂停处理正在等待的任务，并返回等待执行的任务列表。 
+  - `<T> Future<T> submit(Callable<T> task)`  执行带返回值的任务，返回一个Future对象。 
+  - `Future<?> submit(Runnable task)`  执行 Runnable 任务，并返回一个表示该任务的 Future。 
+  - `<T> Future<T> submit(Runnable task, T result)`  执行 Runnable 任务，并返回一个表示该任务的 Future。 
+
+## ThreadPoolExecutor
+
+## Executors工具类
+
+用来获取常用线程池。
+
+- 基本常用线程池
+  - CachedThreadPool
+    - static ExecutorService newCachedThreadPool() 创建一个默认的线程池对象,里面的线程可重用,且在第一次使用时才创建 
+    - static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) 程池中的所有线程都使用ThreadFactory来创建,这样的线程无需手动启动,自动执行; 
+  - FixedThreadPool
+    - static ExecutorService newFixedThreadPool(int nThreads)   创建一个可重用固定线程数的线程池
+    - static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) 建一个可重用固定线程数的线程池且线程池中的所有线程都使用ThreadFactory来创建。 
+  - SingleThreadExecutor
+    - static ExecutorService newSingleThreadExecutor() 建一个使用单个 worker 线程的 Executor，以无界队列方式来运行该线程。 
+    - static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory) 建一个使用单个 worker 线程的 Executor，且线程池中的所有线程都使用ThreadFactory来创建。 
+
+---
+
+- 具有延迟功能以及定时功能的线程池
+  - ScheduledExecutorService
+    - static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) 创建一个可重用固定线程数的线程池且允许延迟运行或定期执行任务;
+    - static ScheduledExecutorService newScheduledThreadPool(int corePoolSize, ThreadFactory threadFactory) 创建一个可重用固定线程数的线程池且线程池中的所有线程都使用ThreadFactory来创建,且允许延迟运行或定期执行任务; 
+    - static ScheduledExecutorService newSingleThreadScheduledExecutor() 创建一个单线程执行程序，它允许在给定延迟后运行命令或者定期地执行。 
+    - static ScheduledExecutorService newSingleThreadScheduledExecutor(ThreadFactory threadFactory) 创建一个单线程执行程序，它可安排在给定延迟后运行命令或者定期地执行。 
+  - ScheduledExecutorService常用方法
+    - `<V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit)`
+      > 延迟时间单位是unit,数量是delay的时间后执行callable。 
+    - `ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit)` 
+      > 延迟时间单位是unit,数量是delay的时间后执行command。
+    - `ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)` 
+      > 延迟时间单位是unit,数量是initialDelay的时间后,每间隔period时间重复执行一次command。 
+    - `ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)` 
+      > 创建并执行一个在给定初始延迟后首次启用的定期操作，随后，在每一次执行终止和下一次执行开始之间都存在给定的延迟。 
+
+## Future
+
+我们刚刚在学习java内置线程池使用时,没有考虑线程计算的结果,但开发中,我们有时需要利用线程进行一些计算,然后获取这些计算的结果,而java中的Future接口就是专门用于描述异步计算结果的,我们可以通过Future 对象获取线程计算的结果;
+
+Future 的常用方法如下:
+
+- boolean cancel(boolean mayInterruptIfRunning) 
+  > 试图取消对此任务的执行。 
+- V get() 
+  > 如有必要，等待计算完成，然后获取其结果。 
+- V get(long timeout, TimeUnit unit) 
+  > 如有必要，最多等待为使计算完成所给定的时间之后，获取其结果（如果结果可用）。 
+- boolean isCancelled() 
+  > 如果在任务正常完成前将其取消，则返回 true。 
+- boolean isDone() 
+  > 如果任务已完成，则返回 true。 
+
+<br /><br />
+
+```java
+/*
+    练习异步计算结果
+ */
+public class FutureDemo {
+    public static void main(String[] args) throws Exception {
+        //1:获取线程池对象
+        ExecutorService es = Executors.newCachedThreadPool();
+        //2:创建Callable类型的任务对象
+        Future<Integer> f = es.submit(new MyCall(1, 1));
+        //3:判断任务是否已经完成
+        //test1(f);
+        boolean b = f.cancel(true);
+        //System.out.println("取消任务执行的结果:"+b);
+        //Integer v = f.get(1, TimeUnit.SECONDS);//由于等待时间过短,任务来不及执行完成,会报异常
+        //System.out.println("任务执行的结果是:"+v);
+    }
+    //正常测试流程
+    private static void test1(Future<Integer> f) throws InterruptedException, ExecutionException {
+        boolean done = f.isDone();
+        System.out.println("第一次判断任务是否完成:"+done);
+        boolean cancelled = f.isCancelled();
+        System.out.println("第一次判断任务是否取消:"+cancelled);
+        Integer v = f.get();//一直等待任务的执行,直到完成为止
+        System.out.println("任务执行的结果是:"+v);
+        boolean done2 = f.isDone();
+        System.out.println("第二次判断任务是否完成:"+done2);
+        boolean cancelled2 = f.isCancelled();
+        System.out.println("第二次判断任务是否取消:"+cancelled2);
+    }
+}
+class MyCall implements Callable<Integer>{
+    private int a;
+    private int b;
+    //通过构造方法传递两个参数
+
+    public MyCall(int a, int b) {
+        this.a = a;
+        this.b = b;
+    }
+
+    @Override
+    public Integer call() throws Exception {
+        String name = Thread.currentThread().getName();
+        System.out.println(name+"准备开始计算...");
+        Thread.sleep(2000);
+        System.out.println(name+"计算完成...");
+        return a+b;
+    }
+}
+```
+
+## sumbit 和 execute区别
+
+https://www.jianshu.com/p/29610984f1dd
+
+- 1、submit在执行过程中与execute不一样，不会抛出异常而是把异常保存在成员变量中，在FutureTask.get阻塞获取的时候再把异常抛出来。
+- 2、Spring的@Schedule注解的内部实现就是使用submit，因此，如果你构建的任务内部有未检查异常，你是永远也拿不到这个异常的。
+- 3、execute直接抛出异常之后线程就死掉了，submit保存异常线程没有死掉，因此execute的线程池可能会出现没有意义的情况，因为线程没有得到重用。而submit不会出现这种情况。
+
 
