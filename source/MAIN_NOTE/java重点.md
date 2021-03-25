@@ -461,6 +461,17 @@ volatile变量规则：这是一条比较重要的规则，它标志着volatile�
 
 # 并发
 
+## 概述
+
+- JUC包括哪些类
+  - Lock框架和Tools类(把图中这两个放到一起理解)
+    > ![key_points-17](./image/key_points-17.png) 
+  - Collections: 并发集合
+    > ![key_points-18](./image/key_points-18.png) 
+  - Atomic: 原子类
+  - Executors: 线程池
+    > ![key_points-19](./image/key_points-19.png) 
+
 ## ThreadLocal
 
 [ThreadLocal详解](https://www.cnblogs.com/fsmly/p/11020641.html)
@@ -608,22 +619,17 @@ Java默认的线程优先级为5，线程的执行顺序由调度程序来决定
 - ReentrantLock流程
   > ![key_points-16](./image/key_points-16.png)
 
-#### CAS+AQS+volatile的产物
-
-
-##### ReentrantLock
-
-##### Latch
-
-##### Semaphore
-
-##### CycliBarrier
-
-##### Phaser
 
 ##### LockSupport
 
-LockSupport很类似于二元信号量(只有1个许可证可供使用)，如果这个许可还没有被占用，当前线程获取许可并继续执行；如果许可已经被占用，当前线程阻塞，等待获取许可。
+LockSupport用来创建锁和其他同步类的基本线程阻塞原语。简而言之，当调用LockSupport.park时，表示当前线程将会等待，直至获得许可，当调用LockSupport.unpark时，必须把等待获得许可的线程作为参数进行传递，好让此线程继续运行
+
+
+**AQS框架借助于两个类：Unsafe(提供CAS操作)和LockSupport(提供park/unpark操作)**
+
+因此把LockSupport归为核心基础类，比如在Condition中，await方法就是使用的LockSupport的park方法。
+> 另外，LockSupport只负责阻塞当前线程，释放锁资源实际上是在Condition的await()方法中实现的。
+
 
 - **许可默认是被占用的**，一开始就调用park()的话，无法获取到许可，进入阻塞状态。 先释放许可，再获取许可，才能正常运行
   > LockSupport许可的获取和释放，一般来说是对应的，如果多次unpark，只有一次park也不会出现什么问题，结果是许可处于可用状态。
@@ -647,6 +653,27 @@ LockSupport很类似于二元信号量(只有1个许可证可供使用)，如果
   // 这段代码打印出a和b，不会打印c，因为第二次调用park的时候，线程无法获取许可出现死锁。
   ```
 - **线程如果因为调用park而阻塞的话，能够响应中断请求(中断状态被设置成true)，但是不会抛出InterruptedException。仅仅会isInterrupted()返回true**
+
+
+#### CAS+AQS+volatile+LockSupport的产物
+
+**AQS框架借助于两个类：Unsafe(提供CAS操作)和LockSupport(提供park/unpark操作)**
+
+##### ReentrantLock
+
+- Object.wait()相当于把线程加入锁的 **唯一一个** 等待队列
+  > 看下面重量锁的多个队列
+- 而ReentrantLock中，获得的每个Condition都可以看作一个队列。
+  - condition.await()相当于把线程加入该condition的等待队列
+
+##### Latch
+
+
+##### Semaphore
+
+##### CycliBarrier
+
+##### Phaser
 
 #### Exchanger
 
@@ -700,6 +727,31 @@ LockSupport很类似于二元信号量(只有1个许可证可供使用)，如果
   - notify方法调用后，会根据操作系统的调度机制
 
 #### 效率
+
+
+## 锁的分类
+
+- 锁的有无
+  - 乐观锁:
+    - 乐观锁又称为“无锁”，顾名思义，它是乐观派。
+    - 乐观锁总是假设对共享资源的访问没有冲突，线程可以不停地执行，无需加锁也无需等待。
+    - 而一旦多个线程发生冲突，乐观锁通常是使用一种称为CAS的技术来保证线程执行的安全性。
+  - 悲观锁
+    - 悲观锁就是我们常说的锁。
+    - 对于悲观锁来说，它总是认为每次访问共享资源时会发生冲突，
+    - 所以必须对每次数据操作加上锁，以保证临界区的程序同一时间只能有一个线程在执行。
+
+- synchronized与锁
+  - 偏向锁
+  - 轻量锁
+  - 重量锁
+
+- 锁的整体分类
+  - 可重入锁和非可重入锁
+  - 公平锁与非公平锁
+    > synchronized是公平锁
+  - 读写锁和排它锁
+
 
 ## 线程池
 
@@ -828,29 +880,6 @@ Executors中提供了四种创建的线程池的实现。比如Executors.newFixe
 </details>
 
 
-## 锁的分类
-
-- 锁的有无
-  - 乐观锁:
-    - 乐观锁又称为“无锁”，顾名思义，它是乐观派。
-    - 乐观锁总是假设对共享资源的访问没有冲突，线程可以不停地执行，无需加锁也无需等待。
-    - 而一旦多个线程发生冲突，乐观锁通常是使用一种称为CAS的技术来保证线程执行的安全性。
-  - 悲观锁
-    - 悲观锁就是我们常说的锁。
-    - 对于悲观锁来说，它总是认为每次访问共享资源时会发生冲突，
-    - 所以必须对每次数据操作加上锁，以保证临界区的程序同一时间只能有一个线程在执行。
-
-- synchronized与锁
-  - 偏向锁
-  - 轻量锁
-  - 重量锁
-
-- 锁的整体分类
-  - 可重入锁和非可重入锁
-  - 公平锁与非公平锁
-    > synchronized是公平锁
-  - 读写锁和排它锁
-
 ## java同步方式
 
 - synchronized
@@ -860,18 +889,20 @@ Executors中提供了四种创建的线程池的实现。比如Executors.newFixe
 - 阻塞队列，LinkedBlockingQueue 
 - 原子变量AtomicInteger 等
 
-# 野生面试题
+## 分布式锁
 
-- String,StringBuffer,StringBuilder区别
-- HashMap内部结构
-- 为什么要设计出迭代器
-- 单机环境并发控制，java有哪些手段
-- 多线程创建方式有哪几种
-- 防止表单重复提交
-  - 通过JavaScript屏蔽提交按钮（不推荐）
-  - 给数据库增加唯一键约束（简单粗暴）
-  - 利用Session防止表单重复提交（推荐）
-  - 使用AOP自定义切入实现
-- SpringAOP原理
-- mysql中批量导入1000万条数据的思路
-- 项目中打印日志的框架,错误日志具体怎么配置
+- redis
+- zookeeper
+- etcd
+
+## 面试题
+
+(阿里)用两个线程，一个输出字母，一个输出数字，交替输出1A2B3D...26Z
+
+- LockSupport
+- synchronized
+- ReentrantLock
+- Latch
+- 任务队列
+- ....很多很多
+
