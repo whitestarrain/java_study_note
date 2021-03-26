@@ -18,8 +18,8 @@ call plug#begin('D:\learn\neovim0.5\Neovim\share\autoload')
 
 
 "---------------------
-" coc python 代码提示
-" Plug 'neoclide/coc.nvim', {'branch': 'release'}
+" coc 插件
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 "---------------------
 " 彩虹括号
@@ -334,7 +334,7 @@ nnoremap <leader>sm :call SetImagePath()<cr>
 
 
 " python 插件配置
-" let g:python3_host_prog='D:/learn/anaconda3/envs/learn/python.exe'
+let g:python3_host_prog='D:/learn/anaconda3/envs/learn/python.exe'
 
 
 
@@ -592,6 +592,8 @@ nnoremap <silent><leader>d :bd<cr>
 
 nnoremap < <<
 nnoremap > >>
+
+command! -range=% Markmap CocCommand markmap.create <line1> <line2>
 
 command! BcloseOthers call <SID>BufCloseOthers()
 function! <SID>BufCloseOthers()

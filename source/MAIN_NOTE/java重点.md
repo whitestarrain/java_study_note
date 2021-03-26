@@ -895,6 +895,14 @@ Executors中提供了四种创建的线程池的实现。比如Executors.newFixe
 - zookeeper
 - etcd
 
+## 并发容器
+
+并发容器是Java 5 提供的在多线程编程下用于代替同步容器
+
+- 同步容器：vector，HashTable
+- 并发容器：
+  > ![key_points-20](./image/key_points-20.png) 
+
 ## 面试题
 
 (阿里)用两个线程，一个输出字母，一个输出数字，交替输出1A2B3D...26Z

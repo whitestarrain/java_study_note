@@ -9,11 +9,11 @@
     > 基础 java 知识点，基本全是代码+注释
   - [Java 笔记](./source/MAIN_NOTE/Note.md)
     > 反射，注解，jdbc,javaweb,redis基本使用
-  - [Java 并发](./source/MAIN_NOTE/java并发.md)
-    > java并发基础，完善中
+  - [Java 并发基础](./source/MAIN_NOTE/java并发基础.md)
+    > java并发基础，完善中。较少设计原理。
   - [Java 常见问题](./source/MAIN_NOTE/java重点.md)
     > 杂项，日常学习中遇见的一些问题，进行简单记录。未来会详细整理到[博客](https://whitestarrain.github.io/blog/)
-  - [Java NIO](./source/MAIN_NOTE/javaNIO.md)
+  - [Java NIO基础](./source/MAIN_NOTE/javaNIO.md)
     > javaNIO基础
 - 前端笔记
   - [HTML](./source/HTML_NOTE/01-HTML.md)
