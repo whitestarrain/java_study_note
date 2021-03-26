@@ -1,4 +1,6 @@
 
+<!--请使用Markmap查看-->
+
 # Java 基础
 
 ## 基础
@@ -35,10 +37,15 @@
   - 常见用法
 - 静态内部类与非静态内部类
 - 什么是Java多态
+- Java异常体系
 - 常用关键字
 - 什么是反射
 - 静态代理+JDK/CGLIB 动态代理
 - 常见的 IO 模型有哪些？Java 中的 BIO、NIO、AIO 有啥区别?
+- 基本概念
+  - JRE与JDK
+  - Java 7 和 Java SE 7
+  - JDK1.8和Java8
 
 ## 集合
 
@@ -98,6 +105,42 @@
 
 ## 多线程
 
+- 基础
+  - [创建线程的方式](https://segmentfault.com/a/1190000037589073)
+  - 调用`start()`和`run()`方法区别
+  - 停止线程：interrupt
+    - 原理
+    - 正确的停止方式
+    - 错误的停止方式
+      - 被弃用的stop,suspend和resume方法
+      - 用volatile设置标记位
+  - 重要方法
+    - Object(三个方法都要在synchronized内)
+      - wait
+      - notify
+      - notifyAll
+    - Thread
+      - sleep
+      - join
+      - yield
+  - yield和sleep区别
+  - java线程状态的切换<br /> 延伸：操作系统进程状态的切换
+  - 线程属性
+  - 线程的未捕获异常处理
+  - 线程组
+    - 结构
+      - 线程组是一个树状的结构，每个线程组下面可以有多个线程或者线程组
+      - 默认将父线程（当前执行new Thread的线程）线程组设置为自己的线程组。
+    - 线程组的优先级会限制线程的优先级
+    - 作用
+      - 统一控制线程的优先级
+      - 检查线程的权限的作用。
+      - 线程组统一异常处理
+  - 常见问题
+    - 并发与并行区别
+    - 为什么要使用多线程
+    - sleep() 方法和 wait() 方法区别和共同点
+
 - 并发编程三大特性
   - 原子性
   - 可见性
@@ -143,19 +186,20 @@
   - jdk1.8:增加StampedLock
 
 - synchronized
-  - 使用位置
+  - 3种使用方法
     - 代码块
       - 自己指定对象锁
-      - 本质：
+      - 底层原理：
         - monitorenter
         - monitorexit
         - 程序计数器
     - 成员方法
       - this对象锁
-      - 本质：ACC_SYNCHRONIZED
+      - 底层原理：ACC_SYNCHRONIZED
     - 静态方法
       - .class类锁
-      - 本质：ACC_SYNCHRONIZED，ACC_STATIC
+      - 底层原理：ACC_SYNCHRONIZED，ACC_STATIC
+    - 注意：构造方法本身就属于线程安全的，不存在同步的构造方法一说。<br />不能加synchronized
   - 锁的升级(不可逆)
     - 无锁(CAS)
     - 偏向锁
@@ -173,7 +217,8 @@
       - 锁的性质
       - 对象头中的内容
       - 阻塞的好处(cpu)与代价(内核态)
-  - 和Lock锁的区别
+  - synchronized 和 ReentrantLock 的区别
+  - synchronized 和 volatile 的区别
 
 - CAS
   - 乐观锁与悲观锁
@@ -201,9 +246,23 @@
   - 源码分析
     - 获取资源流程
     - 释放资源流程
+  - 三个组件
+    - Semaphore
+    - CountDownLatch
+    - CyclicBarrier
   - 其他
     - AOS
     - AQLS
+
+- Atomic()
+  - 组成
+    - 基本类型
+    - 数组类型
+    - 引用类型
+    - 对象的属性修改类型
+  - AtomicInteger 
+    - 示例
+    - 基本原理
 
 - LockSupport
   - 为什么LockSupport也是核心基础类? AQS框架借助于两个类：Unsafe(提供CAS操作)和LockSupport(提供park/unpark操作)
@@ -244,8 +303,27 @@
     - 重量锁
   - 锁的性质分类
     - 可重入锁和非可重入锁
+      - 表现
+      - 原理：粒度（加锁范围）
+      - 实例
+        - 可重入锁
+        - 不可重入锁
+        - 可以切换
     - 公平锁与非公平锁
+      - 表现
+      - 原理
+      - 实例
+        - 公平锁
+        - 非公平锁
+        - 可以切换
     - 读写锁和排它锁
+      - 表现
+      - 原理
+      - 实例
+        - 读写锁
+        - 排它锁
+        - 可以切换
+    - 是否可中断
 
 - 并发集合容器
   - [什么是同步容器和并发容器](https://juejin.cn/post/6844903954719965192)
@@ -287,6 +365,62 @@
       - CopyOnWriteArrayMap
       - CopyOnWriteArraySet
 - 线程池
+  - 结构
+    - 任务(Runnable /Callable) 
+    - 任务的执行(Executor)
+    - 异步计算的结果(Future)
+  - 创建
+    - ThreadPoolExecutor构造方法
+    - Executors默认实现
+  - 参数的含义
+    - int corePoolSize：该线程池中核心线程数最大值
+    - int maximumPoolSize：该线程池中线程总数最大值 。
+    - long keepAliveTime：非核心线程闲置超时时长。
+    - TimeUnit unit：keepAliveTime的单位。
+    - BlockingQueue workQueue：阻塞队列，维护着等待执行的Runnable任务对象。
+    - ThreadFactory threadFactory：<br />创建线程的工厂 ，用于批量创建线程，统一在创建线程时设置一些参数，<br/>如是否守护线程、线程的优先级等。<br />如果不指定，会新建一个默认的线程工厂。
+    - RejectedExecutionHandler handler 拒绝策略
+      - AbortPolicy：默认拒绝处理策略，丢弃任务并抛出RejectedExecutionException异常。
+      - DiscardPolicy：丢弃新来的任务，但是不抛出异常。
+      - DiscardOldestPolicy：丢弃队列头部（最旧的）的任务，然后重新尝试执行程序（如果再次失败，重复此过程）。
+      - CallerRunsPolicy：由调用线程处理该任务。
+  - 线程池工作流程
+  - ThreadPool状态转换
+    - RUNNING
+    - SHUTDOWN
+    - STOP
+    - TIDYING
+    - TERMINATED
+  - 默认实现
+    - ThreadPoolExecutor
+      - 参数设置
+      - 执行过程
+      - 弊端
+    - FixedThreadPool
+      - 参数设置
+      - 执行过程
+      - 弊端
+    - CachedThreadPool 
+      - 参数设置
+      - 执行过程
+      - 弊端
+    - SingleThreadExecutor
+      - 参数设置
+      - 执行过程
+      - 弊端
+  - ScheduledThreadPool:继承了ThreadPoolExecutor
+    - 主要用来在给定的延迟后运行任务，或者定期执行任务
+    - 实际项目中会使`用quartz`
+  - **为什么不要用默认实现** <br/> (上面的四个默认实现有什么弊端)
+  - 参数如何设置
+  - [异常线程处理](https://mp.weixin.qq.com/s?__biz=Mzg3NjU3NTkwMQ==&mid=2247505057&idx=1&sn=621ebc409b589478e2e05388e079d8c0&source=41#wechat_redirect)
+  - 常见区别
+    - sumbit() vs execute()
+      - execute()方法不会返回结果
+      - submit()会返回一个 FutureTask 对象，并可以获得结果
+      - [异常处理](https://www.jianshu.com/p/29610984f1dd)
+    - Runnable vs Callable
+    - shutdown() vs shutdownNow()
 
 - ThreadLocal
 
@@ -313,6 +447,25 @@
 ## MongoDB
 
 # 基础
+
+## 设计模式
+
+- 创建型模式
+  - [单例模式](https://www.runoob.com/design-pattern/singleton-pattern.html)
+    - 1、懒汉式，线程不安全
+    - 2、懒汉式，线程安全
+    - 3、饿汉式
+    - 4、双检锁/双重校验锁（DCL，即 double-checked locking）
+    - 5、登记式/静态内部类
+    - 6、枚举
+- 结构型模式
+  - 代理模式
+    - 静态代理
+    - 动态代理
+      - JDK
+      - CGLIB
+- 行为
+- J2EE
 
 ## 计算机网络
 

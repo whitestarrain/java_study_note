@@ -1,3 +1,5 @@
+<!--Java并发核心知识体系精讲https://coding.imooc.com/class/362.html-->
+
 # 1. synchronized详解
 
 ## 1.1. 简介
@@ -843,9 +845,11 @@ public class WaitNotifyPrintOddEveWait {
 
 # 5. 常见问题
 
-# 线程池
+# 6. 线程池
 
-## 概述
+<!--黑马程Java线程池深入浅出视频教程-->
+
+## 6.1. 概述
 
 - 线程池优势
   - 1:线程和任务分离,提升线程重用性;
@@ -885,7 +889,7 @@ public class WaitNotifyPrintOddEveWait {
     - 用户可以根据经验和系统产生任务的时间间隔合理设置一个值即可;
 
 
-## 自定义线程池
+## 6.2. 自定义线程池
 
 - 任务类
   <details>
@@ -1058,7 +1062,7 @@ public class WaitNotifyPrintOddEveWait {
   </details>
 
 
-## ExecutorService接口
+## 6.3. ExecutorService接口
 
 - ExecutorService接口是java内置的线程池接口,通过学习接口中的方法,可以快速的掌握java内置线程池的基本使用
 - **常用方法**:
@@ -1068,9 +1072,9 @@ public class WaitNotifyPrintOddEveWait {
   - `Future<?> submit(Runnable task)`  执行 Runnable 任务，并返回一个表示该任务的 Future。 
   - `<T> Future<T> submit(Runnable task, T result)`  执行 Runnable 任务，并返回一个表示该任务的 Future。 
 
-## ThreadPoolExecutor
+## 6.4. ThreadPoolExecutor
 
-## Executors工具类
+## 6.5. Executors工具类
 
 用来获取常用线程池。
 
@@ -1103,7 +1107,7 @@ public class WaitNotifyPrintOddEveWait {
     - `ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)` 
       > 创建并执行一个在给定初始延迟后首次启用的定期操作，随后，在每一次执行终止和下一次执行开始之间都存在给定的延迟。 
 
-## Future
+## 6.6. Future
 
 我们刚刚在学习java内置线程池使用时,没有考虑线程计算的结果,但开发中,我们有时需要利用线程进行一些计算,然后获取这些计算的结果,而java中的Future接口就是专门用于描述异步计算结果的,我们可以通过Future 对象获取线程计算的结果;
 
@@ -1174,7 +1178,7 @@ class MyCall implements Callable<Integer>{
 }
 ```
 
-## sumbit 和 execute区别
+## 6.7. sumbit 和 execute区别
 
 https://www.jianshu.com/p/29610984f1dd
 
