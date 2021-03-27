@@ -311,6 +311,8 @@
 
 #### 2.1.4.2. loading
 
+> 注意：**加载和链接交叉进行**
+
 - 说明：
   - 通过一个类的全限定类名获取定义此类的二进制字节流
   - 将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构
@@ -326,6 +328,8 @@
   - 从加密文件中获取，典型的防class文件被反编译的保护措施
 
 #### 2.1.4.3. linking
+
+> 注意：加载和链接交叉进行
 
 - 验证（Verify):
   - 目的在于确保class文件的字节流中包含信息符合当前虚拟机要求，保证被加载类的正确性， 不会危害虚拟机自身安全。
@@ -550,7 +554,7 @@
   - 按需加载
     - 当需要时才会将class文件加载到内存生成class对象
   - 加载某个类时，使用的是双亲委派模式
-    - 即把请求交由父类处理
+    - 即把请求交由上一层处理
     - 是一种任务委派模式
 
 ---
@@ -564,15 +568,15 @@
 - 解释：
   - 如果一个类加载器收到了类加载请求，
   - 它不会自己先去加载
-  - 而是请求向上委托给父类的加载器去执行
-  - 如果父类加载器也存在父类加载器
+  - 而是请求向上委托给上一层的加载器去执行
+  - 如果上一层加载器也存在更上一层加载器
   - 就会一直向上委派
   - 直到到达最顶层的启动类加载器
   - 判断
-    - 如果父类加载器可以完成类的加载任务
+    - 如果上层的加载器可以完成类的加载任务
       - 就成功返回
     - 如果不能正常完成
-      - 子加载器才会向下依次尝试自己加载
+      - 下层的加载器才会向下依次尝试自己加载
 
 ---
 
@@ -872,7 +876,7 @@ public static void main(String[] args){
   - 对于栈来说不存在垃圾回收问题。但有OOM(out of memory)问题
 
 - java中设置栈的大小：
-  - `-Xss`选项
+  - `-Xss`选项 设置线程的最大栈空间
 
 - 异常：
   - 如果线程请求的栈深度大于虚 拟机所允许的深度，将抛出StackOverflowError异常；
@@ -992,7 +996,7 @@ public static void main(String[] args){
   - 存储顺序：
     - 当一个实例方法被调用的时候，它的**方法参数**和方法体内部定义的**局部变量**将会 **按照顺序**被复制到局部变量表中的每一个 slot 上
   - 注意：
-    > 改点可以用来解释为什么静态方法中不能使用 this，而构造方法和实例方法中可以使用
+    > 该点可以用来解释为什么静态方法中不能使用 this，而构造方法和实例方法中可以使用
     - 对象：
       - 构造方法
       - 实例方法（非静态方法）
@@ -1184,7 +1188,7 @@ public static void main(String[] args){
 - 分类
   - 非虚方法:
     - 如果方法在编译期就确定了具体的调用版本，这个版本在运行时是不可变的。这样的方法称为非虚方法。
-    - **静态方法、私有方法、final方法、构造器、父类方法(使用super显式调用)**都是非虚方法。
+    - **静态方法、私有方法、final方法、构造器、父类方法(使用super显式调用)** 都是非虚方法。
   - 虚方法:其他方法称为虚方法。
     - Java中任何一个成员方法都是虚方法。在子类中可以重写父类方法。
 
@@ -1312,36 +1316,36 @@ public static void main(String[] args){
       - 由于lambda的出现，java中有了invokedynamic的直接生成方式
 
   - 示例代码
-  ```java
-  @FunctionalInterface
-  interface Func {
-      public boolean func(String str);
-  }
+    ```java
+    @FunctionalInterface
+    interface Func {
+        public boolean func(String str);
+    }
 
-  public class Lambda {
-      public void lambda(Func func) {
-          return;
-      }
+    public class Lambda {
+        public void lambda(Func func) {
+            return;
+        }
 
-      public static void main(String[] args) {
-          Lambda lambda = new Lambda();
+        public static void main(String[] args) {
+            Lambda lambda = new Lambda();
 
-          // 在此处就会调用invokedynamic指令
-          // Func就是一个接口，
-          // 接收右侧实现类。
-          // 类似于python中，通过等号右边判断左侧标识符的类型。
-          Func func = s -> {
-              return true;
-          };
+            // 在此处就会调用invokedynamic指令
+            // Func就是一个接口，
+            // 接收右侧实现类。
+            // 类似于python中，通过等号右边判断左侧标识符的类型。
+            Func func = s -> {
+                return true;
+            };
 
-          lambda.lambda(func);
+            lambda.lambda(func);
 
-          lambda.lambda(s -> {
-              return true;
-          });
-      }
-  }
-  ```
+            lambda.lambda(s -> {
+                return true;
+            });
+        }
+    }
+    ```
 
 ##### 2.2.3.8.4. 方法重写本质
 
@@ -1479,6 +1483,26 @@ public static void main(String[] args){
   // 第四类问题
   int i9 = 10;
   int i10 = i9++ + ++i9
+  ```
+  ```java
+  int i1 = 10;
+  int a = i1++;
+
+  int i2 = 10;
+  int b = ++i2;
+
+  // 比对字节码，可以发现iload位置不一样
+  0 bipush 10
+  2 istore_1
+  3 iload_1
+  4 iinc 1 by 1
+  7 istore_2
+
+  8 bipush 10
+  10 istore_3
+  11 iinc 3 by 1
+  14 iload_3
+  15 istore 4
   ```
 
 - 举例栈溢出的情况？(StackOverflowError)
@@ -2164,14 +2188,15 @@ public static void main(String[] args){
         - 如果大于，则尝试进行一次Minor GC,但这次Minor GC依然是有 风险的；
         - 如果小于，则改为进行一次Fu11 GC。
       - 如果HandlePromotionFailure=false,则改为进行一次Fu11 GC。
-  ```
-  在JDK6 Update24之后（JDK7),HandlePromotionFailure参数不会再影响到
-  虚拟机的空间分配担保策略，观察openJDK中的源码变化，虽然源码中还定义了
-  HandlePromotionFailure参数，但是在代码中已经不会再使用它。
 
-  JDK6 Updat 24之后的规则变为只要老年代的连续空间大于新生代对象总大小或者历次晋升的平均大
-  小就会进行Minor GC,否则将进行Fu11 GC。（相当于固定设为true）
-  ```
+```
+在JDK6 Update24之后（JDK7),HandlePromotionFailure参数不会再影响到
+虚拟机的空间分配担保策略，观察openJDK中的源码变化，虽然源码中还定义了
+HandlePromotionFailure参数，但是在代码中已经不会再使用它。
+
+JDK6 Updat 24之后的规则变为只要老年代的连续空间大于新生代对象总大小或者历次晋升的平均大
+小就会进行Minor GC,否则将进行Fu11 GC。（相当于固定设为true）
+```
 
 
 #### 2.2.6.13. 拓展：逃逸分析
@@ -2228,44 +2253,44 @@ public static void main(String[] args){
       ```
 - 示例：
   ```java
-/**
- * 逃逸分析
- *
- * 如何快速的判断是否发生了逃逸分析，就看new的对象实体是否有可能在方法外被调用。
- */
-public class EscapeAnalysis {
+  /**
+  * 逃逸分析
+  *
+  * 如何快速的判断是否发生了逃逸分析，就看new的对象实体是否有可能在方法外被调用。
+  */
+  public class EscapeAnalysis {
 
-    public EscapeAnalysis obj;
+      public EscapeAnalysis obj;
 
-    /*
-    方法返回EscapeAnalysis对象，发生逃逸
-     */
-    public EscapeAnalysis getInstance(){
-        return obj == null? new EscapeAnalysis() : obj;
-    }
-    /*
-    为成员属性赋值，发生逃逸
-     */
-    public void setObj(){
-        this.obj = new EscapeAnalysis();
-    }
-    // 思考：如果当前的obj引用声明为static的？仍然会发生逃逸。
-    // 如果为静态成员变量赋值，也会发生逃逸，没有区别
+      /*
+      方法返回EscapeAnalysis对象，发生逃逸
+      */
+      public EscapeAnalysis getInstance(){
+          return obj == null? new EscapeAnalysis() : obj;
+      }
+      /*
+      为成员属性赋值，发生逃逸
+      */
+      public void setObj(){
+          this.obj = new EscapeAnalysis();
+      }
+      // 思考：如果当前的obj引用声明为static的？仍然会发生逃逸。
+      // 如果为静态成员变量赋值，也会发生逃逸，没有区别
 
-    /*
-    对象的作用域仅在当前方法中有效，没有发生逃逸
-     */
-    public void useEscapeAnalysis(){
-        EscapeAnalysis e = new EscapeAnalysis();
-    }
-    /*
-    引用成员变量的值，发生逃逸
-     */
-    public void useEscapeAnalysis1(){
-        EscapeAnalysis e = getInstance();
-        //getInstance().xxx()同样会发生逃逸
-    }
-}
+      /*
+      对象的作用域仅在当前方法中有效，没有发生逃逸
+      */
+      public void useEscapeAnalysis(){
+          EscapeAnalysis e = new EscapeAnalysis();
+      }
+      /*
+      引用成员变量的值，发生逃逸
+      */
+      public void useEscapeAnalysis1(){
+          EscapeAnalysis e = getInstance();
+          //getInstance().xxx()同样会发生逃逸
+      }
+  }
   ```
 - 开启：
   - 在JDK 6u23版本之后，HotSpot中默认就已经开启了逃逸分析。
@@ -6883,7 +6908,6 @@ Son类的字节码：
     > 注意，field和attribute不同。日常总是称类中的字段为属性，但是JVM中属性有其他含义。比如
     - attributes_count;
     - attributes[attributes_count];
-
 
 ### 3.2.4. 使用javap指令解析Class文件
 
