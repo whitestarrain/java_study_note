@@ -2949,6 +2949,49 @@ public class OOMTest extends ClassLoader {
     - 无永久代。
     - 类型信息、字段、方法、常量保存在本地内存的元空间
     - 但 **字符串常量池、静态变量仍在堆**
+    - **示例**：(注意静态变量原始和引用类型)
+      <details>
+      <summary style="color:red;">代码与图例（重要）</summary>
+
+      ```java
+      class Fruit {
+          static int x = 10;
+          static BigWaterMelon bigWaterMelon_1 = new BigWaterMelon(x);
+      
+          int y = 20;
+          BigWaterMelon bigWaterMelon_2 = new BigWaterMelon(y);
+      
+          public static void main(String[] args) {
+              final Fruit fruit = new Fruit();
+      
+              int z = 30;
+              BigWaterMelon bigWaterMelon_3 = new BigWaterMelon(z);
+      
+              new Thread() {
+                  @Override
+                  public void run() {
+                      int k = 100;
+                      setWeight(k);
+                  }
+      
+                  void setWeight(int waterMelonWeight) {
+                      fruit.bigWaterMelon_2.weight = waterMelonWeight;
+                  }
+              }.start();
+          }
+      }
+      
+      class BigWaterMelon {
+          public BigWaterMelon(int weight) {
+              this.weight = weight;
+          }
+      
+          public int weight;
+      }
+      ```
+
+     ![method_area-51](./image/method_area-51.png) 
+      </details>
 
 ---
 

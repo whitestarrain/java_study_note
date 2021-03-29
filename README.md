@@ -37,7 +37,7 @@
   - [Node.js](./source/JS_NOTE/05_Node.js/Node.js.md)
     > 进行中
 - 数据库笔记
-  - [Mysql](./source/DATABASE/DATABASE.md)
+  - [Mysql](./source/DATABASE/mysql.md)
     > msyql笔记。mysql相关基本概念以及基本使用。
   - [oracle](./source/DATABASE/oracle.md)
     > 进行中
