@@ -1,3 +1,6 @@
+
+> 以后不再维护，转移到[总笔记仓库](https://github.com/whitestarrain/Note)
+
 # 笔记总览(source目录)
 
 > 跳转：<br />
